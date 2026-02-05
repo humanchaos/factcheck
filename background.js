@@ -159,6 +159,17 @@ async function callGemini(apiKey, prompt) {
 
         console.log('[FAKTCHECK BG] Response status:', response.status);
 
+        // Retry on 503 (overloaded) or 429 (rate limit) with exponential backoff
+        if (response.status === 503 || response.status === 429) {
+            const retryCount = (arguments[2] || 0) + 1;
+            if (retryCount <= 3) {
+                const delay = Math.pow(2, retryCount) * 1000; // 2s, 4s, 8s
+                console.log(`[FAKTCHECK BG] Model overloaded, retry ${retryCount}/3 in ${delay}ms...`);
+                await new Promise(r => setTimeout(r, delay));
+                return callGemini(apiKey, prompt, retryCount);
+            }
+        }
+
         if (!response.ok) {
             const errorText = await response.text();
             console.error('[FAKTCHECK BG] HTTP Error:', response.status, errorText.slice(0, 200));
