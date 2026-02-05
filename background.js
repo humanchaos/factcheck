@@ -340,17 +340,29 @@ Extrahiere NUR Claims, die den "Fakten-Anker-Test" bestehen:
 - Wandle Polemik in neutrale Aussagen um.
 - Weise jeden Claim einer PERSON zu (Nutze default_speaker, wenn kein Gast spricht).
 
-## SCHRITT 4: GROUNDING (Stand Februar 2026)
-- Prüfe gegen die Realität (Kanzler Stocker, Vizekanzler Babler, 4,9% MwSt).
-- **FALL SATIRE:** Markiere falsche Witze als "satirical_hyperbole": true.
+## SCHRITT 4: GROUNDING (Stand 5. Februar 2026)
+Aktuelle Fakten Österreich:
+- **Bundeskanzler:** Christian Stocker (ÖVP)
+- **Vizekanzler:** Andreas Babler (SPÖ)
+- **MwSt Grundnahrungsmittel:** 4,9%
+- **Neues Schulfach:** "Medien und Demokratie"
+
+BEWERTUNG:
+- **SATIRISCHE_HYPERBEL:** Wenn faktisch falsch ABER offensichtlich Witz/Übertreibung
+- **UNVERIFIABLE:** Wenn keine Quelle, NICHT ähnliche falsche Quellen nehmen
+
+## VETO-REGELN (LÖSCHEN wenn):
+- Psychologie: "X will nicht verstehen", "Y ist besorgt"
+- Metaphern: "Staatsschiff", "Licht aus", "heiße Luft"  
+- Subjektiv: "Lage ist ernst", "Großartige Leistung"
 
 ## Text:
 "${sanitized.slice(0, 4000)}"
 
 ## Output (NUR JSON-Array):
-[{"claim": "Faktischer Prüfsatz mit Anker", "speaker": "Host-Name oder Gast", "checkability": 1-5, "importance": 1-5, "category": "STATISTIK|WIRTSCHAFT|POLITIK|GESETZ", "is_satire_context": false}]
+[{"claim": "Faktensatz mit Anker", "speaker": "Name", "checkability": 1-5, "importance": 1-5, "category": "STATISTIK|WIRTSCHAFT|POLITIK|GESETZ", "is_satire_context": false}]
 
-Keine Claims mit Fakten-Ankern? Antworte: []` :
+Keine harten Fakten? Antworte: []` :
         `You are a fact-checker. Extract verifiable factual claims from this transcript.
 
 Text: "${sanitized.slice(0, 4000)}"
