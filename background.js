@@ -423,10 +423,12 @@ async function verifyClaim(claimText, apiKey, lang = 'de') {
 
 Suche nach Nachrichtenartikeln zu diesem Thema.
 
-WICHTIG: Halte die Erklärung KURZ (max. 2 Sätze).
+REGELN:
+1. Erklärung KURZ halten (max. 2 Sätze)
+2. PFLICHT: Mindestens 1 Quelle mit gültiger URL angeben!
 
 Antworte NUR mit JSON:
-{"verdict": "true|false|partially_true|unverifiable|opinion", "confidence": 0.8, "explanation": "Max 2 Sätze!", "key_facts": ["Fakt"], "sources": [{"title": "Quelle", "url": "..."}]}` :
+{"verdict": "true|false|partially_true|unverifiable", "confidence": 0.8, "explanation": "2 Sätze", "sources": [{"title": "Artikelname", "url": "https://vollständige-url.com/artikel"}]}` :
         `Verify this claim: "${sanitized}"
 
 Evaluate if the claim is true, false, or unverifiable.
