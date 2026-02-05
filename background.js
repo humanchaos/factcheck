@@ -353,23 +353,37 @@ ${groundingContext}
 ## AUFGABE
 Extrahiere Claims aus dem Transcript nach dem **Anker-Prinzip**:
 
-1. **Entpolemisierung:** Schäle den Faktenkern aus Metaphern heraus.
-   - "Schwarzer Faden der Einflussnahme" → "Es gab politische Einflussnahme auf die Ermittlungen"
-   - "Staatsschiff sinkt" → "Staatsverschuldung steigt"
+### 1. CLAIM HYDRATION (PFLICHT!)
+Jeder Claim MUSS die "Wer-Was-Wo-Regel" erfüllen:
+- Ersetze ALLE Pronomen ("er", "sie", "es", "wir") durch konkrete Namen
+- Ergänze den Kontext des Gremiums/Ereignisses aus dem Video-Titel
+- Mache jeden Claim SUCHBAR für Google
 
-2. **Entitäten-Fokus:** Identifiziere Personen, Institutionen, Ereignisse, Zahlen.
+BEISPIELE:
+❌ "Es gab Kurse" 
+✅ "Christian Hafenecker behauptet im Pilnacek-U-Ausschuss, dass es Vorbereitungskurse von ÖVP-nahen Anwälten für Auskunftspersonen gab."
 
-3. **Kausal-Erkennung:** Markiere Claims mit "weil/aufgrund/verursacht" als type: "causal".
+❌ "Wir werden den Innenminister dazu befragen"
+✅ "Christian Hafenecker (FPÖ) kündigt eine parlamentarische Anfrage an Innenminister Gerhard Karner (ÖVP) bezüglich der Vorbereitungskurse für Zeugen an."
+
+❌ "Der Tatort war nicht abgesperrt"
+✅ "Im Pilnacek-U-Ausschuss wird der Vorwurf erhoben, dass der Fundort der Leiche von Christian Pilnacek von den Behörden nicht ordnungsgemäß abgesperrt wurde."
+
+### 2. Entpolemisierung
+Schäle den Faktenkern aus Metaphern heraus.
+
+### 3. Kausal-Erkennung
+Markiere Claims mit "weil/aufgrund/verursacht" als type: "causal".
 
 ## VETO-REGELN
-- LÖSCHE NUR: Reine Befindlichkeiten ("Er ist glücklich") oder vage Meinungen ohne Handlungsbezug.
-- NICHT LÖSCHEN: Metaphern mit Faktenbezug → übersetze sie in neutrale Claims.
+- LÖSCHE NUR: Reine Befindlichkeiten ohne Handlungsbezug
+- NICHT LÖSCHEN: Alles mit Entitäten → hydratisieren!
 
 ## Text:
 "${sanitized.slice(0, 4000)}"
 
 ## Output (NUR JSON-Array):
-[{"claim": "Neutralisierter Satz", "anchors": ["Entität1", "Entität2"], "type": "factual|causal", "is_satire_context": false}]
+[{"claim": "Vollständig hydratisierter Satz mit allen Namen und Kontext", "anchors": ["Person1", "Institution", "Ereignis"], "type": "factual|causal", "is_satire_context": false}]
 
 Keine Claims? Antworte: []` :
         `You are a fact-checker. Extract verifiable factual claims from this transcript.
