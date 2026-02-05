@@ -3,9 +3,9 @@
 
 const GEMINI_API_BASE = 'https://generativelanguage.googleapis.com/v1beta/models';
 
-// Model fallback: Try 2.5-flash first, fall back to 2.0-flash on overload
-const PRIMARY_MODEL = 'gemini-2.5-flash';   // Latest, best quality
-const FALLBACK_MODEL = 'gemini-2.0-flash';  // Stable fallback
+// Model config: gemini-2.0-flash is more reliable for Austrian context
+const PRIMARY_MODEL = 'gemini-2.0-flash';   // Better context understanding
+const FALLBACK_MODEL = 'gemini-1.5-flash';  // Stable fallback
 
 console.log('[FAKTCHECK BG] ====================================');
 console.log('[FAKTCHECK BG] Service worker started');
