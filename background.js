@@ -421,16 +421,12 @@ async function verifyClaim(claimText, apiKey, lang = 'de') {
     const prompt = lang === 'de' ?
         `VERIFIZIERE mit Google-Suche: "${sanitized}"
 
-WICHTIG: Suche aktiv nach Nachrichtenartikeln und Quellen zu diesem Thema.
-Wenn es aktuelle Berichte gibt, nutze diese als Grundlage.
+Suche nach Nachrichtenartikeln zu diesem Thema.
 
-Bewerte ob die Behauptung wahr, falsch oder nicht überprüfbar ist.
-Wenn du Quellen findest, gib sie an.
+WICHTIG: Halte die Erklärung KURZ (max. 2 Sätze).
 
-Antworte NUR mit JSON (KEIN Markdown):
-{"verdict": "true", "confidence": 0.8, "explanation": "Erklärung basierend auf gefundenen Quellen", "key_facts": ["Fakt 1"], "sources": [{"title": "Quelle", "url": "https://..."}]}
-
-Mögliche Verdicts: true, false, partially_true, unverifiable, opinion` :
+Antworte NUR mit JSON:
+{"verdict": "true|false|partially_true|unverifiable|opinion", "confidence": 0.8, "explanation": "Max 2 Sätze!", "key_facts": ["Fakt"], "sources": [{"title": "Quelle", "url": "..."}]}` :
         `Verify this claim: "${sanitized}"
 
 Evaluate if the claim is true, false, or unverifiable.
