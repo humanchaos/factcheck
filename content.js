@@ -26,6 +26,8 @@
     let currentLang = 'de';
     let captionObserver = null;
     let processingInterval = null;
+    let identifiedHost = 'Moderator';  // Host name persists across session
+    let isFirstChunk = true;           // Track first chunk for host detection
 
     let verdictCounts = {
         true: 0, mostly_true: 0, partially_true: 0,
@@ -620,6 +622,8 @@
         contextBuffer = [];
         processedTimestamps.clear();
         cachedMetadata = null;
+        identifiedHost = 'Moderator';  // Reset host
+        isFirstChunk = true;           // Re-enable host detection
 
         // Clear claims container
         const container = document.getElementById('faktcheck-claims');
@@ -660,6 +664,16 @@
     async function processText(text, timestamp) {
         // Check for video change and reset if needed
         checkVideoChange();
+
+        // Host identification (first chunk or if still default)
+        if (isFirstChunk || identifiedHost === 'Moderator') {
+            const hostMatch = text.match(/(?:Der|Name ist|Ich bin|Willkommen bei|mit)\s+([A-Z][a-zäöü]+\s+[A-Z][a-zäöü]+)/i);
+            if (hostMatch) {
+                identifiedHost = hostMatch[1];
+                console.log(`[FAKTCHECK] 🎙️ Host identifiziert: ${identifiedHost}`);
+            }
+            isFirstChunk = false;
+        }
 
         // Clean transcript: remove duplicate consecutive words (stuttering)
         const cleanedText = cleanTranscript(text);
