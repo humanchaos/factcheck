@@ -315,46 +315,37 @@ async function extractClaims(text, apiKey, metadata = null) {
     }
 
     const prompt = lang === 'de' ?
-        `# Rolle: Senior Information Auditor (Context-First)
+        `# Rolle: Neutraler Informations-Auditor (Strict Mode)
 ${groundingContext}
 
-## SCHRITT 1: KONTEXT-PROFIL (Zwingend vor Extraktion)
-Bevor du Fakten suchst, erstelle intern ein Profil des Videos:
-- **Geografie:** Welches Land wird adressiert? (Österreich, Deutschland, USA, etc.)
-- **Sprecher:** Wer spricht? (Name, Rolle).
+## SCHRITT 1: KONTEXT & HOST-CHECK
+Bevor Claims extrahiert werden, erstelle ein Meta-Profil:
+- **Geografie:** Welches Land/Region wird adressiert?
 - **Genre:** NEWS | SATIRE | TALK | SPEECH.
-- **Bias-Check:** Ist der Ton neutral, polemisch oder ironisch? Marker: "Operettenstaat", "Beste Regierung aller Zeiten".
+- **Host-ID:** Wer moderiert? (Name identifizieren und als default_speaker setzen).
+- **Modus:** Erkenntnis von Ironie-Markern (z.B. "Operettenstaat", "Beste Regierung").
 
-## STRENGER CLAIM-FILTER (Schritt 2)
-**KEINE MEINUNGEN:** Verwerfe Sätze, die Motivation oder Unvermögen von Gruppen beschreiben (z.B. "Journalisten wollen nicht verstehen", "Politiker können nicht rechnen").
+## SCHRITT 2: HARTE EXTRAKTIONS-REGELN
+Extrahiere NUR Claims, die den "Fakten-Anker-Test" bestehen:
+- **MUSS:** Zahlen, Daten, spezifische Personennamen oder Gesetzesnamen enthalten.
+- **DARF NICHT:** Psychologische Zustände ("X will nicht"), Metaphern ("Staatsschiff") oder vage Adjektive ("enorm", "wichtig") ohne Datenbezug enthalten.
+- **ZIEL:** Die Ergebnisliste soll kurz und 100% faktisch sein.
 
-**KEINE METAPHERN:** Verwerfe Sätze mit subjektiven Adjektiven wie "enorm", "großartig", "dramatisch", sofern sie nicht an eine konkrete Zahl gebunden sind.
+## SCHRITT 3: NEUTRALISIERUNG & SPEAKER
+- Wandle Polemik in neutrale Aussagen um.
+- Weise jeden Claim einer PERSON zu (Nutze default_speaker, wenn kein Gast spricht).
 
-**NUR HARTE FAKTEN:** Extrahiere NUR Sätze mit:
-- Zahlen, Daten, Gesetze, spezifische Handlungen
-- Vollständiges Subjekt + Prädikat + Objekt
-
-## SCHRITT 3: NEUTRALISIERUNGS-GEBOT
-Wandle jede polemische Aussage in einen neutralen Prüfsatz um.
-- "Witzekanzler liest Einkaufsliste vor" → "Vizekanzler Babler präsentiert Liste zur MwSt-Senkung"
-
-## SCHRITT 4: GROUNDING (Realität Februar 2026)
-- Aktuelles Datum: 5. Februar 2026
-- Österreich: Bundeskanzler Christian Stocker, Vizekanzler Andreas Babler
-- Wirtschaft: MwSt auf Grundnahrungsmittel beträgt 4,9%
-
-## SATIRE-ERKENNUNG (Verdict-Logik)
-Wenn Genre = SATIRE und Claim faktisch falsch ist:
-→ Verwende "verdict": "satirical_hyperbole" statt "false"
-→ Dies sind bewusste Übertreibungen, keine Desinformation
+## SCHRITT 4: GROUNDING (Stand Februar 2026)
+- Prüfe gegen die Realität (Kanzler Stocker, Vizekanzler Babler, 4,9% MwSt).
+- **FALL SATIRE:** Markiere falsche Witze als "satirical_hyperbole": true.
 
 ## Text:
 "${sanitized.slice(0, 4000)}"
 
 ## Output (NUR JSON-Array):
-[{"claim": "Neutraler, prüfbarer Fakt", "speaker": "Name", "checkability": 1-5, "importance": 1-5, "category": "STATISTIK|WIRTSCHAFT|POLITIK|GESETZ", "is_satire_context": false}]
+[{"claim": "Faktischer Prüfsatz mit Anker", "speaker": "Host-Name oder Gast", "checkability": 1-5, "importance": 1-5, "category": "STATISTIK|WIRTSCHAFT|POLITIK|GESETZ", "is_satire_context": false}]
 
-Keine prüfbaren Claims? Antworte: []` :
+Keine Claims mit Fakten-Ankern? Antworte: []` :
         `You are a fact-checker. Extract verifiable factual claims from this transcript.
 
 Text: "${sanitized.slice(0, 4000)}"
