@@ -108,26 +108,51 @@ function validateVerification(data) {
     if (typeof data !== 'object' || !data) {
         return { verdict: 'unverifiable', displayVerdict: 'unverifiable', confidence: 0, explanation: 'Invalid response', sources: [] };
     }
-    const verdict = validVerdicts.includes(data.verdict) ? data.verdict : 'unverifiable';
+
+    let verdict = validVerdicts.includes(data.verdict) ? data.verdict : 'unverifiable';
+    let confidence = Math.max(0, Math.min(1, Number(data.confidence) || 0.5));
+    let explanation = sanitize(String(data.explanation || ''), 500);
+
+    // Parse timeline for causal analysis
+    const timeline = data.timeline || {};
+    const intentDate = timeline.intent_date ? new Date(timeline.intent_date) : null;
+    const triggerDate = timeline.trigger_date ? new Date(timeline.trigger_date) : null;
+
+    // PHASE 4: CONFIDENCE DECAY & AUTOMATIC DECEPTIVE DETECTION
+    const isCausalClaim = intentDate || triggerDate;
+
+    if (isCausalClaim) {
+        // Cap confidence for causal claims (harder to prove)
+        confidence = Math.min(confidence, 0.7);
+
+        // Auto-detect timeline contradiction
+        if (intentDate && triggerDate && intentDate < triggerDate) {
+            verdict = 'deceptive';
+            confidence = 0.95;  // High confidence it's deceptive
+            explanation = `Ereignis war bereits am ${timeline.intent_date} geplant, die angebliche Ursache trat erst am ${timeline.trigger_date} ein.`;
+        }
+    }
+
     const displayMap = {
         'true': 'true', 'mostly_true': 'true',
         'false': 'false', 'mostly_false': 'false', 'deceptive': 'false',
         'partially_true': 'partially_true', 'misleading': 'partially_true',
         'unverifiable': 'unverifiable', 'opinion': 'opinion'
     };
+
     return {
         verdict,
         displayVerdict: displayMap[verdict] || 'unverifiable',
-        confidence: Math.max(0, Math.min(1, Number(data.confidence) || 0.5)),
-        explanation: sanitize(String(data.explanation || ''), 500),
+        confidence,
+        explanation,
         key_facts: Array.isArray(data.key_facts) ? data.key_facts.filter(f => typeof f === 'string').slice(0, 5) : [],
         sources: Array.isArray(data.sources) ? data.sources.filter(s => s && s.url).slice(0, 5).map(s => ({
             title: String(s.title || 'Source').slice(0, 100),
             url: s.url,
             tier: 3
         })) : [],
-        // Causal analysis (optional)
-        causal_analysis: data.causal_analysis || null
+        timeline: timeline,
+        is_causal: isCausalClaim
     };
 }
 
@@ -322,49 +347,54 @@ async function extractClaims(text, apiKey, metadata = null) {
     }
 
     const prompt = lang === 'de' ?
-        `# Rolle: Neutraler Informations-Auditor (Strict Mode)
+        `# INVESTIGATIVER AUDITOR v2.0
 ${groundingContext}
 
-## SCHRITT 1: KONTEXT & HOST-CHECK
-Bevor Claims extrahiert werden, erstelle ein Meta-Profil:
-- **Geografie:** Welches Land/Region wird adressiert?
-- **Genre:** NEWS | SATIRE | TALK | SPEECH.
-- **Host-ID:** Wer moderiert? (Name identifizieren und als default_speaker setzen).
-- **Modus:** Erkenntnis von Ironie-Markern (z.B. "Operettenstaat", "Beste Regierung").
+## PHASE 1: EXTRAKTION (Distillation statt Zensur)
 
-## SCHRITT 2: HARTE EXTRAKTIONS-REGELN
-Extrahiere NUR Claims, die den "Fakten-Anker-Test" bestehen:
-- **MUSS:** Zahlen, Daten, spezifische Personennamen oder Gesetzesnamen enthalten.
-- **DARF NICHT:** Psychologische Zustände ("X will nicht"), Metaphern ("Staatsschiff") oder vage Adjektive ("enorm", "wichtig") ohne Datenbezug enthalten.
-- **ZIEL:** Die Ergebnisliste soll kurz und 100% faktisch sein.
+### NEUTRALER MODUS:
+Extrahiere ALLE Claims wertfrei. Wenn jemand sagt "Die Erde ist flach" = das ist ein Claim.
 
-## SCHRITT 3: NEUTRALISIERUNG & SPEAKER
-- Wandle Polemik in neutrale Aussagen um.
-- Weise jeden Claim einer PERSON zu (Nutze default_speaker, wenn kein Gast spricht).
+### ANKER-PRINZIP:
+Für jeden Claim identifiziere:
+- SUBJEKT: Wer/Was?
+- PRÄDIKAT: Tut was?
+- OBJEKT: Wem/Was?
+- ENTITÄTEN: Namen, Ämter, Zahlen, Daten
 
-## SCHRITT 4: GROUNDING (Stand 5. Februar 2026)
-Aktuelle Fakten Österreich:
-- **Bundeskanzler:** Christian Stocker (ÖVP)
-- **Vizekanzler:** Andreas Babler (SPÖ)
-- **MwSt Grundnahrungsmittel:** 4,9%
-- **Neues Schulfach:** "Medien und Demokratie"
+### DE-POLEMISIERUNG:
+Wandle Metaphern in Sachverhalte um:
+- "Das Staatsschiff sinkt wegen der Schuldenlast"
+  → {"claim": "Staatsverschuldung führt zu wirtschaftlichem Kollaps", "anchors": ["Staatsverschuldung"]}
 
-BEWERTUNG:
-- **SATIRISCHE_HYPERBEL:** Wenn faktisch falsch ABER offensichtlich Witz/Übertreibung
-- **UNVERIFIABLE:** Wenn keine Quelle, NICHT ähnliche falsche Quellen nehmen
+### KAUSAL-DETECTION:
+Wenn Claim Form "A verursacht B" hat:
+- Markiere als claim_type: "causal"
+- Extrahiere cause_entity und effect_entity separat
 
-## VETO-REGELN (LÖSCHEN wenn):
-- Psychologie: "X will nicht verstehen", "Y ist besorgt"
-- Metaphern: "Staatsschiff", "Licht aus", "heiße Luft"  
-- Subjektiv: "Lage ist ernst", "Großartige Leistung"
+### SATIRE-MARKER:
+Setze is_satire_context: true bei Ironie-Markern:
+- "Operettenstaat", "Beste Regierung aller Zeiten", "Witzekanzler"
+
+### VETO (NUR löschen wenn):
+- Reine Psychologie OHNE Faktenkern: "X ist besorgt"
+- Keine Entitäten identifizierbar
 
 ## Text:
 "${sanitized.slice(0, 4000)}"
 
 ## Output (NUR JSON-Array):
-[{"claim": "Faktensatz mit Anker", "speaker": "Name", "checkability": 1-5, "importance": 1-5, "category": "STATISTIK|WIRTSCHAFT|POLITIK|GESETZ", "is_satire_context": false}]
+[{
+  "claim": "Neutralisierter Faktensatz",
+  "speaker": "Name",
+  "anchors": ["Entität1", "Entität2"],
+  "claim_type": "factual|causal",
+  "cause_entity": "nur bei causal",
+  "effect_entity": "nur bei causal",
+  "is_satire_context": false
+}]
 
-Keine harten Fakten? Antworte: []` :
+Keine Claims? Antworte: []` :
         `You are a fact-checker. Extract verifiable factual claims from this transcript.
 
 Text: "${sanitized.slice(0, 4000)}"
@@ -438,26 +468,41 @@ async function verifyClaim(claimText, apiKey, lang = 'de') {
     const sanitized = sanitize(claimText, 1000);
 
     const prompt = lang === 'de' ?
-        `VERIFIZIERE: "${sanitized}"
+        `# INVESTIGATIVE VERIFIKATION v2.0
 
-## KAUSAL-CHECK (bei "A verursacht B" Behauptungen):
-1. Identifiziere: Was ist die URSACHE (A)? Was ist die WIRKUNG (B)?
-2. Suche nach INTENT: War B schon GEPLANT bevor A passierte?
-3. Timeline-Test:
-   - A nach B = FALSE (Zeitfehler)
-   - Intent vor A = DECEPTIVE (B wäre auch ohne A passiert)
-   - A vor B, kein Intent = POTENTIALLY_TRUE
+## CLAIM: "${sanitized}"
 
-Beispiel: "Trump-Drohung verursachte Grönland-Abzug"
-→ Suche nach: WANN war der Abzug bereits GEPLANT?
-→ Wenn Marschbefehl VOR Drohung: Die Kausalität ist FALSCH
+## PHASE 2: DREI-WEGE-SUCHE
+Führe automatisch drei Queries durch:
+1. STATUS-CHECK: Ist der Fakt-Kern aktuell korrekt?
+2. TRIGGER-CHECK: Wann passierte die angebliche Ursache? (Datum)
+3. INTENT-CHECK: War das Ereignis schon VOR dem Trigger geplant/angekündigt?
 
-## KONTEXT-FIRST:
-- NUR Quellen mit exaktem Land + Sachverhalt
-- Kein Match → "unverifiable"
+## PHASE 3: ENTSCHEIDUNGS-MATRIX
+| Szenario | Bedingung | Verdict |
+|----------|-----------|---------|
+| FAKT-FEHLER | Entität existiert nicht / Wert weicht ab | FALSE |
+| KAUSAL-FEHLER | Ereignis B war vor Ursache A geplant | DECEPTIVE |
+| KORRELATION | A vor B, aber kein Beleg für kausalen Link | PARTIALLY_TRUE |
+| BESTÄTIGT | Zeitlinie passt + Quellen bestätigen | TRUE |
+
+## WICHTIG:
+- ENTSCHEIDE! Nur "unverifiable" wenn wirklich NULL Quellen.
+- Bei Kausal-Claims: Suche aktiv nach Gegenbeweisen (Intent vor Trigger)
+- "Post hoc" ist nicht "Propter hoc"
 
 ## OUTPUT (NUR JSON):
-{"verdict": "true|false|partially_true|unverifiable|deceptive", "confidence": 0.8, "explanation": "Max 1 Satz.", "causal_analysis": {"cause_date": "2026-01-17", "effect_date": "2026-01-18", "intent_date": "2026-01-10 oder null"}, "sources": [{"title": "Name", "url": "https://..."}]}` :
+{
+  "verdict": "true|false|partially_true|deceptive|unverifiable",
+  "confidence": 0.85,
+  "explanation": "Kurze Begründung mit Timeline.",
+  "timeline": {
+    "trigger_date": "2026-01-17 oder null",
+    "effect_date": "2026-01-18 oder null",
+    "intent_date": "2026-01-10 oder null"
+  },
+  "sources": [{"title": "Quelle", "url": "https://..."}]
+}` :
         `Verify this claim: "${sanitized}"
 
 Evaluate if the claim is true, false, or unverifiable.
