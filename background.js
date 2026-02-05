@@ -195,6 +195,101 @@ function extractJSON(raw) {
     }
 }
 
+// V3.2: Parse structured VERDICT/CONFIDENCE/EXPLANATION format
+function parseStructuredText(text) {
+    if (!text) return null;
+
+    const verdictMatch = text.match(/VERDICT\s*:\s*(\S+)/i);
+    const confMatch = text.match(/CONFIDENCE\s*:\s*([\d.]+)/i);
+    const explMatch = text.match(/EXPLANATION\s*:\s*(.+?)(?:\n|$)/i);
+    const factsMatch = text.match(/KEY_FACTS\s*:\s*(.+?)(?:\n|$)/i);
+    const sourcesMatch = text.match(/SOURCES\s*:\s*(.+?)(?:\n|$)/i);
+
+    if (!verdictMatch) return null;
+
+    const verdict = verdictMatch[1].toLowerCase().replace(/[^a-z_]/g, '');
+    const confidence = confMatch ? parseFloat(confMatch[1]) : 0.5;
+
+    let sources = [];
+    if (sourcesMatch) {
+        sources = sourcesMatch[1].split(/[;,]/).map(s => s.trim()).filter(s => s.startsWith('http'))
+            .map(url => ({ title: 'Source', url, tier: getSourceTier(url) }));
+    }
+
+    let keyFacts = [];
+    if (factsMatch) {
+        keyFacts = factsMatch[1].split(';').map(f => f.trim()).filter(Boolean);
+    }
+
+    console.log('[FAKTCHECK v3.2] parseStructuredText found verdict:', verdict, 'confidence:', confidence);
+    return {
+        verdict,
+        confidence: Math.max(0, Math.min(1, confidence)),
+        explanation: explMatch ? explMatch[1].trim() : '',
+        key_facts: keyFacts,
+        sources
+    };
+}
+
+// V3.2: Parse verdict from free-form natural language
+function parseVerdictFromText(text) {
+    if (!text || typeof text !== 'string') return null;
+    const t = text.toLowerCase();
+
+    // Try JSON first
+    const jsonResult = extractJSON(text);
+    if (jsonResult && jsonResult.verdict) return jsonResult;
+
+    let verdict = 'unverifiable';
+    let confidence = 0.5;
+
+    // Check for explicit verdict markers
+    if (/\b(verdict|urteil|ergebnis)\s*[:=]\s*"?(true|wahr|bestätigt|confirmed)/i.test(t)) {
+        verdict = 'true'; confidence = 0.80;
+    } else if (/\b(verdict|urteil|ergebnis)\s*[:=]\s*"?(false|falsch|widerlegt|refuted)/i.test(t)) {
+        verdict = 'false'; confidence = 0.80;
+    } else if (/\b(verdict|urteil|ergebnis)\s*[:=]\s*"?(partially|teilweise)/i.test(t)) {
+        verdict = 'partially_true'; confidence = 0.65;
+    } else if (/\b(verdict|urteil|ergebnis)\s*[:=]\s*"?(deceptive|irreführend|täuschend)/i.test(t)) {
+        verdict = 'deceptive'; confidence = 0.85;
+    } else if (/\b(verdict|urteil|ergebnis)\s*[:=]\s*"?(opinion|meinung)/i.test(t)) {
+        verdict = 'opinion'; confidence = 0.75;
+    } else if (/\b(verdict|urteil|ergebnis)\s*[:=]\s*"?(unverifiable|nicht überprüfbar)/i.test(t)) {
+        verdict = 'unverifiable'; confidence = 0.50;
+    }
+    // Fallback: strong language indicators
+    else if (/\b(ist (korrekt|richtig|wahr|bestätigt)|stimmt|trifft zu|dies ist (wahr|korrekt|richtig))\b/i.test(t)) {
+        verdict = 'true'; confidence = 0.70;
+    } else if (/\b(ist (falsch|inkorrekt|unwahr|widerlegt)|stimmt nicht|trifft nicht zu)\b/i.test(t)) {
+        verdict = 'false'; confidence = 0.70;
+    } else if (/\b(teilweise|zum teil|im kern)\b/i.test(t)) {
+        verdict = 'partially_true'; confidence = 0.60;
+    } else if (/\b(meinung|einschätzung|wertung|politische aussage)\b/i.test(t)) {
+        verdict = 'opinion'; confidence = 0.65;
+    }
+
+    // Extract confidence if written
+    const confMatch = t.match(/\b(confidence|konfidenz|sicherheit)\s*[:=]\s*(\d+(?:\.\d+)?)/i);
+    if (confMatch) {
+        const parsed = parseFloat(confMatch[2]);
+        if (parsed > 0 && parsed <= 1) confidence = parsed;
+        else if (parsed > 1 && parsed <= 100) confidence = parsed / 100;
+    }
+
+    // Extract explanation
+    const explanation = text
+        .split(/\n/)
+        .map(l => l.trim())
+        .filter(l => l.length > 30 && !/^[\[{#*]/.test(l))
+        .slice(0, 3)
+        .join(' ')
+        .slice(0, 500) || 'Aus Suchresultaten abgeleitet.';
+
+    console.log('[FAKTCHECK v3.2] parseVerdictFromText found verdict:', verdict);
+    return { verdict, confidence, explanation, key_facts: [] };
+}
+
+
 function validateVerification(data, claimType = 'factual') {
     const validVerdicts = ['true', 'mostly_true', 'partially_true', 'mostly_false', 'false', 'unverifiable', 'misleading', 'opinion', 'deceptive'];
     if (typeof data !== 'object' || !data) {
@@ -648,22 +743,30 @@ ${causalBlock}
 
 ## WICHTIG: ENTSCHEIDE! "unverifiable" nur bei NULL Quellen.
 
-## OUTPUT (NUR JSON):
-{"verdict": "true", "confidence": 0.85, "explanation": "Kurze Begründung.", "sources": [{"title": "Quelle", "url": "https://..."}]}` :
+Antwort-Format (EXAKT so, jede Zeile einzeln):
+
+VERDICT: [true/false/partially_true/deceptive/unverifiable]
+CONFIDENCE: [0.0-1.0]
+EXPLANATION: [Ein bis zwei Sätze Begründung]
+KEY_FACTS: [Fakt 1; Fakt 2]
+SOURCES: [URL1; URL2]` :
         `Verify this claim: "${sanitized}"
 
-Evaluate if the claim is true, false, or unverifiable.
+Evaluate if the claim is true, false, or unverifiable using Google Search.
 
-Respond ONLY with JSON (NO markdown):
-{"verdict": "true", "confidence": 0.8, "explanation": "Brief explanation", "key_facts": ["Fact 1"], "sources": [{"title": "Source", "url": "https://example.com"}]}
+Response format (exactly like this, each on its own line):
 
-Possible verdicts: true, false, partially_true, unverifiable, opinion`;
+VERDICT: [true/false/partially_true/unverifiable]
+CONFIDENCE: [0.0-1.0]
+EXPLANATION: [Brief explanation]
+KEY_FACTS: [Fact 1; Fact 2]
+SOURCES: [URL1; URL2]`;
 
     try {
         // Use Google Search for verification!
         const result = await callGeminiWithSearch(apiKey, prompt);
 
-        // V3.1: Handle new return format with grounding sources
+        // V3.2: Handle new return format with grounding sources
         let textToParse = result;
         let groundingSources = [];
 
@@ -672,24 +775,36 @@ Possible verdicts: true, false, partially_true, unverifiable, opinion`;
             groundingSources = result._groundingSources || [];
         }
 
-        // V3.1: Use extractJSON for robust Gemini response handling
-        let parsed = extractJSON(textToParse);
+        console.log('[FAKTCHECK BG v3.2] Raw response:', String(textToParse).slice(0, 300));
+        console.log('[FAKTCHECK BG v3.2] Grounding sources:', groundingSources.length);
+
+        // V3.2: Try structured text parsing first, then JSON, then free text
+        let parsed = parseStructuredText(textToParse) || extractJSON(textToParse) || parseVerdictFromText(textToParse);
+
         if (!parsed) {
-            console.warn('[FAKTCHECK BG] extractJSON failed, raw:', String(textToParse).slice(0, 200));
-            parsed = { verdict: 'unverifiable', explanation: 'Could not parse response' };
+            console.warn('[FAKTCHECK BG v3.2] All parsing failed');
+            // Fallback: use grounding sources if available
+            parsed = {
+                verdict: groundingSources.length > 0 ? 'partially_true' : 'unverifiable',
+                confidence: groundingSources.length > 0 ? 0.50 : 0.30,
+                explanation: groundingSources.length > 0
+                    ? 'Quellen gefunden, aber keine explizite Analyse von Gemini.'
+                    : 'Could not parse response',
+                sources: []
+            };
         }
 
-        // V3.1: Merge grounding sources into parsed result
+        // V3.2: Merge grounding sources into parsed result
         if (groundingSources.length > 0) {
             parsed._groundingSources = groundingSources;
         }
 
         const validated = validateVerification(parsed, claimType);
         await setCache(claimText, validated);
-        console.log('[FAKTCHECK BG] Verdict:', validated.verdict, '| Confidence:', validated.confidence, '| Quality:', validated.source_quality);
+        console.log('[FAKTCHECK BG v3.2] Verdict:', validated.verdict, '| Confidence:', validated.confidence, '| Quality:', validated.source_quality);
         return validated;
     } catch (error) {
-        console.error('[FAKTCHECK BG] Verify failed:', error.message);
+        console.error('[FAKTCHECK BG v3.2] Verify failed:', error.message);
         return {
             verdict: 'unverifiable',
             displayVerdict: 'unverifiable',
