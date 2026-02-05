@@ -245,11 +245,14 @@ Bevor du Fakten suchst, erstelle intern ein Profil des Videos:
 - **Genre:** NEWS | SATIRE | TALK | SPEECH.
 - **Bias-Check:** Ist der Ton neutral, polemisch oder ironisch? Marker: "Operettenstaat", "Beste Regierung aller Zeiten".
 
-## SCHRITT 2: EXTRAKTIONS-FILTER (Qualitäts-Gate)
-Extrahiere einen Claim NUR, wenn er:
-1. **Falsifizierbar ist:** (Zahlen, Daten, Gesetze, spezifische Handlungen).
-2. **Vollständig ist:** (Subjekt, Prädikat, Objekt müssen vorhanden sein).
-3. **Relevant ist:** Verwerfe Metaphern ("Staatsschiff", "heiße Luft"), Witze und rein subjektive Meinungen ("Es ist ernst").
+## STRENGER CLAIM-FILTER (Schritt 2)
+**KEINE MEINUNGEN:** Verwerfe Sätze, die Motivation oder Unvermögen von Gruppen beschreiben (z.B. "Journalisten wollen nicht verstehen", "Politiker können nicht rechnen").
+
+**KEINE METAPHERN:** Verwerfe Sätze mit subjektiven Adjektiven wie "enorm", "großartig", "dramatisch", sofern sie nicht an eine konkrete Zahl gebunden sind.
+
+**NUR HARTE FAKTEN:** Extrahiere NUR Sätze mit:
+- Zahlen, Daten, Gesetze, spezifische Handlungen
+- Vollständiges Subjekt + Prädikat + Objekt
 
 ## SCHRITT 3: NEUTRALISIERUNGS-GEBOT
 Wandle jede polemische Aussage in einen neutralen Prüfsatz um.
@@ -259,13 +262,17 @@ Wandle jede polemische Aussage in einen neutralen Prüfsatz um.
 - Aktuelles Datum: 5. Februar 2026
 - Österreich: Bundeskanzler Christian Stocker, Vizekanzler Andreas Babler
 - Wirtschaft: MwSt auf Grundnahrungsmittel beträgt 4,9%
-- Kennzeichne Witze/Übertreibungen als "satirical_hyperbole": true
+
+## SATIRE-ERKENNUNG (Verdict-Logik)
+Wenn Genre = SATIRE und Claim faktisch falsch ist:
+→ Verwende "verdict": "satirical_hyperbole" statt "false"
+→ Dies sind bewusste Übertreibungen, keine Desinformation
 
 ## Text:
 "${sanitized.slice(0, 4000)}"
 
 ## Output (NUR JSON-Array):
-[{"claim": "Neutraler, prüfbarer Fakt", "speaker": "Name des Sprechers", "checkability": 1-5, "importance": 1-5, "category": "STATISTIK|WIRTSCHAFT|POLITIK|GESETZ", "satirical_hyperbole": false}]
+[{"claim": "Neutraler, prüfbarer Fakt", "speaker": "Name", "checkability": 1-5, "importance": 1-5, "category": "STATISTIK|WIRTSCHAFT|POLITIK|GESETZ", "is_satire_context": false}]
 
 Keine prüfbaren Claims? Antworte: []` :
         `You are a fact-checker. Extract verifiable factual claims from this transcript.

@@ -56,8 +56,15 @@
 }
 
 @keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.7; }
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.7;
+    }
 }
 
 .faktcheck-controls {
@@ -126,8 +133,13 @@
     letter-spacing: 0.5px;
 }
 
-.meter-label-false { color: #ff4444; }
-.meter-label-true { color: #00ff88; }
+.meter-label-false {
+    color: #ff4444;
+}
+
+.meter-label-true {
+    color: #00ff88;
+}
 
 .meter-label-score {
     font-size: 16px;
@@ -165,8 +177,8 @@
     height: 100%;
     border-radius: 6px;
     background: linear-gradient(to right,
-        #ff4444 0%, #ff6644 15%, #ff8844 30%,
-        #ffaa00 50%, #88cc44 70%, #44dd66 85%, #00ff88 100%);
+            #ff4444 0%, #ff6644 15%, #ff8844 30%,
+            #ffaa00 50%, #88cc44 70%, #44dd66 85%, #00ff88 100%);
     box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.3);
 }
 
@@ -202,12 +214,29 @@
     font-weight: 600;
 }
 
-.truth-meter-stats .stat-false { color: #ff4444; }
-.truth-meter-stats .stat-false::before { content: '✗ '; }
-.truth-meter-stats .stat-partial { color: #ffaa00; }
-.truth-meter-stats .stat-partial::before { content: '◐ '; }
-.truth-meter-stats .stat-true { color: #00ff88; }
-.truth-meter-stats .stat-true::before { content: '✓ '; }
+.truth-meter-stats .stat-false {
+    color: #ff4444;
+}
+
+.truth-meter-stats .stat-false::before {
+    content: '✗ ';
+}
+
+.truth-meter-stats .stat-partial {
+    color: #ffaa00;
+}
+
+.truth-meter-stats .stat-partial::before {
+    content: '◐ ';
+}
+
+.truth-meter-stats .stat-true {
+    color: #00ff88;
+}
+
+.truth-meter-stats .stat-true::before {
+    content: '✓ ';
+}
 
 /* Actions */
 .faktcheck-actions {
@@ -284,15 +313,41 @@
 }
 
 /* Verdict Colors */
-.faktcheck-card.verdict-true { border-left-color: #00ff88; }
-.faktcheck-card.verdict-mostly_true { border-left-color: #88ff88; }
-.faktcheck-card.verdict-false { border-left-color: #ff4444; }
-.faktcheck-card.verdict-mostly_false { border-left-color: #ff8888; }
-.faktcheck-card.verdict-partially_true { border-left-color: #ffaa00; }
-.faktcheck-card.verdict-misleading { border-left-color: #ff8800; }
-.faktcheck-card.verdict-unverifiable { border-left-color: #888888; }
-.faktcheck-card.verdict-opinion { border-left-color: #6688ff; }
-.faktcheck-card.verdict-pending { border-left-color: #00ccff; }
+.faktcheck-card.verdict-true {
+    border-left-color: #00ff88;
+}
+
+.faktcheck-card.verdict-mostly_true {
+    border-left-color: #88ff88;
+}
+
+.faktcheck-card.verdict-false {
+    border-left-color: #ff4444;
+}
+
+.faktcheck-card.verdict-mostly_false {
+    border-left-color: #ff8888;
+}
+
+.faktcheck-card.verdict-partially_true {
+    border-left-color: #ffaa00;
+}
+
+.faktcheck-card.verdict-misleading {
+    border-left-color: #ff8800;
+}
+
+.faktcheck-card.verdict-unverifiable {
+    border-left-color: #888888;
+}
+
+.faktcheck-card.verdict-opinion {
+    border-left-color: #6688ff;
+}
+
+.faktcheck-card.verdict-pending {
+    border-left-color: #00ccff;
+}
 
 .claim-header {
     display: flex;
@@ -327,14 +382,55 @@
 }
 
 .verdict-true .claim-verdict,
-.verdict-mostly_true .claim-verdict { color: #00ff88; }
+.verdict-mostly_true .claim-verdict {
+    color: #00ff88;
+}
+
 .verdict-false .claim-verdict,
-.verdict-mostly_false .claim-verdict { color: #ff4444; }
-.verdict-partially_true .claim-verdict { color: #ffaa00; }
-.verdict-misleading .claim-verdict { color: #ff8800; }
-.verdict-unverifiable .claim-verdict { color: #888888; }
-.verdict-opinion .claim-verdict { color: #6688ff; }
-.verdict-pending .claim-verdict { color: #00ccff; }
+.verdict-mostly_false .claim-verdict {
+    color: #ff4444;
+}
+
+.verdict-partially_true .claim-verdict {
+    color: #ffaa00;
+}
+
+.verdict-misleading .claim-verdict {
+    color: #ff8800;
+}
+
+.verdict-unverifiable .claim-verdict {
+    color: #888888;
+}
+
+.verdict-opinion .claim-verdict {
+    color: #6688ff;
+}
+
+.verdict-pending .claim-verdict {
+    color: #00ccff;
+}
+
+.verdict-satirical_hyperbole .claim-verdict {
+    color: #ffcc00;
+}
+
+/* New verdict color utility classes: 🔴 FALSCH, 🟡 SATIRE, 🟢 WAHR */
+.claim-verdict.verdict-green {
+    color: #00ff88;
+}
+
+.claim-verdict.verdict-red {
+    color: #ff4444;
+}
+
+.claim-verdict.verdict-amber {
+    color: #ffcc00;
+}
+
+.claim-verdict.verdict-gray {
+    color: #888888;
+}
 
 .verdict-icon {
     font-size: 14px;
@@ -441,9 +537,17 @@
     margin-top: 6px;
 }
 
-.claim-confidence.conf-high { color: #00ff88; }
-.claim-confidence.conf-medium { color: #ffaa00; }
-.claim-confidence.conf-low { color: #ff6666; }
+.claim-confidence.conf-high {
+    color: #00ff88;
+}
+
+.claim-confidence.conf-medium {
+    color: #ffaa00;
+}
+
+.claim-confidence.conf-low {
+    color: #ff6666;
+}
 
 /* Footer */
 .faktcheck-footer {

@@ -59,8 +59,36 @@
     const VERDICT_ICONS = {
         true: '✓', false: '✗', partially_true: '◐',
         unverifiable: '?', opinion: '○', pending: '⏳',
-        mostly_true: '✓', mostly_false: '✗', misleading: '◐'
+        mostly_true: '✓', mostly_false: '✗', misleading: '◐',
+        satirical_hyperbole: '🎭'  // Satire-specific verdict
     };
+
+    // Verdict color mapping: 🔴 FALSCH, 🟡 SATIRE, 🟢 WAHR
+    const VERDICT_COLORS = {
+        true: 'green', false: 'red', partially_true: 'amber',
+        unverifiable: 'gray', opinion: 'gray', pending: 'gray',
+        mostly_true: 'green', mostly_false: 'red', misleading: 'amber',
+        satirical_hyperbole: 'amber'  // Yellow for satire (not red!)
+    };
+
+    // Get verdict display info based on context
+    function getVerdictDisplay(verdict, isSatireContext = false) {
+        // If false in satire context, show as satirical hyperbole
+        if (verdict === 'false' && isSatireContext) {
+            return {
+                icon: '🎭',
+                color: 'amber',
+                label: 'SATIRISCHE HYPERBEL',
+                description: 'Bewusste Übertreibung im satirischen Kontext'
+            };
+        }
+        return {
+            icon: VERDICT_ICONS[verdict] || '?',
+            color: VERDICT_COLORS[verdict] || 'gray',
+            label: verdict?.toUpperCase() || 'UNKLAR',
+            description: null
+        };
+    }
 
     function getCurrentVideoId() {
         const params = new URLSearchParams(window.location.search);
@@ -477,9 +505,15 @@
             if (video) video.currentTime = safe.timestamp;
         });
         header.appendChild(timestamp);
-        const verdictEl = S.createElement('span', { class: 'claim-verdict' });
-        verdictEl.appendChild(S.createElement('span', { class: 'verdict-icon' }, VERDICT_ICONS[verdict] || '?'));
-        verdictEl.appendChild(S.createText(' ' + tv(verdict)));
+
+        // Use getVerdictDisplay for proper satire handling
+        const isSatireContext = safe.is_satire_context || false;
+        const verdictInfo = getVerdictDisplay(verdict, isSatireContext);
+        const verdictEl = S.createElement('span', {
+            class: `claim-verdict verdict-${verdictInfo.color}`
+        });
+        verdictEl.appendChild(S.createElement('span', { class: 'verdict-icon' }, verdictInfo.icon));
+        verdictEl.appendChild(S.createText(' ' + (verdictInfo.label || tv(verdict))));
         header.appendChild(verdictEl);
         card.appendChild(header);
 
