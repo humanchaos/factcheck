@@ -216,11 +216,11 @@ async function callGeminiWithSearch(apiKey, prompt, retryAttempt = 0) {
     console.log('[FAKTCHECK BG] Calling Gemini WITH Google Search');
     console.log('[FAKTCHECK BG] Prompt length:', prompt.length);
 
-    // Include Google Search Retrieval tool - ALWAYS search for verification
+    // Use Google Search tool for verification
     const body = {
         contents: [{ parts: [{ text: prompt }] }],
         tools: [{
-            google_search_retrieval: {}  // Empty = always search
+            google_search: {}  // Current API format
         }],
         generationConfig: {
             temperature: 0.1,
