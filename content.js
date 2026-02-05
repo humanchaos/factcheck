@@ -678,9 +678,11 @@
             cleanedLength: cleanedText.length,
             tokenSavings: Math.round((1 - cleanedText.length / text.length) * 100) + '%',
             fullText: cleanedText,
-            // Parse context vs new text if present
+            // Parse context vs new text if present (with undefined guard)
             context: cleanedText.includes('[Context from previous') ? cleanedText.split('\n\nNew content to analyze:\n')[0] : null,
-            newContent: cleanedText.includes('[Context from previous') ? cleanedText.split('\n\nNew content to analyze:\n')[1] : cleanedText,
+            newContent: cleanedText.includes('[Context from previous')
+                ? (cleanedText.split('\n\nNew content to analyze:\n')[1] || cleanedText)  // Fallback if split fails
+                : cleanedText,
             claims: [] // Will be filled after processing
         };
         analysisChunks.push(chunkEntry);

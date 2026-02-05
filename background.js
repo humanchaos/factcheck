@@ -331,8 +331,14 @@ Extrahiere NUR Claims, die den "Fakten-Anker-Test" bestehen:
 - Weise jeden Claim einer PERSON zu (Nutze default_speaker, wenn kein Gast spricht).
 
 ## SCHRITT 4: GROUNDING (Stand Februar 2026)
-- Prüfe gegen die Realität (Kanzler Stocker, Vizekanzler Babler, 4,9% MwSt).
-- **FALL SATIRE:** Markiere falsche Witze als "satirical_hyperbole": true.
+Aktueller politischer Kontext Österreich:
+- **Bundeskanzler:** Christian Stocker (ÖVP)
+- **Vizekanzler:** Andreas Babler (SPÖ)
+- **"Stocker-Formel":** Politisches Konzept von Kanzler Stocker
+- **MwSt auf Grundnahrungsmittel:** 4,9%
+- **FPÖ-Neujahrstreffen 2026:** Herbert Kickl, FPÖ-Chef
+
+Prüfe Claims gegen diese Realität. **FALL SATIRE:** Markiere falsche Witze als "satirical_hyperbole": true.
 
 ## Text:
 "${sanitized.slice(0, 4000)}"
