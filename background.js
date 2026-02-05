@@ -3,13 +3,12 @@
 
 const GEMINI_API_BASE = 'https://generativelanguage.googleapis.com/v1beta/models';
 
-// Model config: gemini-2.0-flash is more reliable for Austrian context
-const PRIMARY_MODEL = 'gemini-2.0-flash';        // Better context understanding
-const FALLBACK_MODEL = 'gemini-1.5-flash-latest'; // Correct API name
+// ✅ FIX #1: Use correct, stable model name
+const DEFAULT_MODEL = 'gemini-2.0-flash';  // Stable and fast
 
 console.log('[FAKTCHECK BG] ====================================');
 console.log('[FAKTCHECK BG] Service worker started');
-console.log('[FAKTCHECK BG] Primary:', PRIMARY_MODEL, '| Fallback:', FALLBACK_MODEL);
+console.log('[FAKTCHECK BG] Model:', DEFAULT_MODEL);
 console.log('[FAKTCHECK BG] ====================================');
 
 // Rate Limiter
@@ -73,15 +72,10 @@ async function setCache(claim, data) {
     } catch (e) { }
 }
 
-// Sanitization with prompt injection protection
+// Sanitization
 function sanitize(text, maxLen = 5000) {
     if (typeof text !== 'string') return '';
-    return text
-        .replace(/[\\x00-\\x1F\\x7F]/g, '')  // Remove control chars
-        .replace(/"/g, '\\"')                 // Escape double quotes
-        .replace(/`/g, "'")                   // Replace backticks
-        .slice(0, maxLen)
-        .trim();
+    return text.replace(/[\x00-\x1F\x7F]/g, '').slice(0, maxLen).trim();
 }
 
 function validateClaims(data) {
@@ -138,12 +132,13 @@ function detectLang(text) {
     return deCount > words.length * 0.03 ? 'de' : 'en';
 }
 
-// ✅ FIX #2: Gemini API call with model fallback on overload
-async function callGemini(apiKey, prompt, model = PRIMARY_MODEL) {
-    const url = `${GEMINI_API_BASE}/${model}:generateContent?key=${apiKey}`;
+// ✅ FIX #2: Gemini API call with proper error handling and NO broken tools
+async function callGemini(apiKey, prompt, retryAttempt = 0) {
+    const url = `${GEMINI_API_BASE}/${DEFAULT_MODEL}:generateContent?key=${apiKey}`;
 
     console.log('[FAKTCHECK BG] ----------------------------------------');
-    console.log('[FAKTCHECK BG] Calling Gemini API | Model:', model);
+    console.log('[FAKTCHECK BG] Calling Gemini API');
+    console.log('[FAKTCHECK BG] URL:', url.replace(apiKey, 'API_KEY_HIDDEN'));
     console.log('[FAKTCHECK BG] Prompt length:', prompt.length);
 
     // Standard call without search
@@ -164,10 +159,15 @@ async function callGemini(apiKey, prompt, model = PRIMARY_MODEL) {
 
         console.log('[FAKTCHECK BG] Response status:', response.status);
 
-        // On 503/429: Fallback to stable model (if not already using it)
-        if ((response.status === 503 || response.status === 429) && model !== FALLBACK_MODEL) {
-            console.log(`[FAKTCHECK BG] ⚠️ ${model} overloaded, falling back to ${FALLBACK_MODEL}...`);
-            return callGemini(apiKey, prompt, FALLBACK_MODEL);
+        // Retry on 503 (overloaded) or 429 (rate limit) with exponential backoff
+        if (response.status === 503 || response.status === 429) {
+            const retryCount = retryAttempt + 1;
+            if (retryCount <= 3) {
+                const delay = Math.pow(2, retryCount) * 1000; // 2s, 4s, 8s
+                console.log(`[FAKTCHECK BG] Model overloaded, retry ${retryCount}/3 in ${delay}ms...`);
+                await new Promise(r => setTimeout(r, delay));
+                return callGemini(apiKey, prompt, retryCount);
+            }
         }
 
         if (!response.ok) {
@@ -204,18 +204,18 @@ async function callGemini(apiKey, prompt, model = PRIMARY_MODEL) {
 }
 
 // Call Gemini WITH Google Search (for verification)
-async function callGeminiWithSearch(apiKey, prompt, model = PRIMARY_MODEL) {
-    const url = `${GEMINI_API_BASE}/${model}:generateContent?key=${apiKey}`;
+async function callGeminiWithSearch(apiKey, prompt, retryAttempt = 0) {
+    const url = `${GEMINI_API_BASE}/${DEFAULT_MODEL}:generateContent?key=${apiKey}`;
 
     console.log('[FAKTCHECK BG] ----------------------------------------');
-    console.log('[FAKTCHECK BG] Calling Gemini WITH Google Search | Model:', model);
+    console.log('[FAKTCHECK BG] Calling Gemini WITH Google Search');
     console.log('[FAKTCHECK BG] Prompt length:', prompt.length);
 
-    // Use Google Search tool (google_search_retrieval is deprecated)
+    // Include Google Search Retrieval tool - ALWAYS search for verification
     const body = {
         contents: [{ parts: [{ text: prompt }] }],
         tools: [{
-            google_search: {}  // New API format
+            google_search_retrieval: {}  // Empty = always search
         }],
         generationConfig: {
             temperature: 0.1,
@@ -232,10 +232,15 @@ async function callGeminiWithSearch(apiKey, prompt, model = PRIMARY_MODEL) {
 
         console.log('[FAKTCHECK BG] Search Response status:', response.status);
 
-        // On 503/429: Fallback to stable model (if not already using it)
-        if ((response.status === 503 || response.status === 429) && model !== FALLBACK_MODEL) {
-            console.log(`[FAKTCHECK BG] ⚠️ ${model} overloaded, falling back to ${FALLBACK_MODEL}...`);
-            return callGeminiWithSearch(apiKey, prompt, FALLBACK_MODEL);
+        // Retry on 503/429
+        if (response.status === 503 || response.status === 429) {
+            const retryCount = retryAttempt + 1;
+            if (retryCount <= 3) {
+                const delay = Math.pow(2, retryCount) * 1000;
+                console.log(`[FAKTCHECK BG] Search retry ${retryCount}/3 in ${delay}ms...`);
+                await new Promise(r => setTimeout(r, delay));
+                return callGeminiWithSearch(apiKey, prompt, retryCount);
+            }
         }
 
         if (!response.ok) {
@@ -331,14 +336,8 @@ Extrahiere NUR Claims, die den "Fakten-Anker-Test" bestehen:
 - Weise jeden Claim einer PERSON zu (Nutze default_speaker, wenn kein Gast spricht).
 
 ## SCHRITT 4: GROUNDING (Stand Februar 2026)
-Aktueller politischer Kontext Österreich:
-- **Bundeskanzler:** Christian Stocker (ÖVP)
-- **Vizekanzler:** Andreas Babler (SPÖ)
-- **"Stocker-Formel":** Politisches Konzept von Kanzler Stocker
-- **MwSt auf Grundnahrungsmittel:** 4,9%
-- **FPÖ-Neujahrstreffen 2026:** Herbert Kickl, FPÖ-Chef
-
-Prüfe Claims gegen diese Realität. **FALL SATIRE:** Markiere falsche Witze als "satirical_hyperbole": true.
+- Prüfe gegen die Realität (Kanzler Stocker, Vizekanzler Babler, 4,9% MwSt).
+- **FALL SATIRE:** Markiere falsche Witze als "satirical_hyperbole": true.
 
 ## Text:
 "${sanitized.slice(0, 4000)}"
@@ -422,14 +421,16 @@ async function verifyClaim(claimText, apiKey, lang = 'de') {
     const prompt = lang === 'de' ?
         `VERIFIZIERE mit Google-Suche: "${sanitized}"
 
-Suche nach Nachrichtenartikeln zu diesem Thema.
+WICHTIG: Suche aktiv nach Nachrichtenartikeln und Quellen zu diesem Thema.
+Wenn es aktuelle Berichte gibt, nutze diese als Grundlage.
 
-REGELN:
-1. Erklärung KURZ halten (max. 2 Sätze)
-2. PFLICHT: Mindestens 1 Quelle mit gültiger URL angeben!
+Bewerte ob die Behauptung wahr, falsch oder nicht überprüfbar ist.
+Wenn du Quellen findest, gib sie an.
 
-Antworte NUR mit JSON:
-{"verdict": "true|false|partially_true|unverifiable", "confidence": 0.8, "explanation": "2 Sätze", "sources": [{"title": "Artikelname", "url": "https://vollständige-url.com/artikel"}]}` :
+Antworte NUR mit JSON (KEIN Markdown):
+{"verdict": "true", "confidence": 0.8, "explanation": "Erklärung basierend auf gefundenen Quellen", "key_facts": ["Fakt 1"], "sources": [{"title": "Quelle", "url": "https://..."}]}
+
+Mögliche Verdicts: true, false, partially_true, unverifiable, opinion` :
         `Verify this claim: "${sanitized}"
 
 Evaluate if the claim is true, false, or unverifiable.
