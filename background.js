@@ -3,12 +3,13 @@
 
 const GEMINI_API_BASE = 'https://generativelanguage.googleapis.com/v1beta/models';
 
-// ✅ FIX #1: Use correct, stable model name
-const DEFAULT_MODEL = 'gemini-2.0-flash';  // Stable and fast
+// Model fallback: Try 2.5-flash first, fall back to 2.0-flash on overload
+const PRIMARY_MODEL = 'gemini-2.5-flash';   // Latest, best quality
+const FALLBACK_MODEL = 'gemini-2.0-flash';  // Stable fallback
 
 console.log('[FAKTCHECK BG] ====================================');
 console.log('[FAKTCHECK BG] Service worker started');
-console.log('[FAKTCHECK BG] Model:', DEFAULT_MODEL);
+console.log('[FAKTCHECK BG] Primary:', PRIMARY_MODEL, '| Fallback:', FALLBACK_MODEL);
 console.log('[FAKTCHECK BG] ====================================');
 
 // Rate Limiter
@@ -132,13 +133,12 @@ function detectLang(text) {
     return deCount > words.length * 0.03 ? 'de' : 'en';
 }
 
-// ✅ FIX #2: Gemini API call with proper error handling and NO broken tools
-async function callGemini(apiKey, prompt, retryAttempt = 0) {
-    const url = `${GEMINI_API_BASE}/${DEFAULT_MODEL}:generateContent?key=${apiKey}`;
+// ✅ FIX #2: Gemini API call with model fallback on overload
+async function callGemini(apiKey, prompt, model = PRIMARY_MODEL) {
+    const url = `${GEMINI_API_BASE}/${model}:generateContent?key=${apiKey}`;
 
     console.log('[FAKTCHECK BG] ----------------------------------------');
-    console.log('[FAKTCHECK BG] Calling Gemini API');
-    console.log('[FAKTCHECK BG] URL:', url.replace(apiKey, 'API_KEY_HIDDEN'));
+    console.log('[FAKTCHECK BG] Calling Gemini API | Model:', model);
     console.log('[FAKTCHECK BG] Prompt length:', prompt.length);
 
     // Standard call without search
@@ -159,15 +159,10 @@ async function callGemini(apiKey, prompt, retryAttempt = 0) {
 
         console.log('[FAKTCHECK BG] Response status:', response.status);
 
-        // Retry on 503 (overloaded) or 429 (rate limit) with exponential backoff
-        if (response.status === 503 || response.status === 429) {
-            const retryCount = retryAttempt + 1;
-            if (retryCount <= 3) {
-                const delay = Math.pow(2, retryCount) * 1000; // 2s, 4s, 8s
-                console.log(`[FAKTCHECK BG] Model overloaded, retry ${retryCount}/3 in ${delay}ms...`);
-                await new Promise(r => setTimeout(r, delay));
-                return callGemini(apiKey, prompt, retryCount);
-            }
+        // On 503/429: Fallback to stable model (if not already using it)
+        if ((response.status === 503 || response.status === 429) && model !== FALLBACK_MODEL) {
+            console.log(`[FAKTCHECK BG] ⚠️ ${model} overloaded, falling back to ${FALLBACK_MODEL}...`);
+            return callGemini(apiKey, prompt, FALLBACK_MODEL);
         }
 
         if (!response.ok) {
@@ -204,11 +199,11 @@ async function callGemini(apiKey, prompt, retryAttempt = 0) {
 }
 
 // Call Gemini WITH Google Search (for verification)
-async function callGeminiWithSearch(apiKey, prompt, retryAttempt = 0) {
-    const url = `${GEMINI_API_BASE}/${DEFAULT_MODEL}:generateContent?key=${apiKey}`;
+async function callGeminiWithSearch(apiKey, prompt, model = PRIMARY_MODEL) {
+    const url = `${GEMINI_API_BASE}/${model}:generateContent?key=${apiKey}`;
 
     console.log('[FAKTCHECK BG] ----------------------------------------');
-    console.log('[FAKTCHECK BG] Calling Gemini WITH Google Search');
+    console.log('[FAKTCHECK BG] Calling Gemini WITH Google Search | Model:', model);
     console.log('[FAKTCHECK BG] Prompt length:', prompt.length);
 
     // Include Google Search Retrieval tool - ALWAYS search for verification
@@ -232,15 +227,10 @@ async function callGeminiWithSearch(apiKey, prompt, retryAttempt = 0) {
 
         console.log('[FAKTCHECK BG] Search Response status:', response.status);
 
-        // Retry on 503/429
-        if (response.status === 503 || response.status === 429) {
-            const retryCount = retryAttempt + 1;
-            if (retryCount <= 3) {
-                const delay = Math.pow(2, retryCount) * 1000;
-                console.log(`[FAKTCHECK BG] Search retry ${retryCount}/3 in ${delay}ms...`);
-                await new Promise(r => setTimeout(r, delay));
-                return callGeminiWithSearch(apiKey, prompt, retryCount);
-            }
+        // On 503/429: Fallback to stable model (if not already using it)
+        if ((response.status === 503 || response.status === 429) && model !== FALLBACK_MODEL) {
+            console.log(`[FAKTCHECK BG] ⚠️ ${model} overloaded, falling back to ${FALLBACK_MODEL}...`);
+            return callGeminiWithSearch(apiKey, prompt, FALLBACK_MODEL);
         }
 
         if (!response.ok) {
