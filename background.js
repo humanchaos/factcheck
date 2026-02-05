@@ -141,7 +141,7 @@ async function callGemini(apiKey, prompt, retryAttempt = 0) {
     console.log('[FAKTCHECK BG] URL:', url.replace(apiKey, 'API_KEY_HIDDEN'));
     console.log('[FAKTCHECK BG] Prompt length:', prompt.length);
 
-    // ✅ FIX: Removed broken googleSearch tool that was causing errors
+    // Standard call without search
     const body = {
         contents: [{ parts: [{ text: prompt }] }],
         generationConfig: {
@@ -200,6 +200,91 @@ async function callGemini(apiKey, prompt, retryAttempt = 0) {
     } catch (error) {
         console.error('[FAKTCHECK BG] Fetch error:', error.message);
         throw error;
+    }
+}
+
+// Call Gemini WITH Google Search (for verification)
+async function callGeminiWithSearch(apiKey, prompt, retryAttempt = 0) {
+    const url = `${GEMINI_API_BASE}/${DEFAULT_MODEL}:generateContent?key=${apiKey}`;
+
+    console.log('[FAKTCHECK BG] ----------------------------------------');
+    console.log('[FAKTCHECK BG] Calling Gemini WITH Google Search');
+    console.log('[FAKTCHECK BG] Prompt length:', prompt.length);
+
+    // Include Google Search Retrieval tool for real-time web search
+    const body = {
+        contents: [{ parts: [{ text: prompt }] }],
+        tools: [{
+            google_search_retrieval: {
+                dynamic_retrieval_config: {
+                    mode: "MODE_DYNAMIC",
+                    dynamic_threshold: 0.3  // Lower = more likely to search
+                }
+            }
+        }],
+        generationConfig: {
+            temperature: 0.1,
+            maxOutputTokens: 4096
+        }
+    };
+
+    try {
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body)
+        });
+
+        console.log('[FAKTCHECK BG] Search Response status:', response.status);
+
+        // Retry on 503/429
+        if (response.status === 503 || response.status === 429) {
+            const retryCount = retryAttempt + 1;
+            if (retryCount <= 3) {
+                const delay = Math.pow(2, retryCount) * 1000;
+                console.log(`[FAKTCHECK BG] Search retry ${retryCount}/3 in ${delay}ms...`);
+                await new Promise(r => setTimeout(r, delay));
+                return callGeminiWithSearch(apiKey, prompt, retryCount);
+            }
+        }
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error('[FAKTCHECK BG] Search HTTP Error:', response.status, errorText.slice(0, 200));
+            // Fallback to regular call without search
+            console.log('[FAKTCHECK BG] Falling back to non-search call');
+            return callGemini(apiKey, prompt);
+        }
+
+        const data = await response.json();
+
+        if (data.error) {
+            console.error('[FAKTCHECK BG] Search API Error:', JSON.stringify(data.error));
+            // Fallback to regular call
+            return callGemini(apiKey, prompt);
+        }
+
+        const text = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+
+        // Log if search was used
+        const groundingMeta = data.candidates?.[0]?.groundingMetadata;
+        if (groundingMeta?.webSearchQueries) {
+            console.log('[FAKTCHECK BG] 🔍 Google Search used:', groundingMeta.webSearchQueries);
+        }
+
+        if (!text) {
+            console.error('[FAKTCHECK BG] Empty search response');
+            return callGemini(apiKey, prompt);
+        }
+
+        const cleaned = text.replace(/```json\s*/gi, '').replace(/```\s*/g, '').trim();
+        console.log('[FAKTCHECK BG] Search response received, length:', cleaned.length);
+
+        return cleaned;
+    } catch (error) {
+        console.error('[FAKTCHECK BG] Search fetch error:', error.message);
+        // Fallback to regular call
+        return callGemini(apiKey, prompt);
     }
 }
 
@@ -348,12 +433,16 @@ async function verifyClaim(claimText, apiKey, lang = 'de') {
     const sanitized = sanitize(claimText, 1000);
 
     const prompt = lang === 'de' ?
-        `Verifiziere diese Behauptung: "${sanitized}"
+        `VERIFIZIERE mit Google-Suche: "${sanitized}"
+
+WICHTIG: Suche aktiv nach Nachrichtenartikeln und Quellen zu diesem Thema.
+Wenn es aktuelle Berichte gibt, nutze diese als Grundlage.
 
 Bewerte ob die Behauptung wahr, falsch oder nicht überprüfbar ist.
+Wenn du Quellen findest, gib sie an.
 
 Antworte NUR mit JSON (KEIN Markdown):
-{"verdict": "true", "confidence": 0.8, "explanation": "Kurze Erklärung", "key_facts": ["Fakt 1"], "sources": [{"title": "Quelle", "url": "https://example.com"}]}
+{"verdict": "true", "confidence": 0.8, "explanation": "Erklärung basierend auf gefundenen Quellen", "key_facts": ["Fakt 1"], "sources": [{"title": "Quelle", "url": "https://..."}]}
 
 Mögliche Verdicts: true, false, partially_true, unverifiable, opinion` :
         `Verify this claim: "${sanitized}"
@@ -366,7 +455,8 @@ Respond ONLY with JSON (NO markdown):
 Possible verdicts: true, false, partially_true, unverifiable, opinion`;
 
     try {
-        const result = await callGemini(apiKey, prompt);
+        // Use Google Search for verification!
+        const result = await callGeminiWithSearch(apiKey, prompt);
 
         let parsed;
         try {
