@@ -159,17 +159,6 @@ async function callGemini(apiKey, prompt) {
 
         console.log('[FAKTCHECK BG] Response status:', response.status);
 
-        // Retry on 503 (overloaded) or 429 (rate limit) with exponential backoff
-        if (response.status === 503 || response.status === 429) {
-            const retryCount = (arguments[2] || 0) + 1;
-            if (retryCount <= 3) {
-                const delay = Math.pow(2, retryCount) * 1000; // 2s, 4s, 8s
-                console.log(`[FAKTCHECK BG] Model overloaded, retry ${retryCount}/3 in ${delay}ms...`);
-                await new Promise(r => setTimeout(r, delay));
-                return callGemini(apiKey, prompt, retryCount);
-            }
-        }
-
         if (!response.ok) {
             const errorText = await response.text();
             console.error('[FAKTCHECK BG] HTTP Error:', response.status, errorText.slice(0, 200));
@@ -235,67 +224,37 @@ async function extractClaims(text, apiKey, metadata = null) {
     }
 
     const prompt = lang === 'de' ?
-        `ROLLE: Du bist ein Senior Information Analyst. Deine Aufgabe ist es, Informationen nicht nur zu prüfen, sondern sie in ihrem kulturellen und politischen Kontext zu verorten.
-${groundingContext}
+        `Du bist ein Faktenchecker.${groundingContext}
 
-=== SCHRITT 1: KONTEXTUELLE VERANKERUNG (Mandatorisch) ===
-Definiere ZUERST die Umgebung basierend auf dem Video-Kontext:
-- Land & Region: Welcher geografische Raum? (AT/DE/CH/EU)
-- Sprecher & Perspektive: Wer spricht? (Regierung/Opposition/Aktivist/Kommentator)
-- Anlass & Zeit: Zeitlicher Kontext (Februar 2026, nach Budgetrede, Wahlkampf, etc.)
+Extrahiere überprüfbare Faktenbehauptungen aus diesem Transkript.
 
-=== SCHRITT 2: GENRE-KLASSIFIZIERUNG ===
-Bestimme das Format und wähle EINE Kategorie:
-- HARD_NEWS: Fokus auf 1:1 Fakten
-- POLITISCHER_DISKURS: Fokus auf Argumente und Daten
-- SATIRE_POLEMIK: Fokus auf faktischen Kern hinter Übersteigerung
-- INTERVIEW: Unterscheide Journalistenfragen von Gastantworten
+Text: "${sanitized.slice(0, 4000)}"
 
-=== SCHRITT 3: STRATEGISCHE EXTRAKTION (Claim-Filter) ===
-Extrahiere Claims basierend auf Genre:
+WICHTIGE REGELN:
+1. Jede Behauptung MUSS semantisch vollständig sein (Subjekt + Prädikat + Objekt)
+2. NIEMALS Satzfragmente wie "Das haben sie gemacht" oder "Er sagte das" extrahieren
+3. Der Claim muss OHNE zusätzlichen Kontext verständlich und überprüfbar sein
+4. ERSETZE ALLE PRONOMEN UND REFERENZEN durch die konkreten Begriffe aus dem Kontext:
+   - "dieser Standard" → "der ISO 8601 Datumsstandard" (oder welcher Standard gemeint ist)
+   - "diese Organisation" → "die ITU" (oder welche Organisation gemeint ist)
+   - "das Land" → "Deutschland" (oder welches Land gemeint ist)
+5. NUR Behauptungen mit konkreten Zahlen, Daten, Namen oder überprüfbaren Fakten
+6. Wenn der Kontext fehlt um die Referenz aufzulösen, extrahiere den Claim NICHT
 
-FILTER-REGELN:
-1. NUR fälschbare Aussagen (Zahlen, Gesetze, spezifische Handlungen)
-2. NEUTRALISIERUNGS-ZWANG: Entferne ALLE wertenden Adjektive
-   - "Dieser Wahnsinn bei der MwSt" → "Änderung der Mehrwertsteuer in Österreich"
-   - "Der gierige Staat nimmt uns 90 Cent" → "Steueranteil pro Liter Benzin beträgt ca. 90 Cent"
-3. PERSPEKTIV-CHECK: Wenn Opposition spricht, ist "Die Lage ist katastrophal" KEINE Fakt-Aussage
-   - Extrahiere nur die konkrete Zahl dahinter (z.B. "Arbeitslosigkeit bei 7%")
-4. RHETORIK-FILTER: Ignoriere rein metaphorische Aussagen ("Die Welt brennt")
-5. SATIRE-MARKER: Bei falschen Titeln ("Witzekanzler") markiere als SATIRE, nicht als Fehler
+GUTE BEISPIELE:
+✓ "Die Arbeitslosenquote in Deutschland sank 2023 auf 5,7%"
+✓ "Tesla verkaufte 2023 über 1,8 Millionen Fahrzeuge weltweit"
+✓ "Der ITU-Standard für Zeitformate wurde von 20 Ländern übernommen"
 
-=== SCHRITT 4: VERIFIZIERUNG & GROUNDING (Stand Februar 2026) ===
-Prüfe gegen aktuelle Realität:
-- Österreich: Regierung Stocker/Babler (ÖVP-SPÖ Koalition seit Jan 2026)
-- Bei Titel-Diskrepanzen: "Kontextfehler" oder "Satiremarker" kennzeichnen
-- Suche primär in landesspezifischen Quellen (.at für Österreich, .de für Deutschland)
+SCHLECHTE BEISPIELE (NICHT EXTRAHIEREN):
+✗ "Heute hat fast jedes Land diesen Standard" (Welchen Standard?)
+✗ "Am Anfang haben nur drei Länder das übernommen" (Was übernommen?)
+✗ "Die Preise sind gesunken" (Welche Preise? Um wieviel?)
 
-=== TRANSKRIPT ===
-"${sanitized.slice(0, 4000)}"
+Antworte NUR mit JSON-Array:
+[{"claim": "Vollständige, selbsterklärende Behauptung mit allen aufgelösten Referenzen", "speaker": "Name oder null", "checkability": 1-5, "importance": 1-5, "category": "STATISTIK|WIRTSCHAFT|POLITIK|WISSENSCHAFT"}]
 
-=== OUTPUT-FORMAT ===
-Antworte mit JSON-Objekt:
-{
-  "context": {
-    "country": "AT|DE|CH|EU",
-    "genre": "HARD_NEWS|POLITISCHER_DISKURS|SATIRE_POLEMIK|INTERVIEW",
-    "speaker_perspective": "Regierung|Opposition|Journalist|Aktivist|Kommentator|Unbekannt",
-    "time_context": "Kurze Beschreibung"
-  },
-  "claims": [
-    {
-      "original": "Originalzitat aus dem Transkript",
-      "neutralized": "Neutralisierte, prüfbare Version ohne Wertung",
-      "speaker": "Name oder null",
-      "category": "STATISTIK|WIRTSCHAFT|POLITIK|GESETZ|WISSENSCHAFT",
-      "checkability": 1-5,
-      "importance": 1-5,
-      "is_satire": false
-    }
-  ]
-}
-
-Keine prüfbaren Fakten? Antworte: {"context": {...}, "claims": []}` :
+Keine überprüfbaren Fakten mit ausreichend Kontext? Antworte: []` :
         `You are a fact-checker. Extract verifiable factual claims from this transcript.
 
 Text: "${sanitized.slice(0, 4000)}"
@@ -335,66 +294,22 @@ No verifiable facts with sufficient context? Respond: []`;
             parsed = JSON.parse(result);
             console.log('[FAKTCHECK BG] JSON parsed successfully');
         } catch (parseError) {
-            console.log('[FAKTCHECK BG] JSON parse failed, trying to extract...');
-            // Try to find object with context/claims structure
-            const objMatch = result.match(/\{[\s\S]*"claims"[\s\S]*\}/);
-            if (objMatch) {
-                try {
-                    parsed = JSON.parse(objMatch[0]);
-                    console.log('[FAKTCHECK BG] Context-First object extracted');
-                } catch {
-                    // Fall back to array extraction
-                    const arrMatch = result.match(/\[[\s\S]*\]/);
-                    if (arrMatch) {
-                        parsed = JSON.parse(arrMatch[0]);
-                        console.log('[FAKTCHECK BG] Array extracted');
-                    } else {
-                        console.error('[FAKTCHECK BG] Could not find JSON in response');
-                        return { claims: [], lang, error: 'Could not parse response' };
-                    }
-                }
+            console.log('[FAKTCHECK BG] JSON parse failed, trying to extract array...');
+            const match = result.match(/\[[\s\S]*\]/);
+            if (match) {
+                parsed = JSON.parse(match[0]);
+                console.log('[FAKTCHECK BG] Array extracted successfully');
             } else {
-                const arrMatch = result.match(/\[[\s\S]*\]/);
-                if (arrMatch) {
-                    parsed = JSON.parse(arrMatch[0]);
-                    console.log('[FAKTCHECK BG] Array extracted successfully');
-                } else {
-                    console.error('[FAKTCHECK BG] Could not find JSON in response');
-                    return { claims: [], lang, error: 'Could not parse response' };
-                }
+                console.error('[FAKTCHECK BG] Could not find JSON array in response');
+                return { claims: [], lang, error: 'Could not parse response' };
             }
         }
 
-        // Handle new Context-First structure: {context: {...}, claims: [...]}
-        let claims = [];
-        let contextInfo = null;
-
-        if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
-            // New format: {context: {...}, claims: [...]}
-            contextInfo = parsed.context || null;
-            claims = parsed.claims || [];
-            console.log('[FAKTCHECK BG] Context-First format detected:', contextInfo);
-
-            // Transform new claim format to legacy format for UI compatibility
-            claims = claims.map(c => ({
-                claim: c.neutralized || c.original || c.claim || '',
-                original: c.original || null,
-                speaker: c.speaker || null,
-                category: c.category || 'POLITIK',
-                checkability: c.checkability || 3,
-                importance: c.importance || 3,
-                is_satire: c.is_satire || false
-            }));
-        } else if (Array.isArray(parsed)) {
-            // Legacy format: [{claim: "...", ...}]
-            claims = parsed;
-        }
-
-        const validated = validateClaims(claims);
+        const validated = validateClaims(parsed);
         console.log('[FAKTCHECK BG] ========== RESULT ==========');
         console.log('[FAKTCHECK BG] Extracted', validated.length, 'claims');
         validated.forEach((c, i) => console.log(`[FAKTCHECK BG]   ${i + 1}. ${c.claim.slice(0, 60)}...`));
-        return { claims: validated, lang, context: contextInfo };
+        return { claims: validated, lang };
     } catch (error) {
         console.error('[FAKTCHECK BG] ========== ERROR ==========');
         console.error('[FAKTCHECK BG] Extract claims failed:', error.message);
