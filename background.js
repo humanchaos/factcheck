@@ -97,47 +97,127 @@ function validateClaims(data) {
         speaker: item.speaker ? String(item.speaker).slice(0, 100) : null,
         checkability: Number(item.checkability) || 3,
         importance: Number(item.importance) || 3,
-        category: String(item.category || 'UNKNOWN')
+        category: String(item.category || 'UNKNOWN'),
+        // V3.0 fields
+        type: ['factual', 'causal', 'opinion'].includes(item.type) ? item.type : 'factual',
+        search_queries: Array.isArray(item.search_queries) ? item.search_queries.slice(0, 3) : [],
+        anchors: Array.isArray(item.anchors) ? item.anchors.slice(0, 5) : [],
+        is_satire_context: Boolean(item.is_satire_context)
     }));
     console.log('[FAKTCHECK BG] Validated claims:', valid.length);
     return valid;
 }
 
-function validateVerification(data) {
+// V3.0 Source Tier Domains
+const SOURCE_TIERS = {
+    tier1: [ // Official/Parliamentary - 1 source = sufficient
+        'parlament.gv.at', 'ris.bka.gv.at', 'orf.at', 'bundeskanzleramt.gv.at',
+        'bmj.gv.at', 'bmi.gv.at', 'rechnungshof.gv.at', 'bka.gv.at'
+    ],
+    tier2: [ // Quality Media - 2 sources = sufficient
+        'derstandard.at', 'diepresse.com', 'wienerzeitung.at', 'profil.at',
+        'falter.at', 'kurier.at', 'kleinezeitung.at', 'news.at', 'apa.at'
+    ]
+};
+
+function getSourceTier(url) {
+    if (!url) return 3;
+    try {
+        const domain = new URL(url).hostname.replace('www.', '');
+        if (SOURCE_TIERS.tier1.some(d => domain.includes(d))) return 1;
+        if (SOURCE_TIERS.tier2.some(d => domain.includes(d))) return 2;
+    } catch (e) { }
+    return 3;
+}
+
+// V3.0 JSON Extraction (handles Gemini markdown wrapping)
+function extractJSON(text) {
+    if (!text || typeof text !== 'string') return null;
+
+    // Try direct parse first
+    try { return JSON.parse(text.trim()); } catch (e) { }
+
+    // Remove markdown code fences
+    let cleaned = text.replace(/```json\s*/gi, '').replace(/```\s*/g, '');
+    try { return JSON.parse(cleaned.trim()); } catch (e) { }
+
+    // Extract JSON from preamble text
+    const jsonMatch = cleaned.match(/\[[\s\S]*\]|\{[\s\S]*\}/);
+    if (jsonMatch) {
+        try { return JSON.parse(jsonMatch[0]); } catch (e) { }
+    }
+
+    return null;
+}
+
+function validateVerification(data, claimType = 'factual') {
     const validVerdicts = ['true', 'mostly_true', 'partially_true', 'mostly_false', 'false', 'unverifiable', 'misleading', 'opinion', 'deceptive'];
     if (typeof data !== 'object' || !data) {
-        return { verdict: 'unverifiable', displayVerdict: 'unverifiable', confidence: 0, explanation: 'Invalid response', sources: [] };
+        return { verdict: 'unverifiable', displayVerdict: 'unverifiable', confidence: 0.3, explanation: 'Invalid response', sources: [] };
     }
 
     let verdict = validVerdicts.includes(data.verdict) ? data.verdict : 'unverifiable';
     let confidence = Math.max(0, Math.min(1, Number(data.confidence) || 0.5));
     let explanation = sanitize(String(data.explanation || ''), 500);
 
-    // Parse timeline for causal analysis
-    const timeline = data.timeline || {};
-    const intentDate = timeline.intent_date ? new Date(timeline.intent_date) : null;
-    const triggerDate = timeline.trigger_date ? new Date(timeline.trigger_date) : null;
+    // V3.0: Source tier analysis
+    const sources = Array.isArray(data.sources) ? data.sources.filter(s => s && s.url).slice(0, 5) : [];
+    const tieredSources = sources.map(s => ({
+        title: String(s.title || 'Source').slice(0, 100),
+        url: s.url,
+        tier: getSourceTier(s.url)
+    }));
 
-    // PHASE 4: CONFIDENCE DECAY & AUTOMATIC DECEPTIVE DETECTION
-    const isCausalClaim = intentDate || triggerDate;
+    const tier1Count = tieredSources.filter(s => s.tier === 1).length;
+    const tier2Count = tieredSources.filter(s => s.tier === 2).length;
+    const totalSources = tieredSources.length;
 
-    if (isCausalClaim) {
-        // Cap confidence for causal claims (harder to prove)
-        confidence = Math.min(confidence, 0.7);
-
-        // Auto-detect timeline contradiction
-        if (intentDate && triggerDate && intentDate < triggerDate) {
-            verdict = 'deceptive';
-            confidence = 0.95;  // High confidence it's deceptive
-            explanation = `Ereignis war bereits am ${timeline.intent_date} geplant, die angebliche Ursache trat erst am ${timeline.trigger_date} ein.`;
+    // V3.0: Tier-aware confidence adjustment
+    if (verdict === 'true' || verdict === 'mostly_true') {
+        if (tier1Count >= 1) {
+            confidence = Math.max(confidence, 0.85);  // 1 Tier-1 source = high confidence
+        } else if (tier2Count >= 2) {
+            confidence = Math.max(confidence, 0.80);  // 2 Tier-2 sources
+        } else if (totalSources >= 2) {
+            confidence = Math.min(confidence, 0.75);  // 2+ Tier-3 only
+        } else if (totalSources === 1) {
+            verdict = 'partially_true';  // Downgrade: only 1 low-tier source
+            confidence = Math.min(confidence, 0.60);
         }
     }
 
+    // V3.0: Causal analysis - ONLY for explicit causal claims
+    const isCausalClaim = claimType === 'causal';
+    const timeline = data.timeline || {};
+
+    if (isCausalClaim) {
+        const intentDate = timeline.intent_date ? new Date(timeline.intent_date) : null;
+        const triggerDate = timeline.trigger_date ? new Date(timeline.trigger_date) : null;
+
+        // Cap confidence for causal claims
+        confidence = Math.min(confidence, 0.70);
+
+        // Timeline contradiction detection
+        if (intentDate && triggerDate && intentDate < triggerDate) {
+            verdict = 'deceptive';
+            confidence = 0.90;  // V3: reduced from 0.95
+            explanation = `Ereignis war bereits am ${timeline.intent_date} geplant, die angebliche Ursache trat erst am ${timeline.trigger_date} ein.`;
+        } else if (verdict === 'true' && !intentDate && !triggerDate) {
+            // Facts true but causal link unproven
+            verdict = 'partially_true';
+            confidence = Math.min(confidence, 0.65);
+            explanation = (explanation || '') + ' Kausalzusammenhang nicht eindeutig belegt.';
+        }
+    }
+
+    // V3.0: Display mapping with deceptive → orange
     const displayMap = {
         'true': 'true', 'mostly_true': 'true',
-        'false': 'false', 'mostly_false': 'false', 'deceptive': 'false',
+        'false': 'false', 'mostly_false': 'false',
+        'deceptive': 'deceptive',  // V3: separate category (orange)
         'partially_true': 'partially_true', 'misleading': 'partially_true',
-        'unverifiable': 'unverifiable', 'opinion': 'opinion'
+        'unverifiable': 'unverifiable',
+        'opinion': 'opinion'  // V3: new category (purple)
     };
 
     return {
@@ -146,13 +226,10 @@ function validateVerification(data) {
         confidence,
         explanation,
         key_facts: Array.isArray(data.key_facts) ? data.key_facts.filter(f => typeof f === 'string').slice(0, 5) : [],
-        sources: Array.isArray(data.sources) ? data.sources.filter(s => s && s.url).slice(0, 5).map(s => ({
-            title: String(s.title || 'Source').slice(0, 100),
-            url: s.url,
-            tier: 3
-        })) : [],
+        sources: tieredSources,
         timeline: timeline,
-        is_causal: isCausalClaim
+        is_causal: isCausalClaim,
+        source_quality: tier1Count > 0 ? 'high' : tier2Count > 0 ? 'medium' : 'low'
     };
 }
 
@@ -347,43 +424,46 @@ async function extractClaims(text, apiKey, metadata = null) {
     }
 
     const prompt = lang === 'de' ?
-        `# Rolle: Neutraler Informations-Auditor (Strict Mode)
+        `# FAKTCHECK v3.0 — Extraktions-Engine
 ${groundingContext}
 
 ## AUFGABE
-Extrahiere Claims aus dem Transcript nach dem **Anker-Prinzip**:
+Extrahiere Claims nach dem Anker-Prinzip mit QUERY DECOMPOSITION:
 
-### 1. CLAIM HYDRATION (PFLICHT!)
+### 1. CLAIM HYDRATION
 Jeder Claim MUSS die "Wer-Was-Wo-Regel" erfüllen:
-- Ersetze ALLE Pronomen ("er", "sie", "es", "wir") durch konkrete Namen
-- Ergänze den Kontext des Gremiums/Ereignisses aus dem Video-Titel
-- Mache jeden Claim SUCHBAR für Google
+- Ersetze ALLE Pronomen durch konkrete Namen
+- Ergänze Kontext aus Video-Titel/Gremium
 
-BEISPIELE:
-❌ "Es gab Kurse" 
-✅ "Christian Hafenecker behauptet im Pilnacek-U-Ausschuss, dass es Vorbereitungskurse von ÖVP-nahen Anwälten für Auskunftspersonen gab."
+### 2. QUERY DECOMPOSITION (NEU!)
+Für jeden Claim generiere 2-3 kurze Such-Queries (3-6 Wörter):
+- Kombiniere Schlüssel-Entitäten für Google-Suche
+- NICHT den ganzen hydratisierten Satz verwenden
 
-❌ "Wir werden den Innenminister dazu befragen"
-✅ "Christian Hafenecker (FPÖ) kündigt eine parlamentarische Anfrage an Innenminister Gerhard Karner (ÖVP) bezüglich der Vorbereitungskurse für Zeugen an."
+BEISPIEL:
+Claim: "Im Pilnacek-U-Ausschuss wird behauptet, dass es Vorbereitungskurse gab"
+search_queries: ["Hafenecker Vorbereitungskurse Zeugen U-Ausschuss", "ÖVP Anwälte Auskunftspersonen Pilnacek"]
 
-❌ "Der Tatort war nicht abgesperrt"
-✅ "Im Pilnacek-U-Ausschuss wird der Vorwurf erhoben, dass der Fundort der Leiche von Christian Pilnacek von den Behörden nicht ordnungsgemäß abgesperrt wurde."
+### 3. TYPE DETECTION
+- "factual": Reine Faktenbehauptung
+- "causal": Enthält "weil/aufgrund/verursacht/führte zu"
+- "opinion": Werturteil/Meinung einer Person (z.B. "X kritisiert", "Y fordert")
 
-### 2. Entpolemisierung
-Schäle den Faktenkern aus Metaphern heraus.
-
-### 3. Kausal-Erkennung
-Markiere Claims mit "weil/aufgrund/verursacht" als type: "causal".
-
-## VETO-REGELN
-- LÖSCHE NUR: Reine Befindlichkeiten ohne Handlungsbezug
-- NICHT LÖSCHEN: Alles mit Entitäten → hydratisieren!
+### 4. VETO
+LÖSCHE NUR: Reine Befindlichkeiten ("Er ist glücklich")
+BEHALTE: Alles mit Entitäten → hydratisieren!
 
 ## Text:
 "${sanitized.slice(0, 4000)}"
 
 ## Output (NUR JSON-Array):
-[{"claim": "Vollständig hydratisierter Satz mit allen Namen und Kontext", "anchors": ["Person1", "Institution", "Ereignis"], "type": "factual|causal", "is_satire_context": false}]
+[{
+  "claim": "Hydratisierter Satz mit Namen/Kontext",
+  "search_queries": ["Query1 3-6 Wörter", "Query2 3-6 Wörter"],
+  "anchors": ["Person", "Institution", "Ereignis"],
+  "type": "factual|causal|opinion",
+  "is_satire_context": false
+}]
 
 Keine Claims? Antworte: []` :
         `You are a fact-checker. Extract verifiable factual claims from this transcript.
@@ -448,41 +528,54 @@ No verifiable facts with sufficient context? Respond: []`;
     }
 }
 
-// Verify Claim
-async function verifyClaim(claimText, apiKey, lang = 'de') {
+// Verify Claim (v3.0 with type-awareness)
+async function verifyClaim(claimText, apiKey, lang = 'de', claimType = 'factual') {
     console.log('[FAKTCHECK BG] ========== VERIFY CLAIM ==========');
     console.log('[FAKTCHECK BG] Claim:', claimText.slice(0, 80) + '...');
+    console.log('[FAKTCHECK BG] Type:', claimType);
 
     const cached = await getCached(claimText);
     if (cached) return cached;
 
     const sanitized = sanitize(claimText, 1000);
+    const isCausal = claimType === 'causal';
+
+    // V3.0: Build type-specific prompt
+    const causalBlock = isCausal ? `
+## KAUSAL-CHECK (nur für diesen Claim!)
+Suche aktiv nach Gegenbeweisen:
+- CONTRADICTION: "[Ereignis] bereits vor [Trigger-Datum] geplant?"
+- Wenn Intent VOR Trigger → "deceptive"
+- Confidence max 0.70 für Kausal-Claims
+` : '';
 
     const prompt = lang === 'de' ?
-        `# INVESTIGATIVE VERIFIKATION v2.0
+        `# FAKTCHECK v3.0 — Verifizierungs-Engine
 
 ## CLAIM: "${sanitized}"
+## TYPE: ${claimType}
 
-## TRIPLE-QUERY SEARCH (generiere automatisch):
-1. STATUS: "[Anchor1] [Anchor2] Fakten aktuell"
-2. TIMELINE: "Wann passierte [Ereignis]? Datum"  
-3. CONTRADICTION: "[Ereignis] bereits vor [Trigger-Datum] geplant?"
+## SUCH-STRATEGIE
+1. STATUS: Prüfe aktuelle Fakten zu den Entitäten
+2. TIMELINE: Extrahiere Datumsangaben aus Quellen
+${isCausal ? '3. CONTRADICTION: Suche nach Gegenbeweisen für Kausalität' : ''}
 
-## SCHRITT 1: TIMELINE-CHECK
-Prüfe Zeitstempel der Suchergebnisse:
-- Wenn Folge B zeitlich VOR Ursache A liegt → **DECEPTIVE**
+${causalBlock}
 
-## SCHRITT 2: CONFIDENCE DECAY
-- Kausal-Claims (weil/aufgrund): Deckle confidence bei max 0.7
-- Begründung: "Zeitliche Korrelation beweist keine Kausalität"
+## QUELLEN-BEWERTUNG (v3.0 Tier-System)
+- Tier-1 (parlament.gv.at, orf.at, ris.bka.gv.at): 1 Quelle reicht
+- Tier-2 (derstandard.at, diepresse.com, profil.at): 2 Quellen nötig
+- Tier-3 (alle anderen): 2+ Quellen, keine Widersprüche
 
-## SCHRITT 3: VERDICT MATRIX
-- TRUE: Belegt durch mind. 2 unabhängige Quellen
-- FALSE: Widerlegt durch offizielle Daten
-- DECEPTIVE: Fakten stimmen, aber zeitlicher Zusammenhang ist falsch
-- PARTIALLY_TRUE: Kern stimmt, Details fragwürdig
+## VERDICT MATRIX
+- TRUE: 1x Tier-1 ODER 2x Tier-2 ODER 2x Tier-3 ohne Widerspruch
+- FALSE: Offizielle Daten widerlegen
+- DECEPTIVE: Fakten ok, aber Kausal-Link zeitlich unmöglich
+- PARTIALLY_TRUE: Kern ok, Details fragwürdig ODER nur 1x Tier-3
+- OPINION: Claim ist Werturteil/Meinung
+- UNVERIFIABLE: Null Quellen gefunden
 
-## WICHTIG: ENTSCHEIDE! Nur "unverifiable" wenn NULL Quellen gefunden.
+## WICHTIG: ENTSCHEIDE! "unverifiable" nur bei NULL Quellen.
 
 ## OUTPUT (NUR JSON):
 {"verdict": "true", "confidence": 0.85, "explanation": "Kurze Begründung.", "sources": [{"title": "Quelle", "url": "https://..."}]}` :
@@ -498,18 +591,15 @@ Possible verdicts: true, false, partially_true, unverifiable, opinion`;
     try {
         // Use Google Search for verification!
         const result = await callGeminiWithSearch(apiKey, prompt);
-
-        let parsed;
-        try {
-            parsed = JSON.parse(result);
-        } catch {
-            const match = result.match(/\{[\s\S]*\}/);
-            parsed = match ? JSON.parse(match[0]) : { verdict: 'unverifiable' };
+        // V3.0: Use extractJSON for robust Gemini response handling
+        let parsed = extractJSON(result);
+        if (!parsed) {
+            parsed = { verdict: 'unverifiable', explanation: 'Could not parse response' };
         }
 
-        const validated = validateVerification(parsed);
+        const validated = validateVerification(parsed, claimType);
         await setCache(claimText, validated);
-        console.log('[FAKTCHECK BG] Verdict:', validated.verdict, '| Confidence:', validated.confidence);
+        console.log('[FAKTCHECK BG] Verdict:', validated.verdict, '| Confidence:', validated.confidence, '| Quality:', validated.source_quality);
         return validated;
     } catch (error) {
         console.error('[FAKTCHECK BG] Verify failed:', error.message);
@@ -569,7 +659,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
                     sendResponse({ error: 'No API key', verification: null });
                     return;
                 }
-                const verification = await verifyClaim(message.claim, geminiApiKey, message.lang || 'de');
+                const verification = await verifyClaim(message.claim, geminiApiKey, message.lang || 'de', message.claimType || 'factual');
                 sendResponse({ verification });
             } catch (e) {
                 console.error('[FAKTCHECK BG] Verify handler error:', e);
