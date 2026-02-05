@@ -347,52 +347,29 @@ async function extractClaims(text, apiKey, metadata = null) {
     }
 
     const prompt = lang === 'de' ?
-        `# INVESTIGATIVER AUDITOR v2.0
+        `# Rolle: Neutraler Informations-Auditor (Strict Mode)
 ${groundingContext}
 
-## PHASE 1: EXTRAKTION (Distillation statt Zensur)
+## AUFGABE
+Extrahiere Claims aus dem Transcript nach dem **Anker-Prinzip**:
 
-### NEUTRALER MODUS:
-Extrahiere ALLE Claims wertfrei. Wenn jemand sagt "Die Erde ist flach" = das ist ein Claim.
+1. **Entpolemisierung:** Schäle den Faktenkern aus Metaphern heraus.
+   - "Schwarzer Faden der Einflussnahme" → "Es gab politische Einflussnahme auf die Ermittlungen"
+   - "Staatsschiff sinkt" → "Staatsverschuldung steigt"
 
-### ANKER-PRINZIP:
-Für jeden Claim identifiziere:
-- SUBJEKT: Wer/Was?
-- PRÄDIKAT: Tut was?
-- OBJEKT: Wem/Was?
-- ENTITÄTEN: Namen, Ämter, Zahlen, Daten
+2. **Entitäten-Fokus:** Identifiziere Personen, Institutionen, Ereignisse, Zahlen.
 
-### DE-POLEMISIERUNG:
-Wandle Metaphern in Sachverhalte um:
-- "Das Staatsschiff sinkt wegen der Schuldenlast"
-  → {"claim": "Staatsverschuldung führt zu wirtschaftlichem Kollaps", "anchors": ["Staatsverschuldung"]}
+3. **Kausal-Erkennung:** Markiere Claims mit "weil/aufgrund/verursacht" als type: "causal".
 
-### KAUSAL-DETECTION:
-Wenn Claim Form "A verursacht B" hat:
-- Markiere als claim_type: "causal"
-- Extrahiere cause_entity und effect_entity separat
-
-### SATIRE-MARKER:
-Setze is_satire_context: true bei Ironie-Markern:
-- "Operettenstaat", "Beste Regierung aller Zeiten", "Witzekanzler"
-
-### VETO (NUR löschen wenn):
-- Reine Psychologie OHNE Faktenkern: "X ist besorgt"
-- Keine Entitäten identifizierbar
+## VETO-REGELN
+- LÖSCHE NUR: Reine Befindlichkeiten ("Er ist glücklich") oder vage Meinungen ohne Handlungsbezug.
+- NICHT LÖSCHEN: Metaphern mit Faktenbezug → übersetze sie in neutrale Claims.
 
 ## Text:
 "${sanitized.slice(0, 4000)}"
 
 ## Output (NUR JSON-Array):
-[{
-  "claim": "Neutralisierter Faktensatz",
-  "speaker": "Name",
-  "anchors": ["Entität1", "Entität2"],
-  "claim_type": "factual|causal",
-  "cause_entity": "nur bei causal",
-  "effect_entity": "nur bei causal",
-  "is_satire_context": false
-}]
+[{"claim": "Neutralisierter Satz", "anchors": ["Entität1", "Entität2"], "type": "factual|causal", "is_satire_context": false}]
 
 Keine Claims? Antworte: []` :
         `You are a fact-checker. Extract verifiable factual claims from this transcript.
@@ -472,37 +449,29 @@ async function verifyClaim(claimText, apiKey, lang = 'de') {
 
 ## CLAIM: "${sanitized}"
 
-## PHASE 2: DREI-WEGE-SUCHE
-Führe automatisch drei Queries durch:
-1. STATUS-CHECK: Ist der Fakt-Kern aktuell korrekt?
-2. TRIGGER-CHECK: Wann passierte die angebliche Ursache? (Datum)
-3. INTENT-CHECK: War das Ereignis schon VOR dem Trigger geplant/angekündigt?
+## TRIPLE-QUERY SEARCH (generiere automatisch):
+1. STATUS: "[Anchor1] [Anchor2] Fakten aktuell"
+2. TIMELINE: "Wann passierte [Ereignis]? Datum"  
+3. CONTRADICTION: "[Ereignis] bereits vor [Trigger-Datum] geplant?"
 
-## PHASE 3: ENTSCHEIDUNGS-MATRIX
-| Szenario | Bedingung | Verdict |
-|----------|-----------|---------|
-| FAKT-FEHLER | Entität existiert nicht / Wert weicht ab | FALSE |
-| KAUSAL-FEHLER | Ereignis B war vor Ursache A geplant | DECEPTIVE |
-| KORRELATION | A vor B, aber kein Beleg für kausalen Link | PARTIALLY_TRUE |
-| BESTÄTIGT | Zeitlinie passt + Quellen bestätigen | TRUE |
+## SCHRITT 1: TIMELINE-CHECK
+Prüfe Zeitstempel der Suchergebnisse:
+- Wenn Folge B zeitlich VOR Ursache A liegt → **DECEPTIVE**
 
-## WICHTIG:
-- ENTSCHEIDE! Nur "unverifiable" wenn wirklich NULL Quellen.
-- Bei Kausal-Claims: Suche aktiv nach Gegenbeweisen (Intent vor Trigger)
-- "Post hoc" ist nicht "Propter hoc"
+## SCHRITT 2: CONFIDENCE DECAY
+- Kausal-Claims (weil/aufgrund): Deckle confidence bei max 0.7
+- Begründung: "Zeitliche Korrelation beweist keine Kausalität"
+
+## SCHRITT 3: VERDICT MATRIX
+- TRUE: Belegt durch mind. 2 unabhängige Quellen
+- FALSE: Widerlegt durch offizielle Daten
+- DECEPTIVE: Fakten stimmen, aber zeitlicher Zusammenhang ist falsch
+- PARTIALLY_TRUE: Kern stimmt, Details fragwürdig
+
+## WICHTIG: ENTSCHEIDE! Nur "unverifiable" wenn NULL Quellen gefunden.
 
 ## OUTPUT (NUR JSON):
-{
-  "verdict": "true|false|partially_true|deceptive|unverifiable",
-  "confidence": 0.85,
-  "explanation": "Kurze Begründung mit Timeline.",
-  "timeline": {
-    "trigger_date": "2026-01-17 oder null",
-    "effect_date": "2026-01-18 oder null",
-    "intent_date": "2026-01-10 oder null"
-  },
-  "sources": [{"title": "Quelle", "url": "https://..."}]
-}` :
+{"verdict": "true", "confidence": 0.85, "explanation": "Kurze Begründung.", "sources": [{"title": "Quelle", "url": "https://..."}]}` :
         `Verify this claim: "${sanitized}"
 
 Evaluate if the claim is true, false, or unverifiable.
