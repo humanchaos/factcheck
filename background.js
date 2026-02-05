@@ -224,37 +224,38 @@ async function extractClaims(text, apiKey, metadata = null) {
     }
 
     const prompt = lang === 'de' ?
-        `# Rolle: Neutraler Informations-Auditor v2.0
+        `# Rolle: Universeller Informations-Analyst v3.0
 ${groundingContext}
 
-## Schritt 1: Kontext-Einstufung (Zwingend)
-Bevor du Claims extrahierst, analysiere das Video:
-1. Land/Region: Welches Land wird adressiert? (z.B. Österreich, Deutschland, USA)
-2. Sprecher: Wer spricht und welche Rolle? (Journalist, Comedian, Politiker, Aktivist)
-3. Genre: NACHRICHTEN | SATIRE | KOMMENTAR | DISKURS
-4. Ironie-Marker: Übertreibungen ("Beste Regierung aller Zeiten"), Spottnamen ("Witzekanzler"), absurde Szenarien
+## PHASE 1: Kontextuelle Orientierung (MANDATORISCH)
+Bevor du Claims extrahierst, definiere im ersten Schritt den Rahmen:
+1. **Geografie:** Welches Land/Region wird adressiert?
+2. **Sprecherprofil:** Name, Rolle und mutmaßliche Perspektive (z.B. "Oppositionskritik", "Regierungs-PR").
+3. **Genre-Check:** Handelt es sich um NEWS, SATIRE, eine DEBATTE oder ein INTERVIEW?
+4. **Modus:** Wie ist der Tonfall? (Neutral, Ironisch, Aggressiv). Suche nach Markern wie "Operettenstaat" oder "Beste Regierung aller Zeiten".
 
-## Schritt 2: Extraktions-Regeln (Qualitäts-Filter)
-Extrahiere einen Claim NUR, wenn er:
-- Vollständig ist (Subjekt, Verb, Objekt vorhanden)
-- Falsifizierbar ist (Zahlen, Daten, spezifische Gesetzesnamen)
-- Relevant ist (Ignoriere "Die Welt brennt" oder "Es ist schwierig")
+## PHASE 2: Kontext-Sensitive Extraktion
+Extrahiere Claims basierend auf dem in Phase 1 ermittelten Genre:
+- **Bei NEWS:** Extrahiere 1:1 Fakten.
+- **Bei SATIRE/POLEMIK:** Ignoriere die Witze (z.B. "Goldverbot", "Bananenverbot"). Extrahiere nur den harten Kern (z.B. "Mehrwertsteuersenkung auf 4,9%").
+- **Qualitäts-Gate:** Extrahiere NUR Claims mit vollständigem Subjekt, Verb und Objekt. Verwerfe Fragmente wie "Der US-Präsident".
 
-## Schritt 3: Neutralisierungs-Zwang
-Wandle polemische Aussagen in neutrale Prüfsätze um:
-- "Andi Babler liest seine Einkaufsliste vor" → "Andreas Babler präsentiert eine Liste zur Mehrwertsteuersenkung"
+## PHASE 3: Neutralisierungs-Zwang
+Wandle alle polemischen oder emotionalen Aussagen in sachliche Prüfsätze um.
+- "Andi Babler liest seine Einkaufsliste im Staatsfunk" → "Andreas Babler präsentiert im ORF eine Liste zur MwSt-Senkung"
 - "Der gierige Staat nimmt uns 90 Cent" → "Steueranteil pro Liter Benzin beträgt ca. 90 Cent"
 
-## Schritt 4: Grounding (Fakten-Check Februar 2026)
-- Österreich: Regierung Stocker/Babler, MwSt auf Grundnahrungsmittel 4,9%
-- Polemische Aussagen (Goldverbot, etc.) gegen offizielle Regierungsdaten prüfen
-- Bei Sarkasmus: als "Satirische Hyperbel" kennzeichnen
+## PHASE 4: Grounding & Verdict (Stand 5. Februar 2026)
+- Nutze das aktuelle Datum (5. Februar 2026) als Basis
+- Prüfe gegen reale Entitäten: Kanzler Stocker, Vizekanzler Babler (ÖVP-SPÖ Koalition)
+- Österreich: MwSt auf Grundnahrungsmittel 4,9%
+- Wenn ein Claim aufgrund von Ironie faktisch falsch ist, kennzeichne als "satirical_hyperbole": true
 
 ## Text:
 "${sanitized.slice(0, 4000)}"
 
 ## Output (NUR JSON-Array):
-[{"claim": "Neutralisierter, prüfbarer Claim", "speaker": "Name oder null", "checkability": 1-5, "importance": 1-5, "category": "STATISTIK|WIRTSCHAFT|POLITIK|GESETZ", "is_satire": false}]
+[{"claim": "Neutralisierter, sachlicher Prüfsatz", "speaker": "Name oder null", "checkability": 1-5, "importance": 1-5, "category": "STATISTIK|WIRTSCHAFT|POLITIK|GESETZ", "is_satire": false, "satirical_hyperbole": false}]
 
 Keine prüfbaren Claims? Antworte: []` :
         `You are a fact-checker. Extract verifiable factual claims from this transcript.
