@@ -4,7 +4,7 @@
 const GEMINI_API_BASE = 'https://generativelanguage.googleapis.com/v1beta/models';
 
 // ✅ FIX #1: Use correct, stable model name
-const DEFAULT_MODEL = 'gemini-2.5-flash-lite';
+const DEFAULT_MODEL = 'gemini-1.5-flash';  // More stable than 2.5-flash-lite
 
 console.log('[FAKTCHECK BG] ====================================');
 console.log('[FAKTCHECK BG] Service worker started');
@@ -133,7 +133,7 @@ function detectLang(text) {
 }
 
 // ✅ FIX #2: Gemini API call with proper error handling and NO broken tools
-async function callGemini(apiKey, prompt) {
+async function callGemini(apiKey, prompt, retryAttempt = 0) {
     const url = `${GEMINI_API_BASE}/${DEFAULT_MODEL}:generateContent?key=${apiKey}`;
 
     console.log('[FAKTCHECK BG] ----------------------------------------');
@@ -158,6 +158,17 @@ async function callGemini(apiKey, prompt) {
         });
 
         console.log('[FAKTCHECK BG] Response status:', response.status);
+
+        // Retry on 503 (overloaded) or 429 (rate limit) with exponential backoff
+        if (response.status === 503 || response.status === 429) {
+            const retryCount = retryAttempt + 1;
+            if (retryCount <= 3) {
+                const delay = Math.pow(2, retryCount) * 1000; // 2s, 4s, 8s
+                console.log(`[FAKTCHECK BG] Model overloaded, retry ${retryCount}/3 in ${delay}ms...`);
+                await new Promise(r => setTimeout(r, delay));
+                return callGemini(apiKey, prompt, retryCount);
+            }
+        }
 
         if (!response.ok) {
             const errorText = await response.text();
