@@ -853,52 +853,59 @@
 
         console.log('[FAKTCHECK] Starting live caption observer on main player');
 
+        let debounceTimer = null;
         captionObserver = new MutationObserver(() => {
-            if (!isProcessing) return;
+            // Debounce: batch rapid mutations
+            if (debounceTimer) clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(() => {
+                if (!isProcessing) return;
 
-            const segments = mainPlayer.querySelectorAll('.ytp-caption-segment');
-            if (segments.length === 0) return;
+                const segments = mainPlayer.querySelectorAll('.ytp-caption-segment');
+                if (segments.length === 0) return;
 
-            const video = document.querySelector('#movie_player video');
-            const currentTime = video?.currentTime || 0;
+                const video = document.querySelector('#movie_player video');
+                const currentTime = video?.currentTime || 0;
 
-            segments.forEach(el => {
-                const text = el.textContent?.trim();
-                if (text && text.length > 2 && !captionBuffer.includes(text)) {
-                    captionBuffer.push(text);
-                    // Also add to context buffer with timestamp
-                    contextBuffer.push({ text, time: currentTime });
+                segments.forEach(el => {
+                    const text = el.textContent?.trim();
+                    if (text && text.length > 2 && !captionBuffer.includes(text)) {
+                        captionBuffer.push(text);
+                        // Size cap: prevent memory bloat
+                        if (captionBuffer.length > 100) captionBuffer.shift();
+                        // Also add to context buffer with timestamp
+                        contextBuffer.push({ text, time: currentTime });
+                    }
+                });
+
+                // Prune context buffer to last 30 seconds
+                const cutoffTime = currentTime - 30;
+                contextBuffer = contextBuffer.filter(c => c.time > cutoffTime);
+
+                const newText = captionBuffer.join(' ');
+                const now = Date.now();
+
+                // Process every 15 seconds if we have 400+ new chars
+                if (newText.length > 400 && (now - lastProcessTime > 15000)) {
+                    // Build context from the 30s buffer (excluding current batch)
+                    const contextText = contextBuffer
+                        .filter(c => !captionBuffer.includes(c.text))
+                        .map(c => c.text)
+                        .join(' ');
+
+                    console.log('[FAKTCHECK] Processing:', newText.length, 'new chars +', contextText.length, 'context chars');
+
+                    // Combine: context (as background) + new text (to analyze)
+                    const fullText = contextText.length > 100
+                        ? `[Context from previous 30 seconds: ${contextText}]\n\nNew content to analyze:\n${newText}`
+                        : newText;
+
+                    processText(fullText, currentTime);
+
+                    // Clear the new text buffer but keep context buffer rolling
+                    captionBuffer = [];
+                    lastProcessTime = now;
                 }
-            });
-
-            // Prune context buffer to last 30 seconds
-            const cutoffTime = currentTime - 30;
-            contextBuffer = contextBuffer.filter(c => c.time > cutoffTime);
-
-            const newText = captionBuffer.join(' ');
-            const now = Date.now();
-
-            // Process every 15 seconds if we have 400+ new chars
-            if (newText.length > 400 && (now - lastProcessTime > 15000)) {
-                // Build context from the 30s buffer (excluding current batch)
-                const contextText = contextBuffer
-                    .filter(c => !captionBuffer.includes(c.text))
-                    .map(c => c.text)
-                    .join(' ');
-
-                console.log('[FAKTCHECK] Processing:', newText.length, 'new chars +', contextText.length, 'context chars');
-
-                // Combine: context (as background) + new text (to analyze)
-                const fullText = contextText.length > 100
-                    ? `[Context from previous 30 seconds: ${contextText}]\n\nNew content to analyze:\n${newText}`
-                    : newText;
-
-                processText(fullText, currentTime);
-
-                // Clear the new text buffer but keep context buffer rolling
-                captionBuffer = [];
-                lastProcessTime = now;
-            }
+            }, 100);  // 100ms debounce
         });
 
         captionObserver.observe(mainPlayer, { childList: true, subtree: true });
