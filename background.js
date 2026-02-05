@@ -438,8 +438,13 @@ async function verifyClaim(claimText, apiKey, lang = 'de') {
     const prompt = lang === 'de' ?
         `VERIFIZIERE: "${sanitized}"
 
-REGELN:
-- explanation: MAX 1 SATZ, max 15 Wörter
+KONTEXT-FIRST REGELN:
+1. NUR Quellen verwenden, die Land UND Sachverhalt EXAKT treffen
+2. KEINE Cross-Context Quellen (z.B. Ukraine-Hilfen für AT-Staatsfinanzen)
+3. Kein exakter Match gefunden? → verdict: "unverifiable"
+
+OUTPUT-REGELN:
+- explanation: MAX 1 SATZ, max 15 Wörter  
 - Mindestens 1 Source mit URL (PFLICHT)
 - NUR JSON, kein Markdown
 
