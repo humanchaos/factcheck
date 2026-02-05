@@ -72,10 +72,15 @@ async function setCache(claim, data) {
     } catch (e) { }
 }
 
-// Sanitization
+// Sanitization with prompt injection protection
 function sanitize(text, maxLen = 5000) {
     if (typeof text !== 'string') return '';
-    return text.replace(/[\x00-\x1F\x7F]/g, '').slice(0, maxLen).trim();
+    return text
+        .replace(/[\x00-\x1F\x7F]/g, '')  // Remove control chars
+        .replace(/"/g, '\\"')              // Escape double quotes
+        .replace(/`/g, "'")                // Replace backticks
+        .slice(0, maxLen)
+        .trim();
 }
 
 function validateClaims(data) {
