@@ -235,45 +235,39 @@ async function extractClaims(text, apiKey, metadata = null) {
     }
 
     const prompt = lang === 'de' ?
-        `# Rolle: Universeller Informations-Analyst v3.1
+        `# Rolle: Senior Information Auditor (Context-First)
 ${groundingContext}
 
-## ⛔ VETO-REGEL (HÖCHSTE PRIORITÄT)
-EXTRAHIERE NICHT, wenn:
-1. Keine harten Anker vorhanden (Zahlen, Eigennamen, Gesetze, spezifische Daten)
-2. Metaphern enthalten ("heiße Luft", "Staatsschiff", "vor die Hunde gehen")
-3. Ironischer Einstieg ("die beste Regierung aller Zeiten", "Witzekanzler")
-4. Rein subjektive Adjektive ohne Fakten
+## SCHRITT 1: KONTEXT-PROFIL (Zwingend vor Extraktion)
+Bevor du Fakten suchst, erstelle intern ein Profil des Videos:
+- **Geografie:** Welches Land wird adressiert? (Österreich, Deutschland, USA, etc.)
+- **Sprecher:** Wer spricht? (Name, Rolle).
+- **Genre:** NEWS | SATIRE | TALK | SPEECH.
+- **Bias-Check:** Ist der Ton neutral, polemisch oder ironisch? Marker: "Operettenstaat", "Beste Regierung aller Zeiten".
 
-Ein Claim muss so trocken sein wie ein Gesetzestext.
+## SCHRITT 2: EXTRAKTIONS-FILTER (Qualitäts-Gate)
+Extrahiere einen Claim NUR, wenn er:
+1. **Falsifizierbar ist:** (Zahlen, Daten, Gesetze, spezifische Handlungen).
+2. **Vollständig ist:** (Subjekt, Prädikat, Objekt müssen vorhanden sein).
+3. **Relevant ist:** Verwerfe Metaphern ("Staatsschiff", "heiße Luft"), Witze und rein subjektive Meinungen ("Es ist ernst").
 
-## SPRECHER-MAPPING
-Wenn im Text ein klarer Sprecher genannt wird (z.B. "Der Wegscheider", "Armin Wolf"), setze diesen als Standard-Sprecher für ALLE Claims in diesem Chunk. Nur bei explizitem Sprecherwechsel (z.B. Interviewgast) ändern.
+## SCHRITT 3: NEUTRALISIERUNGS-GEBOT
+Wandle jede polemische Aussage in einen neutralen Prüfsatz um.
+- "Witzekanzler liest Einkaufsliste vor" → "Vizekanzler Babler präsentiert Liste zur MwSt-Senkung"
 
-## PHASE 1: Kontextuelle Orientierung
-1. **Geografie:** Land/Region
-2. **Sprecherprofil:** Name + Rolle + Perspektive
-3. **Genre:** NEWS | SATIRE | DEBATTE | INTERVIEW
-4. **Modus:** Neutral | Ironisch | Aggressiv
-
-## PHASE 2: Kontext-Sensitive Extraktion
-- **NEWS:** 1:1 Fakten
-- **SATIRE:** Nur harter Kern (z.B. "MwSt 4,9%"), Witze ignorieren
-- **Qualitäts-Gate:** Vollständige Sätze (S+V+O), Fragmente verwerfen
-
-## PHASE 3: Neutralisierung
-Polemik → sachliche Prüfsätze
-
-## PHASE 4: Grounding (5. Feb 2026)
-Stocker/Babler, MwSt 4,9%, Ironie → satirical_hyperbole: true
+## SCHRITT 4: GROUNDING (Realität Februar 2026)
+- Aktuelles Datum: 5. Februar 2026
+- Österreich: Bundeskanzler Christian Stocker, Vizekanzler Andreas Babler
+- Wirtschaft: MwSt auf Grundnahrungsmittel beträgt 4,9%
+- Kennzeichne Witze/Übertreibungen als "satirical_hyperbole": true
 
 ## Text:
 "${sanitized.slice(0, 4000)}"
 
 ## Output (NUR JSON-Array):
-[{"claim": "Trockener Fakt mit Anker", "speaker": "Erkannter Sprecher", "checkability": 1-5, "importance": 1-5, "category": "STATISTIK|WIRTSCHAFT|POLITIK|GESETZ", "is_satire": false, "satirical_hyperbole": false}]
+[{"claim": "Neutraler, prüfbarer Fakt", "speaker": "Name des Sprechers", "checkability": 1-5, "importance": 1-5, "category": "STATISTIK|WIRTSCHAFT|POLITIK|GESETZ", "satirical_hyperbole": false}]
 
-Keine prüfbaren Claims mit Ankern? Antworte: []` :
+Keine prüfbaren Claims? Antworte: []` :
         `You are a fact-checker. Extract verifiable factual claims from this transcript.
 
 Text: "${sanitized.slice(0, 4000)}"

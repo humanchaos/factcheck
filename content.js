@@ -68,45 +68,23 @@
     }
 
     // ==================== Transcript Cleaning ====================
-    // Aggressive N-gram deduplication for 60%+ token savings
-    // Phase 1: Phrase repetition (3-50 chars)
-    // Phase 2: N-gram sliding window (2-5 word groups)
-    // Phase 3: Duplicate consecutive words
+    // Removes stuttering phrases and word repetitions
     function cleanTranscript(text) {
         if (!text) return '';
+        let cleaned = text.replace(/\s+/g, ' ').trim();
 
-        // Phase 1: Remove repeated phrases (3-50 chars) - catches longer repeats
-        let cleaned = text.replace(/(.{3,50})\1+/gi, '$1');
+        // Remove phrase repetitions (3-50 chars) - loop until stable
+        const phraseRegex = /(.{3,50})\1+/gi;
+        let prev;
+        do {
+            prev = cleaned;
+            cleaned = cleaned.replace(phraseRegex, '$1');
+        } while (cleaned !== prev);
 
-        // Phase 2: N-gram deduplication (sliding window for word groups)
-        const words = cleaned.split(/\s+/);
-        const seen = new Set();
-        const result = [];
-
-        for (let i = 0; i < words.length; i++) {
-            // Check 2-5 word N-grams for duplicates
-            let isDuplicate = false;
-            for (let n = 5; n >= 2; n--) {
-                if (i + n <= words.length) {
-                    const ngram = words.slice(i, i + n).join(' ').toLowerCase();
-                    if (seen.has(ngram)) {
-                        isDuplicate = true;
-                        i += n - 1; // Skip the duplicate N-gram
-                        break;
-                    }
-                    seen.add(ngram);
-                }
-            }
-
-            if (!isDuplicate) {
-                // Phase 3: Skip consecutive duplicate words
-                if (i < words.length - 1 && words[i].toLowerCase() === words[i + 1].toLowerCase()) {
-                    continue;
-                }
-                result.push(words[i]);
-            }
-        }
-        return result.join(' ');
+        // Remove word repetitions (e.g., "Land Land")
+        return cleaned.split(' ').filter((word, i, arr) =>
+            word.toLowerCase() !== arr[i + 1]?.toLowerCase()
+        ).join(' ');
     }
 
     // Track detected speaker for role mapping
