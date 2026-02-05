@@ -104,14 +104,14 @@ function validateClaims(data) {
 }
 
 function validateVerification(data) {
-    const validVerdicts = ['true', 'mostly_true', 'partially_true', 'mostly_false', 'false', 'unverifiable', 'misleading', 'opinion'];
+    const validVerdicts = ['true', 'mostly_true', 'partially_true', 'mostly_false', 'false', 'unverifiable', 'misleading', 'opinion', 'deceptive'];
     if (typeof data !== 'object' || !data) {
         return { verdict: 'unverifiable', displayVerdict: 'unverifiable', confidence: 0, explanation: 'Invalid response', sources: [] };
     }
     const verdict = validVerdicts.includes(data.verdict) ? data.verdict : 'unverifiable';
     const displayMap = {
         'true': 'true', 'mostly_true': 'true',
-        'false': 'false', 'mostly_false': 'false',
+        'false': 'false', 'mostly_false': 'false', 'deceptive': 'false',
         'partially_true': 'partially_true', 'misleading': 'partially_true',
         'unverifiable': 'unverifiable', 'opinion': 'opinion'
     };
@@ -125,7 +125,9 @@ function validateVerification(data) {
             title: String(s.title || 'Source').slice(0, 100),
             url: s.url,
             tier: 3
-        })) : []
+        })) : [],
+        // Causal analysis (optional)
+        causal_analysis: data.causal_analysis || null
     };
 }
 
@@ -438,18 +440,24 @@ async function verifyClaim(claimText, apiKey, lang = 'de') {
     const prompt = lang === 'de' ?
         `VERIFIZIERE: "${sanitized}"
 
-KONTEXT-FIRST REGELN:
-1. NUR Quellen verwenden, die Land UND Sachverhalt EXAKT treffen
-2. KEINE Cross-Context Quellen (z.B. Ukraine-Hilfen für AT-Staatsfinanzen)
-3. Kein exakter Match gefunden? → verdict: "unverifiable"
+## KAUSAL-CHECK (bei "A verursacht B" Behauptungen):
+1. Identifiziere: Was ist die URSACHE (A)? Was ist die WIRKUNG (B)?
+2. Suche nach INTENT: War B schon GEPLANT bevor A passierte?
+3. Timeline-Test:
+   - A nach B = FALSE (Zeitfehler)
+   - Intent vor A = DECEPTIVE (B wäre auch ohne A passiert)
+   - A vor B, kein Intent = POTENTIALLY_TRUE
 
-OUTPUT-REGELN:
-- explanation: MAX 1 SATZ, max 15 Wörter  
-- Mindestens 1 Source mit URL (PFLICHT)
-- NUR JSON, kein Markdown
+Beispiel: "Trump-Drohung verursachte Grönland-Abzug"
+→ Suche nach: WANN war der Abzug bereits GEPLANT?
+→ Wenn Marschbefehl VOR Drohung: Die Kausalität ist FALSCH
 
-JSON:
-{"verdict": "true|false|partially_true|unverifiable", "confidence": 0.8, "explanation": "Kurzer Satz.", "sources": [{"title": "Name", "url": "https://..."}]}` :
+## KONTEXT-FIRST:
+- NUR Quellen mit exaktem Land + Sachverhalt
+- Kein Match → "unverifiable"
+
+## OUTPUT (NUR JSON):
+{"verdict": "true|false|partially_true|unverifiable|deceptive", "confidence": 0.8, "explanation": "Max 1 Satz.", "causal_analysis": {"cause_date": "2026-01-17", "effect_date": "2026-01-18", "intent_date": "2026-01-10 oder null"}, "sources": [{"title": "Name", "url": "https://..."}]}` :
         `Verify this claim: "${sanitized}"
 
 Evaluate if the claim is true, false, or unverifiable.
