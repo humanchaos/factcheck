@@ -68,15 +68,19 @@
     }
 
     // ==================== Transcript Cleaning ====================
-    // Removes duplicate consecutive words from live captions (stuttering artifacts)
-    // "Land Land schon Jahren Jahren" -> "Land schon Jahren"
+    // Aggressive cleaning: removes repeated phrases (3-30 chars)
+    // "Der Wegscheider. Der Wegscheider." -> "Der Wegscheider."
+    // Also removes duplicate consecutive words
     function cleanTranscript(text) {
         if (!text) return '';
-        const words = text.split(/\s+/);
-        const result = [];
 
+        // Phase 1: Remove repeated phrases (3-30 chars)
+        let cleaned = text.replace(/(.{3,30})\1+/gi, '$1');
+
+        // Phase 2: Remove duplicate consecutive words
+        const words = cleaned.split(/\s+/);
+        const result = [];
         for (let i = 0; i < words.length; i++) {
-            // Skip if current word is identical to next word (case-insensitive)
             if (i < words.length - 1 && words[i].toLowerCase() === words[i + 1].toLowerCase()) {
                 continue;
             }

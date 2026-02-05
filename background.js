@@ -238,35 +238,40 @@ async function extractClaims(text, apiKey, metadata = null) {
         `# Rolle: Universeller Informations-Analyst v3.0
 ${groundingContext}
 
+## ⛔ VETO-REGEL (HÖCHSTE PRIORITÄT)
+Wenn ein Satz Metaphern (z.B. "heiße Luft", "Staatsschiff", "vor die Hunde gehen") oder rein subjektive Adjektive enthält, extrahiere ihn NICHT.
+Ein Claim muss so trocken sein wie ein Gesetzestext. Keine Meinungen, keine Bilder, keine Rhetorik.
+
 ## PHASE 1: Kontextuelle Orientierung (MANDATORISCH)
-Bevor du Claims extrahierst, definiere im ersten Schritt den Rahmen:
+Bevor du Claims extrahierst, definiere den Rahmen:
 1. **Geografie:** Welches Land/Region wird adressiert?
-2. **Sprecherprofil:** Name, Rolle und mutmaßliche Perspektive (z.B. "Oppositionskritik", "Regierungs-PR").
-3. **Genre-Check:** Handelt es sich um NEWS, SATIRE, eine DEBATTE oder ein INTERVIEW?
-4. **Modus:** Wie ist der Tonfall? (Neutral, Ironisch, Aggressiv). Suche nach Markern wie "Operettenstaat" oder "Beste Regierung aller Zeiten".
+2. **Sprecherprofil:** Name, Rolle, Perspektive (Oppositionskritik, Regierungs-PR, etc.)
+3. **Genre-Check:** NEWS, SATIRE, DEBATTE oder INTERVIEW?
+4. **Modus:** Tonfall (Neutral, Ironisch, Aggressiv). Marker: "Operettenstaat", "Beste Regierung aller Zeiten"
 
 ## PHASE 2: Kontext-Sensitive Extraktion
-Extrahiere Claims basierend auf dem in Phase 1 ermittelten Genre:
-- **Bei NEWS:** Extrahiere 1:1 Fakten.
-- **Bei SATIRE/POLEMIK:** Ignoriere die Witze (z.B. "Goldverbot", "Bananenverbot"). Extrahiere nur den harten Kern (z.B. "Mehrwertsteuersenkung auf 4,9%").
-- **Qualitäts-Gate:** Extrahiere NUR Claims mit vollständigem Subjekt, Verb und Objekt. Verwerfe Fragmente wie "Der US-Präsident".
+- **NEWS:** 1:1 Fakten extrahieren
+- **SATIRE/POLEMIK:** Witze ignorieren, nur harten Kern (z.B. "MwSt auf 4,9%")
+- **Qualitäts-Gate:** NUR vollständige Sätze (Subjekt + Verb + Objekt). Fragmente verwerfen.
 
 ## PHASE 3: Neutralisierungs-Zwang
-Wandle alle polemischen oder emotionalen Aussagen in sachliche Prüfsätze um.
-- "Andi Babler liest seine Einkaufsliste im Staatsfunk" → "Andreas Babler präsentiert im ORF eine Liste zur MwSt-Senkung"
-- "Der gierige Staat nimmt uns 90 Cent" → "Steueranteil pro Liter Benzin beträgt ca. 90 Cent"
+Polemik → sachliche Prüfsätze:
+- "Babler liest Einkaufsliste im Staatsfunk" → "Babler präsentiert im ORF eine MwSt-Liste"
+- "Der gierige Staat nimmt 90 Cent" → "Steueranteil pro Liter beträgt 90 Cent"
 
-## PHASE 4: Grounding & Verdict (Stand 5. Februar 2026)
-- Nutze das aktuelle Datum (5. Februar 2026) als Basis
-- Prüfe gegen reale Entitäten: Kanzler Stocker, Vizekanzler Babler (ÖVP-SPÖ Koalition)
-- Österreich: MwSt auf Grundnahrungsmittel 4,9%
-- Wenn ein Claim aufgrund von Ironie faktisch falsch ist, kennzeichne als "satirical_hyperbole": true
+## PHASE 4: Grounding (5. Februar 2026)
+- Kanzler Stocker, Vizekanzler Babler (ÖVP-SPÖ)
+- MwSt Grundnahrungsmittel: 4,9%
+- Ironie → "satirical_hyperbole": true
+
+## FRESH START
+Analysiere NUR den folgenden Text. Ignoriere vorherige Chunks komplett.
 
 ## Text:
 "${sanitized.slice(0, 4000)}"
 
 ## Output (NUR JSON-Array):
-[{"claim": "Neutralisierter, sachlicher Prüfsatz", "speaker": "Name oder null", "checkability": 1-5, "importance": 1-5, "category": "STATISTIK|WIRTSCHAFT|POLITIK|GESETZ", "is_satire": false, "satirical_hyperbole": false}]
+[{"claim": "Trockener, prüfbarer Fakt", "speaker": "Name oder null", "checkability": 1-5, "importance": 1-5, "category": "STATISTIK|WIRTSCHAFT|POLITIK|GESETZ", "is_satire": false, "satirical_hyperbole": false}]
 
 Keine prüfbaren Claims? Antworte: []` :
         `You are a fact-checker. Extract verifiable factual claims from this transcript.
