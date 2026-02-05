@@ -224,37 +224,39 @@ async function extractClaims(text, apiKey, metadata = null) {
     }
 
     const prompt = lang === 'de' ?
-        `Du bist ein Faktenchecker.${groundingContext}
+        `# Rolle: Neutraler Informations-Auditor v2.0
+${groundingContext}
 
-Extrahiere überprüfbare Faktenbehauptungen aus diesem Transkript.
+## Schritt 1: Kontext-Einstufung (Zwingend)
+Bevor du Claims extrahierst, analysiere das Video:
+1. Land/Region: Welches Land wird adressiert? (z.B. Österreich, Deutschland, USA)
+2. Sprecher: Wer spricht und welche Rolle? (Journalist, Comedian, Politiker, Aktivist)
+3. Genre: NACHRICHTEN | SATIRE | KOMMENTAR | DISKURS
+4. Ironie-Marker: Übertreibungen ("Beste Regierung aller Zeiten"), Spottnamen ("Witzekanzler"), absurde Szenarien
 
-Text: "${sanitized.slice(0, 4000)}"
+## Schritt 2: Extraktions-Regeln (Qualitäts-Filter)
+Extrahiere einen Claim NUR, wenn er:
+- Vollständig ist (Subjekt, Verb, Objekt vorhanden)
+- Falsifizierbar ist (Zahlen, Daten, spezifische Gesetzesnamen)
+- Relevant ist (Ignoriere "Die Welt brennt" oder "Es ist schwierig")
 
-WICHTIGE REGELN:
-1. Jede Behauptung MUSS semantisch vollständig sein (Subjekt + Prädikat + Objekt)
-2. NIEMALS Satzfragmente wie "Das haben sie gemacht" oder "Er sagte das" extrahieren
-3. Der Claim muss OHNE zusätzlichen Kontext verständlich und überprüfbar sein
-4. ERSETZE ALLE PRONOMEN UND REFERENZEN durch die konkreten Begriffe aus dem Kontext:
-   - "dieser Standard" → "der ISO 8601 Datumsstandard" (oder welcher Standard gemeint ist)
-   - "diese Organisation" → "die ITU" (oder welche Organisation gemeint ist)
-   - "das Land" → "Deutschland" (oder welches Land gemeint ist)
-5. NUR Behauptungen mit konkreten Zahlen, Daten, Namen oder überprüfbaren Fakten
-6. Wenn der Kontext fehlt um die Referenz aufzulösen, extrahiere den Claim NICHT
+## Schritt 3: Neutralisierungs-Zwang
+Wandle polemische Aussagen in neutrale Prüfsätze um:
+- "Andi Babler liest seine Einkaufsliste vor" → "Andreas Babler präsentiert eine Liste zur Mehrwertsteuersenkung"
+- "Der gierige Staat nimmt uns 90 Cent" → "Steueranteil pro Liter Benzin beträgt ca. 90 Cent"
 
-GUTE BEISPIELE:
-✓ "Die Arbeitslosenquote in Deutschland sank 2023 auf 5,7%"
-✓ "Tesla verkaufte 2023 über 1,8 Millionen Fahrzeuge weltweit"
-✓ "Der ITU-Standard für Zeitformate wurde von 20 Ländern übernommen"
+## Schritt 4: Grounding (Fakten-Check Februar 2026)
+- Österreich: Regierung Stocker/Babler, MwSt auf Grundnahrungsmittel 4,9%
+- Polemische Aussagen (Goldverbot, etc.) gegen offizielle Regierungsdaten prüfen
+- Bei Sarkasmus: als "Satirische Hyperbel" kennzeichnen
 
-SCHLECHTE BEISPIELE (NICHT EXTRAHIEREN):
-✗ "Heute hat fast jedes Land diesen Standard" (Welchen Standard?)
-✗ "Am Anfang haben nur drei Länder das übernommen" (Was übernommen?)
-✗ "Die Preise sind gesunken" (Welche Preise? Um wieviel?)
+## Text:
+"${sanitized.slice(0, 4000)}"
 
-Antworte NUR mit JSON-Array:
-[{"claim": "Vollständige, selbsterklärende Behauptung mit allen aufgelösten Referenzen", "speaker": "Name oder null", "checkability": 1-5, "importance": 1-5, "category": "STATISTIK|WIRTSCHAFT|POLITIK|WISSENSCHAFT"}]
+## Output (NUR JSON-Array):
+[{"claim": "Neutralisierter, prüfbarer Claim", "speaker": "Name oder null", "checkability": 1-5, "importance": 1-5, "category": "STATISTIK|WIRTSCHAFT|POLITIK|GESETZ", "is_satire": false}]
 
-Keine überprüfbaren Fakten mit ausreichend Kontext? Antworte: []` :
+Keine prüfbaren Claims? Antworte: []` :
         `You are a fact-checker. Extract verifiable factual claims from this transcript.
 
 Text: "${sanitized.slice(0, 4000)}"

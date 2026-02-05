@@ -67,6 +67,24 @@
         return params.get('v');
     }
 
+    // ==================== Transcript Cleaning ====================
+    // Removes duplicate consecutive words from live captions (stuttering artifacts)
+    // "Land Land schon Jahren Jahren" -> "Land schon Jahren"
+    function cleanTranscript(text) {
+        if (!text) return '';
+        const words = text.split(/\s+/);
+        const result = [];
+
+        for (let i = 0; i < words.length; i++) {
+            // Skip if current word is identical to next word (case-insensitive)
+            if (i < words.length - 1 && words[i].toLowerCase() === words[i + 1].toLowerCase()) {
+                continue;
+            }
+            result.push(words[i]);
+        }
+        return result.join(' ');
+    }
+
     // ==================== Video Metadata for Grounding ====================
     function getVideoMetadata() {
         try {
@@ -553,7 +571,37 @@
 
     // ==================== Processing ====================
     // DEBUG: Store all chunks sent for analysis
-    const analysisChunks = [];
+    let analysisChunks = [];
+
+    // Reset all session state when video changes
+    function resetSession() {
+        console.log('[FAKTCHECK] 🔄 Session reset - clearing all state');
+        analysisChunks = [];
+        captionBuffer = [];
+        contextBuffer = [];
+        processedTimestamps.clear();
+        cachedMetadata = null;
+
+        // Clear claims container
+        const container = document.getElementById('faktcheck-claims');
+        if (container) {
+            container.innerHTML = `<div class="faktcheck-empty">${t('noClaims')}</div>`;
+        }
+        updateCount(0);
+        updateTruthMeter(0, 0, 0);
+    }
+
+    // Check for video change and reset if needed
+    function checkVideoChange() {
+        const newVideoId = getCurrentVideoId();
+        if (newVideoId && newVideoId !== currentVideoId) {
+            console.log('[FAKTCHECK] Video changed from', currentVideoId, 'to', newVideoId);
+            currentVideoId = newVideoId;
+            resetSession();
+            return true;
+        }
+        return false;
+    }
 
     function exportChunks() {
         const blob = new Blob([JSON.stringify(analysisChunks, null, 2)], { type: 'application/json' });
@@ -571,20 +619,29 @@
     window.FAKTCHECK_GET_CHUNKS = () => analysisChunks;
 
     async function processText(text, timestamp) {
-        console.log('[FAKTCHECK] ========== PROCESS TEXT ==========');
-        console.log('[FAKTCHECK] Text length:', text.length);
+        // Check for video change and reset if needed
+        checkVideoChange();
 
-        // Store chunk for analysis
+        // Clean transcript: remove duplicate consecutive words (stuttering)
+        const cleanedText = cleanTranscript(text);
+
+        console.log('[FAKTCHECK] ========== PROCESS TEXT ==========');
+        console.log('[FAKTCHECK] Original length:', text.length, '| Cleaned length:', cleanedText.length);
+        console.log('[FAKTCHECK] Token savings:', Math.round((1 - cleanedText.length / text.length) * 100) + '%');
+
+        // Store chunk for analysis (use cleaned text)
         const chunkEntry = {
             timestamp: timestamp,
             videoTime: formatTime(timestamp),
             realTime: new Date().toISOString(),
-            textLength: text.length,
-            fullText: text,
+            originalLength: text.length,
+            cleanedLength: cleanedText.length,
+            tokenSavings: Math.round((1 - cleanedText.length / text.length) * 100) + '%',
+            fullText: cleanedText,
             // Parse context vs new text if present
-            context: text.includes('[Context from previous') ? text.split('\n\nNew content to analyze:\n')[0] : null,
-            newContent: text.includes('[Context from previous') ? text.split('\n\nNew content to analyze:\n')[1] : text,
-            claimsExtracted: [] // Will be filled after processing
+            context: cleanedText.includes('[Context from previous') ? cleanedText.split('\n\nNew content to analyze:\n')[0] : null,
+            newContent: cleanedText.includes('[Context from previous') ? cleanedText.split('\n\nNew content to analyze:\n')[1] : cleanedText,
+            claims: [] // Will be filled after processing
         };
         analysisChunks.push(chunkEntry);
 
@@ -601,7 +658,7 @@
 
             const response = await sendMessageSafe({
                 type: 'EXTRACT_CLAIMS',
-                text,
+                text: cleanedText,  // Use cleaned text (no duplicates)
                 metadata: cachedMetadata  // Pass metadata for grounding
             });
             if (response.error) {
