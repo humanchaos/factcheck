@@ -21,7 +21,8 @@
     let sidebarVisible = false;
     let isProcessing = false;
     let currentVideoId = null;
-    let captionBuffer = [];
+    let captionBuffer = new Set();  // Use Set for auto-dedup + size cap
+    const CAPTION_BUFFER_MAX = 100; // Max captions to prevent memory bloat
     let processedTimestamps = new Set();
     let currentLang = 'de';
     let captionObserver = null;
@@ -616,7 +617,7 @@
     function resetSession() {
         console.log('[FAKTCHECK] 🔄 Session reset - clearing all state');
         analysisChunks = [];
-        captionBuffer = [];
+        captionBuffer = new Set();
         contextBuffer = [];
         processedTimestamps.clear();
         cachedMetadata = null;
@@ -850,8 +851,12 @@
 
             segments.forEach(el => {
                 const text = el.textContent?.trim();
-                if (text && text.length > 2 && !captionBuffer.includes(text)) {
-                    captionBuffer.push(text);
+                if (text && text.length > 2 && !captionBuffer.has(text)) {
+                    if (captionBuffer.size >= CAPTION_BUFFER_MAX) {
+                        // Remove oldest (first) item when at capacity
+                        captionBuffer.delete(captionBuffer.values().next().value);
+                    }
+                    captionBuffer.add(text);
                     // Also add to context buffer with timestamp
                     contextBuffer.push({ text, time: currentTime });
                 }
@@ -861,14 +866,14 @@
             const cutoffTime = currentTime - 30;
             contextBuffer = contextBuffer.filter(c => c.time > cutoffTime);
 
-            const newText = captionBuffer.join(' ');
+            const newText = Array.from(captionBuffer).join(' ');
             const now = Date.now();
 
             // Process every 15 seconds if we have 400+ new chars
             if (newText.length > 400 && (now - lastProcessTime > 15000)) {
                 // Build context from the 30s buffer (excluding current batch)
                 const contextText = contextBuffer
-                    .filter(c => !captionBuffer.includes(c.text))
+                    .filter(c => !captionBuffer.has(c.text))
                     .map(c => c.text)
                     .join(' ');
 
@@ -882,7 +887,7 @@
                 processText(fullText, currentTime);
 
                 // Clear the new text buffer but keep context buffer rolling
-                captionBuffer = [];
+                captionBuffer.clear();
                 lastProcessTime = now;
             }
         });
