@@ -826,6 +826,7 @@
     // ==================== Live Caption Observer (Fallback) ====================
     let lastProcessTime = 0;
     let contextBuffer = []; // Rolling 30s context window
+    let observerDebounceTimer = null; // Debounce rapid mutations
 
     function startLiveCaptionObserver() {
         if (captionObserver) return; // Already running
@@ -841,55 +842,60 @@
         console.log('[FAKTCHECK] Starting live caption observer on main player');
 
         captionObserver = new MutationObserver(() => {
-            if (!isProcessing) return;
+            // Debounce: batch rapid mutations (100ms)
+            if (observerDebounceTimer) return;
+            observerDebounceTimer = setTimeout(() => {
+                observerDebounceTimer = null;
+                if (!isProcessing) return;
 
-            const segments = mainPlayer.querySelectorAll('.ytp-caption-segment');
-            if (segments.length === 0) return;
+                const segments = mainPlayer.querySelectorAll('.ytp-caption-segment');
+                if (segments.length === 0) return;
 
-            const video = document.querySelector('#movie_player video');
-            const currentTime = video?.currentTime || 0;
+                const video = document.querySelector('#movie_player video');
+                const currentTime = video?.currentTime || 0;
 
-            segments.forEach(el => {
-                const text = el.textContent?.trim();
-                if (text && text.length > 2 && !captionBuffer.has(text)) {
-                    if (captionBuffer.size >= CAPTION_BUFFER_MAX) {
-                        // Remove oldest (first) item when at capacity
-                        captionBuffer.delete(captionBuffer.values().next().value);
+                segments.forEach(el => {
+                    const text = el.textContent?.trim();
+                    if (text && text.length > 2 && !captionBuffer.has(text)) {
+                        if (captionBuffer.size >= CAPTION_BUFFER_MAX) {
+                            // Remove oldest (first) item when at capacity
+                            captionBuffer.delete(captionBuffer.values().next().value);
+                        }
+                        captionBuffer.add(text);
+                        // Also add to context buffer with timestamp
+                        contextBuffer.push({ text, time: currentTime });
                     }
-                    captionBuffer.add(text);
-                    // Also add to context buffer with timestamp
-                    contextBuffer.push({ text, time: currentTime });
+                });
+
+                // Prune context buffer to last 30 seconds
+                const cutoffTime = currentTime - 30;
+                contextBuffer = contextBuffer.filter(c => c.time > cutoffTime);
+
+                const newText = Array.from(captionBuffer).join(' ');
+                const now = Date.now();
+
+                // Process every 15 seconds if we have 400+ new chars
+                if (newText.length > 400 && (now - lastProcessTime > 15000)) {
+                    // Build context from the 30s buffer (excluding current batch)
+                    const contextText = contextBuffer
+                        .filter(c => !captionBuffer.has(c.text))
+                        .map(c => c.text)
+                        .join(' ');
+
+                    console.log('[FAKTCHECK] Processing:', newText.length, 'new chars +', contextText.length, 'context chars');
+
+                    // Combine: context (as background) + new text (to analyze)
+                    const fullText = contextText.length > 100
+                        ? `[Context from previous 30 seconds: ${contextText}]\n\nNew content to analyze:\n${newText}`
+                        : newText;
+
+                    processText(fullText, currentTime);
+
+                    // Clear the new text buffer but keep context buffer rolling
+                    captionBuffer.clear();
+                    lastProcessTime = now;
                 }
-            });
-
-            // Prune context buffer to last 30 seconds
-            const cutoffTime = currentTime - 30;
-            contextBuffer = contextBuffer.filter(c => c.time > cutoffTime);
-
-            const newText = Array.from(captionBuffer).join(' ');
-            const now = Date.now();
-
-            // Process every 15 seconds if we have 400+ new chars
-            if (newText.length > 400 && (now - lastProcessTime > 15000)) {
-                // Build context from the 30s buffer (excluding current batch)
-                const contextText = contextBuffer
-                    .filter(c => !captionBuffer.has(c.text))
-                    .map(c => c.text)
-                    .join(' ');
-
-                console.log('[FAKTCHECK] Processing:', newText.length, 'new chars +', contextText.length, 'context chars');
-
-                // Combine: context (as background) + new text (to analyze)
-                const fullText = contextText.length > 100
-                    ? `[Context from previous 30 seconds: ${contextText}]\n\nNew content to analyze:\n${newText}`
-                    : newText;
-
-                processText(fullText, currentTime);
-
-                // Clear the new text buffer but keep context buffer rolling
-                captionBuffer.clear();
-                lastProcessTime = now;
-            }
+            }, 100); // 100ms debounce
         });
 
         captionObserver.observe(mainPlayer, { childList: true, subtree: true });

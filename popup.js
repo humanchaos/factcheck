@@ -75,8 +75,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 savedMsg.classList.remove('show');
             }, 2000);
 
-            // Notify background script that settings changed
-            chrome.runtime.sendMessage({ type: 'SETTINGS_UPDATED' });
+            // Settings saved - no action needed (background reads from storage directly)
 
         } catch (error) {
             console.error('Error saving settings:', error);
