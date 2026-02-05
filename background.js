@@ -4,7 +4,7 @@
 const GEMINI_API_BASE = 'https://generativelanguage.googleapis.com/v1beta/models';
 
 // ✅ FIX #1: Use correct, stable model name
-const DEFAULT_MODEL = 'gemini-1.5-flash';  // More stable than 2.5-flash-lite
+const DEFAULT_MODEL = 'gemini-2.0-flash';  // Stable and fast
 
 console.log('[FAKTCHECK BG] ====================================');
 console.log('[FAKTCHECK BG] Service worker started');
