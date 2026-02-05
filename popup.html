@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FAKTCHECK Settings</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            width: 320px;
+            background: #1a1a25;
+            color: #e8e8f0;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            font-size: 13px;
+        }
+        
+        .header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 16px;
+            background: #12121a;
+            border-bottom: 1px solid #2a2a35;
+        }
+        
+        .logo {
+            font-size: 18px;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+        
+        .live {
+            background: #ff4444;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 10px;
+            font-weight: 700;
+        }
+        
+        .content {
+            padding: 16px;
+        }
+        
+        .status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px;
+            background: #22222f;
+            border-radius: 6px;
+            margin-bottom: 16px;
+        }
+        
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #ff4444;
+        }
+        
+        .status-dot.active {
+            background: #00ff88;
+            box-shadow: 0 0 8px #00ff88;
+        }
+        
+        .status-text {
+            color: #888899;
+        }
+        
+        .form-group {
+            margin-bottom: 16px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 6px;
+            color: #888899;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        input[type="password"],
+        input[type="text"] {
+            width: 100%;
+            padding: 10px 12px;
+            background: #22222f;
+            border: 1px solid #3a3a45;
+            border-radius: 6px;
+            color: #e8e8f0;
+            font-size: 13px;
+        }
+        
+        input:focus {
+            outline: none;
+            border-color: #00ccff;
+        }
+        
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px;
+            background: #22222f;
+            border-radius: 6px;
+        }
+        
+        input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: #00ccff;
+        }
+        
+        .btn {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #00ccff 0%, #0099cc 100%);
+            border: none;
+            border-radius: 6px;
+            color: #0a0a0f;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .btn:hover {
+            background: linear-gradient(135deg, #00ddff 0%, #00aadd 100%);
+            transform: translateY(-1px);
+        }
+        
+        .btn:disabled {
+            background: #333;
+            color: #666;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .saved-msg {
+            display: none;
+            padding: 10px;
+            background: rgba(0, 255, 136, 0.1);
+            border: 1px solid #00ff88;
+            border-radius: 6px;
+            color: #00ff88;
+            text-align: center;
+            margin-top: 12px;
+        }
+        
+        .saved-msg.show {
+            display: block;
+        }
+        
+        .stats {
+            margin-top: 16px;
+            padding: 12px;
+            background: #22222f;
+            border-radius: 6px;
+            font-size: 11px;
+            color: #888899;
+        }
+        
+        .stats-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 6px;
+        }
+        
+        .stats-row:last-child {
+            margin-bottom: 0;
+        }
+        
+        .stats-value {
+            color: #00ccff;
+        }
+        
+        .help-link {
+            display: block;
+            text-align: center;
+            margin-top: 16px;
+            color: #888899;
+            font-size: 11px;
+            text-decoration: none;
+        }
+        
+        .help-link:hover {
+            color: #00ccff;
+        }
+        
+        select {
+            width: 100%;
+            padding: 10px 12px;
+            background: #22222f;
+            border: 1px solid #3a3a45;
+            border-radius: 6px;
+            color: #e8e8f0;
+            font-size: 13px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <span class="logo">FAKTCHECK</span>
+        <span class="live">v2.0</span>
+    </div>
+    
+    <div class="content">
+        <div class="status">
+            <span class="status-dot" id="statusDot"></span>
+            <span class="status-text" id="statusText">Not configured</span>
+        </div>
+        
+        <div class="form-group">
+            <label>Gemini API Key</label>
+            <input type="password" id="apiKey" placeholder="AIza...">
+        </div>
+        
+        <div class="form-group">
+            <label>Language</label>
+            <select id="langSelect">
+                <option value="auto">Auto-detect</option>
+                <option value="de">Deutsch</option>
+                <option value="en">English</option>
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <div class="checkbox-group">
+                <input type="checkbox" id="autoStart" checked>
+                <label style="margin: 0; text-transform: none; color: #e8e8f0;">Auto-start on YouTube videos</label>
+            </div>
+        </div>
+        
+        <button class="btn" id="saveBtn">Save Settings</button>
+        
+        <div class="saved-msg" id="savedMsg">✓ Settings saved!</div>
+        
+        <div class="stats" id="stats">
+            <div class="stats-row">
+                <span>Cache size:</span>
+                <span class="stats-value" id="cacheSize">0</span>
+            </div>
+            <div class="stats-row">
+                <span>Rate limit remaining:</span>
+                <span class="stats-value" id="rateLimit">--</span>
+            </div>
+        </div>
+        
+        <a href="https://aistudio.google.com/app/apikey" target="_blank" class="help-link">
+            Get a free Gemini API key →
+        </a>
+    </div>
+    
+    <script src="popup.js"></script>
+</body>
+</html>
