@@ -130,24 +130,69 @@ function getSourceTier(url) {
     return 3;
 }
 
-// V3.0 JSON Extraction (handles Gemini markdown wrapping)
-function extractJSON(text) {
-    if (!text || typeof text !== 'string') return null;
+// V3.1 JSON Extraction (BATTLE-TESTED)
+// Handles: markdown fences, preamble text, trailing text, truncated responses
+function extractJSON(raw) {
+    if (!raw) return null;
+    if (typeof raw === 'object') return raw;
+
+    let text = String(raw).trim();
 
     // Try direct parse first
-    try { return JSON.parse(text.trim()); } catch (e) { }
+    try { return JSON.parse(text); } catch (e) { }
 
-    // Remove markdown code fences
-    let cleaned = text.replace(/```json\s*/gi, '').replace(/```\s*/g, '');
-    try { return JSON.parse(cleaned.trim()); } catch (e) { }
+    // Strip markdown code fences (multiple possible formats)
+    text = text.replace(/^```(?:json|JSON|js|javascript)?\s*\n?/gm, '');
+    text = text.replace(/\n?\s*```\s*$/gm, '');
+    text = text.trim();
 
-    // Extract JSON from preamble text
-    const jsonMatch = cleaned.match(/\[[\s\S]*\]|\{[\s\S]*\}/);
-    if (jsonMatch) {
-        try { return JSON.parse(jsonMatch[0]); } catch (e) { }
+    // Try again after fence removal
+    try { return JSON.parse(text); } catch (e) { }
+
+    // Find first JSON structure (skip preamble text)
+    const jsonStart = text.search(/[\[{]/);
+    if (jsonStart === -1) {
+        console.warn('[FAKTCHECK] extractJSON: No JSON structure found in:', text.slice(0, 100));
+        return null;
+    }
+    text = text.substring(jsonStart);
+
+    // Match balanced brackets (handles nested structures correctly)
+    const openChar = text[0];
+    const closeChar = openChar === '[' ? ']' : '}';
+    let depth = 0, inString = false, escaped = false, endIndex = -1;
+
+    for (let i = 0; i < text.length; i++) {
+        const c = text[i];
+        if (escaped) { escaped = false; continue; }
+        if (c === '\\' && inString) { escaped = true; continue; }
+        if (c === '"') { inString = !inString; continue; }
+        if (inString) continue;
+        if (c === openChar) depth++;
+        if (c === closeChar) depth--;
+        if (depth === 0) { endIndex = i; break; }
     }
 
-    return null;
+    if (endIndex === -1) {
+        // Try to repair truncated JSON
+        let repaired = text;
+        while (depth > 0) { repaired += closeChar; depth--; }
+        try {
+            const result = JSON.parse(repaired);
+            console.log('[FAKTCHECK] extractJSON: Repaired truncated JSON');
+            return result;
+        } catch (e) {
+            console.warn('[FAKTCHECK] extractJSON: Truncated JSON repair failed');
+            return null;
+        }
+    }
+
+    try {
+        return JSON.parse(text.substring(0, endIndex + 1));
+    } catch (e) {
+        console.warn('[FAKTCHECK] extractJSON: Final parse failed:', e.message);
+        return null;
+    }
 }
 
 function validateVerification(data, claimType = 'factual') {
@@ -160,12 +205,23 @@ function validateVerification(data, claimType = 'factual') {
     let confidence = Math.max(0, Math.min(1, Number(data.confidence) || 0.5));
     let explanation = sanitize(String(data.explanation || ''), 500);
 
-    // V3.0: Source tier analysis
-    const sources = Array.isArray(data.sources) ? data.sources.filter(s => s && s.url).slice(0, 5) : [];
-    const tieredSources = sources.map(s => ({
+    // V3.1: Source tier analysis - merge JSON sources with grounding sources
+    let sources = Array.isArray(data.sources) ? data.sources.filter(s => s && s.url).slice(0, 8) : [];
+
+    // Add grounding sources from Gemini that aren't already present
+    if (Array.isArray(data._groundingSources)) {
+        const existingUrls = new Set(sources.map(s => s.url));
+        for (const gs of data._groundingSources) {
+            if (gs.url && !existingUrls.has(gs.url)) {
+                sources.push(gs);
+            }
+        }
+    }
+
+    const tieredSources = sources.slice(0, 8).map(s => ({
         title: String(s.title || 'Source').slice(0, 100),
         url: s.url,
-        tier: getSourceTier(s.url)
+        tier: s.tier || getSourceTier(s.url)
     }));
 
     const tier1Count = tieredSources.filter(s => s.tier === 1).length;
@@ -370,10 +426,24 @@ async function callGeminiWithSearch(apiKey, prompt, retryAttempt = 0) {
 
         const text = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
 
-        // Log if search was used
+        // V3.1: Extract grounding metadata
         const groundingMeta = data.candidates?.[0]?.groundingMetadata;
+        let groundingSources = [];
+
         if (groundingMeta?.webSearchQueries) {
             console.log('[FAKTCHECK BG] 🔍 Google Search used:', groundingMeta.webSearchQueries);
+        }
+
+        // Extract grounding sources from chunks
+        if (groundingMeta?.groundingChunks) {
+            groundingSources = groundingMeta.groundingChunks
+                .filter(c => c.web?.uri)
+                .map(c => ({
+                    title: c.web.title || 'Source',
+                    url: c.web.uri,
+                    tier: getSourceTier(c.web.uri)
+                }));
+            console.log('[FAKTCHECK BG] 📚 Grounding sources found:', groundingSources.length);
         }
 
         if (!text) {
@@ -381,10 +451,11 @@ async function callGeminiWithSearch(apiKey, prompt, retryAttempt = 0) {
             return callGemini(apiKey, prompt);
         }
 
-        const cleaned = text.replace(/```json\s*/gi, '').replace(/```\s*/g, '').trim();
-        console.log('[FAKTCHECK BG] Search response received, length:', cleaned.length);
+        console.log('[FAKTCHECK BG] Search response received, length:', text.length);
 
-        return cleaned;
+        // V3.1: Return text with grounding sources attached
+        // This allows extractJSON to handle it, and we'll merge sources later
+        return { _rawText: text, _groundingSources: groundingSources };
     } catch (error) {
         console.error('[FAKTCHECK BG] Search fetch error:', error.message);
         // Fallback to regular call
@@ -591,10 +662,26 @@ Possible verdicts: true, false, partially_true, unverifiable, opinion`;
     try {
         // Use Google Search for verification!
         const result = await callGeminiWithSearch(apiKey, prompt);
-        // V3.0: Use extractJSON for robust Gemini response handling
-        let parsed = extractJSON(result);
+
+        // V3.1: Handle new return format with grounding sources
+        let textToParse = result;
+        let groundingSources = [];
+
+        if (result && typeof result === 'object' && result._rawText) {
+            textToParse = result._rawText;
+            groundingSources = result._groundingSources || [];
+        }
+
+        // V3.1: Use extractJSON for robust Gemini response handling
+        let parsed = extractJSON(textToParse);
         if (!parsed) {
+            console.warn('[FAKTCHECK BG] extractJSON failed, raw:', String(textToParse).slice(0, 200));
             parsed = { verdict: 'unverifiable', explanation: 'Could not parse response' };
+        }
+
+        // V3.1: Merge grounding sources into parsed result
+        if (groundingSources.length > 0) {
+            parsed._groundingSources = groundingSources;
         }
 
         const validated = validateVerification(parsed, claimType);
