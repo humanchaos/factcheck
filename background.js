@@ -4,8 +4,8 @@
 const GEMINI_API_BASE = 'https://generativelanguage.googleapis.com/v1beta/models';
 
 // Model config: gemini-2.0-flash is more reliable for Austrian context
-const PRIMARY_MODEL = 'gemini-2.0-flash';   // Better context understanding
-const FALLBACK_MODEL = 'gemini-1.5-flash';  // Stable fallback
+const PRIMARY_MODEL = 'gemini-2.0-flash';        // Better context understanding
+const FALLBACK_MODEL = 'gemini-1.5-flash-latest'; // Correct API name
 
 console.log('[FAKTCHECK BG] ====================================');
 console.log('[FAKTCHECK BG] Service worker started');
