@@ -1,115 +1,123 @@
-# FAKTCHECK LIVE v2.0
+# 📑 factcheck
 
-Real-time AI fact-checking for YouTube videos. Powered by Google Gemini with Google Search grounding.
+**Protecting the truth in the digital age.**
 
-## 🔒 Security Hardened
+> Because "Trust me, bro" isn't a valid source for a healthy democracy.
 
-This version includes critical security improvements:
-- XSS protection with safe DOM manipulation
-- Input sanitization against prompt injection
-- Rate limiting (30 requests/minute)
-- Claim caching (1-hour TTL)
-- Source quality enforcement
+**factcheck** is an open-source Chrome Extension designed to automate the verification of claims made in YouTube videos — in real-time. In an era of rampant misinformation, we aim to provide journalists, researchers, and citizens with the technical infrastructure to cross-reference statements against reliable data sources as they watch.
 
-## Features
+---
 
-- **Real-time fact-checking** of YouTube video captions
-- **Transcript loading** for full video analysis
-- **Truth Meter** showing overall credibility score
-- **Source tiering** (🥇 Official stats → 🥈 Quality journalism → 🥉 Fact-checkers)
-- **German & English** support with auto-detection
-- **Confidence scores** adjusted by source quality
+## 🗳️ Why This Matters
 
-## Installation
+Our democracy relies on a shared reality. When misinformation spreads faster than the truth, the foundation of public discourse weakens. This tool is built to:
 
-### 1. Get a Gemini API Key (Free)
+- **Empower Journalists:** Rapidly verify data points during live events and video content.
+- **Reduce Bias:** Use algorithmic cross-referencing to highlight factual inconsistencies.
+- **Scale Truth:** Fact-checking humans can't keep up with bot-generated lies; we need code to fight back.
 
-1. Go to [Google AI Studio](https://aistudio.google.com/app/apikey)
-2. Click "Create API Key"
-3. Copy your key
+---
 
-### 2. Load the Extension
+## 🚀 Quick Start
+
+### Prerequisites
+
+- Google Chrome (or Chromium-based browser)
+- A free [Gemini API Key](https://aistudio.google.com/app/apikey)
+
+### Installation
+
+```bash
+# Clone the repository
+git clone https://github.com/humanchaos/factcheck.git
+cd factcheck
+```
 
 1. Open Chrome and go to `chrome://extensions`
-2. Enable "Developer mode" (top right)
-3. Click "Load unpacked"
-4. Select the `extension` folder
+2. Enable **Developer mode** (top right)
+3. Click **Load unpacked**
+4. Select the cloned `factcheck` folder
 
-### 3. Configure
+### Configuration
 
-1. Click the FAKTCHECK icon in your toolbar
+1. Click the **FAKTCHECK** icon in your Chrome toolbar
 2. Paste your Gemini API key
-3. Click "Save Settings"
+3. Click **Save Settings**
 
-## Usage
+### Usage
 
 1. Open any YouTube video
-2. Click the "📋 FAKTCHECK" button below the video
-3. Either:
-   - Click "Load Transcript" to analyze the full video
-   - Or enable captions (CC) for real-time monitoring
+2. Click the **📋 FAKTCHECK** button below the video
+3. Watch claims get extracted and verified in real-time
 
-## Verdict Types
+---
 
-| Verdict | Icon | Meaning |
-|---------|------|---------|
-| TRUE | ✓ | Verified correct |
-| FALSE | ✗ | Verified incorrect |
-| PARTIAL | ◐ | Partially correct |
-| UNCLEAR | ? | Insufficient data |
-| OPINION | ○ | Not a factual claim |
+## 🛠️ Tech Stack & Architecture
 
-## Source Tiers
+| Component | Technology |
+|-----------|------------|
+| Platform | Chrome Extension (Manifest V3) |
+| AI Engine | Google Gemini 2.0 Flash |
+| Grounding | Google Search (via Gemini) |
+| Security | XSS protection, input sanitization, rate limiting |
+| Languages | JavaScript, HTML, CSS |
+
+### How It Works
+
+1. **Extract** — Transcripts or live captions are captured from YouTube
+2. **Analyze** — Gemini identifies verifiable claims and assigns checkability scores
+3. **Verify** — Each claim is cross-referenced using Google Search grounding
+4. **Display** — Results appear in a real-time sidebar with verdict, sources, and confidence
+
+### Source Tiers
 
 | Tier | Icon | Examples |
 |------|------|----------|
-| 1 | 🥇 | Statistik Austria, Eurostat, WHO, government docs |
-| 2 | 🥈 | APA, Reuters, ORF, BBC, NYT |
-| 3 | 🥉 | Mimikama, Snopes, Wikipedia |
+| 1 | 🥇 | Official statistics, government docs, parliamentary records |
+| 2 | 🥈 | Quality journalism (APA, Reuters, ORF, BBC, NYT) |
+| 3 | 🥉 | Fact-checkers (Mimikama, Snopes, Wikipedia) |
 | 4 | 📄 | Other sources |
 
-## Privacy
+---
 
-- Your API key is stored locally (never synced)
-- No user tracking or analytics
-- Video content is only sent to Gemini API for analysis
+## 🗺️ Roadmap: How You Can Help
+
+We are looking for contributors to help us reach "Version 1.0". Check out our [Open Issues](https://github.com/humanchaos/factcheck/issues).
+
+| Feature | Status | Help Needed |
+|---------|--------|-------------|
+| Multi-Language Support | 🏗️ In Progress | Native speakers for additional languages |
+| Twitter/X Integration | 📅 Planned | API implementation experts |
+| Confidence Scoring | ✅ Done | Feedback on weights/biases |
+| Chrome Web Store Release | 💡 Idea | UX feedback and testing |
+| Additional Platforms | 💡 Idea | Twitch, TikTok, news sites |
+
+---
+
+## 🔒 Privacy
+
+- Your API key is stored **locally** in your browser (never synced or transmitted)
+- **No user tracking** or analytics
+- Video content is only sent to the Gemini API for analysis
 - Nothing is stored permanently
 
-## Rate Limits
+---
 
-- 30 API calls per minute
-- Claims are cached for 1 hour to reduce API usage
-- Cache can be cleared in settings
+## 🤝 Contributing
 
-## Troubleshooting
+We love Pull Requests!
 
-**"No API key configured"**
-→ Click the extension icon and add your Gemini API key
+1. Fork the repo.
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`).
+3. Commit your changes (`git commit -m 'Add AmazingFeature'`).
+4. Push to the branch (`git push origin feature/AmazingFeature`).
+5. Open a Pull Request.
 
-**"Rate limit exceeded"**
-→ Wait 60 seconds before trying again
+---
 
-**No transcript available**
-→ Some videos don't have captions enabled
+## ⚖️ License
 
-**Results seem wrong**
-→ AI fact-checking isn't perfect. Always verify important claims yourself.
-
-## Development
-
-```
-extension/
-├── manifest.json       # Extension config
-├── background.js       # API calls, caching, rate limiting
-├── content.js          # YouTube integration, UI
-├── security-utils.js   # XSS protection
-├── popup.html/js       # Settings page
-└── sidebar.css         # Styles
-```
-
-## License
-
-MIT License
+Distributed under the MIT License. See [LICENSE](LICENSE) for more information.
 
 ---
 
