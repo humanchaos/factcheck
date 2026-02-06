@@ -1,5 +1,9 @@
 # 📑 factcheck
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://github.com/humanchaos/factcheck/graphs/commit-activity)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](http://makeapullrequest.com)
+
 **Protecting the truth in the digital age.**
 
 > Because "Trust me, bro" isn't a valid source for a healthy democracy.
@@ -68,6 +72,17 @@ cd factcheck
 2. **Analyze** — Gemini identifies verifiable claims and assigns checkability scores
 3. **Verify** — Each claim is cross-referenced using Google Search grounding
 4. **Display** — Results appear in a real-time sidebar with verdict, sources, and confidence
+
+```mermaid
+graph TD
+    A[YouTube Video] -->|Extract Transcript| B(Content Script)
+    B -->|Send Payload| C{Background Script}
+    C -->|API Request| D[Gemini 2.0 Flash]
+    D -->|Search Grounding| E[Google Search]
+    E -->|Factual Data| D
+    D -->|Analysis Result| C
+    C -->|Render UI| F[Extension Sidebar]
+```
 
 ### Source Tiers
 
