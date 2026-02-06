@@ -574,93 +574,117 @@ async function extractClaims(text, apiKey, metadata = null) {
         return { claims: [], lang };
     }
 
-    // Build grounding context from metadata
-    let groundingContext = '';
-    if (metadata && (metadata.title || metadata.channel || metadata.detectedCountry !== 'unknown')) {
-        const parts = [];
-        if (metadata.title) parts.push(`Video: "${metadata.title}"`);
-        if (metadata.channel) parts.push(`Channel: ${metadata.channel}`);
-        if (metadata.detectedCountry && metadata.detectedCountry !== 'unknown') {
-            parts.push(`Country context: ${metadata.detectedCountry}`);
-        }
+    // ============================================================================
+    // v3.6: METADATA-DRIVEN SPEAKER RESOLUTION
+    // Extract names from title to force speaker identification
+    // ============================================================================
+    let speakerContext = '';
+    let primaryGuest = 'Hauptsprecher';
+    let identifiedNames = [];
 
-        groundingContext = lang === 'de'
-            ? `\n\nKONTEXT (Phase 0 Grounding):\n${parts.join('\n')}\n\nWICHTIG für Grounding:\n- Erkenne Satire/Ironie (z.B. "Witzekanzler" statt "Vizekanzler" = Satire)\n- Erkenne politische Kampfbegriffe (z.B. "Staatsfunk" = kritischer Begriff für ORF)\n- Verifiziere Titel/Funktionen (z.B. ist "Professor Babler" korrekt?)\n- Wenn Personen mit falschen Titeln genannt werden, markiere als SATIRE oder prüfe den Titel\n`
-            : `\n\nCONTEXT (Phase 0 Grounding):\n${parts.join('\n')}\n\nGROUNDING RULES:\n- Detect satire/irony (e.g., mocking titles, exaggerated claims)\n- Recognize politically charged terms vs neutral descriptions\n- Verify titles/positions match reality\n- If persons are given incorrect titles, flag as SATIRE or verify\n`;
+    if (metadata && metadata.title) {
+        // Find names like "Christian Hafenecker" or "Armin Wolf"
+        const titleNames = metadata.title.match(/[A-ZÄÖÜ][a-zäöüß]+ [A-ZÄÖÜ][a-zäöüß]+/g) || [];
+        identifiedNames = titleNames;
+        primaryGuest = titleNames[0] || 'Hauptsprecher';
+
+        console.log('[FAKTCHECK BG v3.6] Identified names from title:', identifiedNames);
+
+        speakerContext = lang === 'de' ? `
+IDENTIFIZIERTE PERSONEN AUS VIDEO-TITEL: ${identifiedNames.length > 0 ? identifiedNames.join(', ') : 'Keine gefunden'}
+KANAL/MEDIUM: ${metadata.channel || 'Unbekannt'}
+VIDEO-TITEL: "${metadata.title}"
+
+ANWEISUNG ZUR SPRECHER-AUFLÖSUNG:
+- Der Hauptsprecher im Video ist höchstwahrscheinlich: ${primaryGuest}
+- Nutze "${metadata.channel || 'Moderator'}" für Moderatoren-Rollennamen
+- Ersetze "Ein Sprecher", "Ich", "Er/Sie" IMMER durch ${primaryGuest} oder einen der Titel-Namen
+- Jeder Claim MUSS einen konkreten Namen im Feld "speaker" haben
+` : `
+IDENTIFIED PERSONS FROM VIDEO TITLE: ${identifiedNames.length > 0 ? identifiedNames.join(', ') : 'None found'}
+CHANNEL/MEDIUM: ${metadata.channel || 'Unknown'}
+VIDEO TITLE: "${metadata.title}"
+
+SPEAKER RESOLUTION INSTRUCTIONS:
+- The main speaker is most likely: ${primaryGuest}
+- Use "${metadata.channel || 'Moderator'}" for host/moderator roles
+- ALWAYS replace "A speaker", "I", "He/She" with ${primaryGuest} or one of the title names
+- Every claim MUST have a concrete name in the "speaker" field
+`;
     }
 
     const prompt = lang === 'de' ?
-        `# FAKTCHECK v3.0 — Extraktions-Engine
-${groundingContext}
+        `# FAKTCHECK v3.6 — Metadata-Only Speaker Resolution
+${speakerContext}
 
 ## AUFGABE
-Extrahiere Claims nach dem Anker-Prinzip mit QUERY DECOMPOSITION:
+Extrahiere Claims. Löse Sprecher-Identitäten AUSSCHLIESSLICH über die obigen METADATEN auf.
 
-### 1. CLAIM HYDRATION
-Jeder Claim MUSS die "Wer-Was-Wo-Regel" erfüllen:
-- Ersetze ALLE Pronomen durch konkrete Namen
-- Ergänze Kontext aus Video-Titel/Gremium
+### STRENGE REGELN:
+1. JEDER Claim muss einen konkreten Namen im Feld "speaker" haben.
+2. Nutze die Namen aus dem VIDEO-TITEL. Verwende NIEMALS "Ein Sprecher" oder "Unbekannt".
+3. CLAIM-HYDRATION: Ersetze Pronomen ("er", "sie", "wir", "ich") im Text durch die Namen aus den Metadaten.
+   - Beispiel: "Ich habe das abgelehnt" → "${primaryGuest} hat das abgelehnt"
+   - Beispiel: "Er sagte, dass..." → "${primaryGuest} sagte, dass..."
+4. QUERY-DECOMPOSITION: Erstelle 2-3 Suchbegriffe inkl. der Namen aus den Metadaten.
 
-### 2. QUERY DECOMPOSITION (NEU!)
-Für jeden Claim generiere 2-3 kurze Such-Queries (3-6 Wörter):
-- Kombiniere Schlüssel-Entitäten für Google-Suche
-- NICHT den ganzen hydratisierten Satz verwenden
-
-BEISPIEL:
-Claim: "Im Pilnacek-U-Ausschuss wird behauptet, dass es Vorbereitungskurse gab"
-search_queries: ["Hafenecker Vorbereitungskurse Zeugen U-Ausschuss", "ÖVP Anwälte Auskunftspersonen Pilnacek"]
-
-### 3. TYPE DETECTION
+### TYPE DETECTION:
 - "factual": Reine Faktenbehauptung
 - "causal": Enthält "weil/aufgrund/verursacht/führte zu"
 - "opinion": Werturteil/Meinung einer Person (z.B. "X kritisiert", "Y fordert")
 
-### 4. VETO
+### VETO:
 LÖSCHE NUR: Reine Befindlichkeiten ("Er ist glücklich")
 BEHALTE: Alles mit Entitäten → hydratisieren!
 
-## Text:
+## TEXT:
 "${sanitized.slice(0, 4000)}"
 
-## Output (NUR JSON-Array):
+## OUTPUT (NUR JSON-Array, beginne DIREKT mit [):
 [{
-  "claim": "Hydratisierter Satz mit Namen/Kontext",
-  "search_queries": ["Query1 3-6 Wörter", "Query2 3-6 Wörter"],
-  "anchors": ["Person", "Institution", "Ereignis"],
+  "claim": "Vollständiger Satz mit Namen aus Metadaten",
+  "speaker": "${primaryGuest}",
+  "search_queries": ["${primaryGuest} + Schlagwort", "Query2"],
+  "anchors": ["Person", "Institution"],
   "type": "factual|causal|opinion",
-  "is_satire_context": false
+  "checkability": 3,
+  "importance": 3
 }]
 
 Keine Claims? Antworte: []` :
-        `You are a fact-checker. Extract verifiable factual claims from this transcript.
+        `# FAKTCHECK v3.6 — Metadata-Only Speaker Resolution
+${speakerContext}
 
-Text: "${sanitized.slice(0, 4000)}"
+## TASK
+Extract claims. Resolve speaker identities EXCLUSIVELY via the METADATA above.
 
-CRITICAL RULES:
-1. Every claim MUST be semantically complete (Subject + Verb + Object)
-2. NEVER extract sentence fragments like "They did that" or "He said this"
-3. The claim must be understandable and verifiable WITHOUT additional context
-4. REPLACE ALL PRONOUNS AND REFERENCES with specific terms from context:
-   - "that standard" → "the ISO 8601 date format standard" (or whichever standard is meant)
-   - "this organization" → "the ITU" (or whichever organization is meant)
-   - "the country" → "Germany" (or whichever country is meant)
-5. ONLY claims with specific numbers, dates, names, or verifiable facts
-6. If context is missing to resolve the reference, DO NOT extract the claim
+### STRICT RULES:
+1. EVERY claim MUST have a concrete name in the "speaker" field.
+2. Use names from the VIDEO TITLE. NEVER use "A speaker" or "Unknown".
+3. CLAIM HYDRATION: Replace pronouns ("he", "she", "we", "I") with names from metadata.
+   - Example: "I rejected that" → "${primaryGuest} rejected that"
+4. QUERY DECOMPOSITION: Create 2-3 search terms including names from metadata.
 
-GOOD EXAMPLES:
-✓ "US unemployment rate fell to 3.7% in November 2023"
-✓ "Tesla sold over 1.8 million vehicles worldwide in 2023"
-✓ "The ITU time format standard was adopted by 20 countries"
+### TYPE DETECTION:
+- "factual": Pure factual claim
+- "causal": Contains "because/due to/caused/led to"
+- "opinion": Value judgment/opinion (e.g., "X criticizes", "Y demands")
 
-BAD EXAMPLES (DO NOT EXTRACT):
-✗ "Today, almost every country has that standard" (Which standard?)
-✗ "At the beginning, only three countries adopted it" (Adopted what?)
-✗ "Prices came down" (Which prices? By how much?)
+## TEXT:
+"${sanitized.slice(0, 4000)}"
 
-Respond ONLY with JSON array:
-[{"claim": "Complete, self-explanatory claim with all resolved references", "speaker": "Name or null", "checkability": 1-5, "importance": 1-5, "category": "STATISTICS|ECONOMY|POLITICS|SCIENCE"}]
+## OUTPUT (JSON array ONLY, start DIRECTLY with [):
+[{
+  "claim": "Complete sentence with names from metadata",
+  "speaker": "${primaryGuest}",
+  "search_queries": ["${primaryGuest} + keyword", "Query2"],
+  "anchors": ["Person", "Institution"],
+  "type": "factual|causal|opinion",
+  "checkability": 3,
+  "importance": 3
+}]
 
-No verifiable facts with sufficient context? Respond: []`;
+No claims? Respond: []`;
 
     try {
         const result = await callGemini(apiKey, prompt);
@@ -718,9 +742,9 @@ async function verifyClaim(claimText, apiKey, lang = 'de', claimType = 'factual'
     // 3. Output format comes FIRST, not last
     // 4. Explicit "Beginne direkt mit VERDICT:" instruction
     // ============================================================================
-    
+
     const prompt = lang === 'de' ?
-`Analysiere den folgenden Claim und gib SOFORT das Ergebnis aus.
+        `Analysiere den folgenden Claim und gib SOFORT das Ergebnis aus.
 
 CLAIM: "${sanitized}"
 
@@ -741,7 +765,7 @@ BEWERTUNGS-KRITERIEN:
 
 WICHTIG: Antworte SOFORT mit "VERDICT:" - keine Einleitung wie "Okay" oder "Ich werde"!` :
 
-`Analyze the following claim and output the result IMMEDIATELY.
+        `Analyze the following claim and output the result IMMEDIATELY.
 
 CLAIM: "${sanitized}"
 

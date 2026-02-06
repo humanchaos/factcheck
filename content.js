@@ -860,11 +860,23 @@
             debounceTimer = setTimeout(() => {
                 if (!isProcessing) return;
 
-                const segments = mainPlayer.querySelectorAll('.ytp-caption-segment');
-                if (segments.length === 0) return;
-
                 const video = document.querySelector('#movie_player video');
                 const currentTime = video?.currentTime || 0;
+
+                // v3.6: Stop when video ends
+                if (video && video.ended) {
+                    console.log('[FAKTCHECK] Video ended - stopping analysis');
+                    isProcessing = false;
+                    updateStatus(currentLang === 'de' ? 'Video beendet' : 'Video ended', false);
+                    if (captionObserver) {
+                        captionObserver.disconnect();
+                        captionObserver = null;
+                    }
+                    return;
+                }
+
+                const segments = mainPlayer.querySelectorAll('.ytp-caption-segment');
+                if (segments.length === 0) return;
 
                 segments.forEach(el => {
                     const text = el.textContent?.trim();
