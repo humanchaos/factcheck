@@ -1,0 +1,21 @@
+{
+    "name": "factcheck",
+    "version": "1.0.0",
+    "description": "Real-time AI fact-checking for YouTube videos. Powered by Gemini with Google Search grounding.",
+    "private": true,
+    "scripts": {
+        "lint": "eslint .",
+        "test": "echo \"No tests specified yet\" && exit 0"
+    },
+    "devDependencies": {
+        "eslint": "^9.0.0"
+    },
+    "keywords": [
+        "fact-checking",
+        "chrome-extension",
+        "gemini",
+        "youtube",
+        "democracy"
+    ],
+    "license": "MIT"
+}
