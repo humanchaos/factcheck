@@ -1,0 +1,22 @@
+{
+    "trusted_sources": [
+        {
+            "domain": "reuters.com",
+            "organization": "Reuters Fact Check",
+            "category": "International News",
+            "reliability_score": 0.95,
+            "verification_method": "IFCN Certified"
+        },
+        {
+            "domain": "fullfact.org",
+            "organization": "Full Fact",
+            "category": "Fact-Checker",
+            "reliability_score": 0.98,
+            "verification_method": "Charity/Independent"
+        }
+    ],
+    "blacklisted_domains": [
+        "example-misinfo-site.com",
+        "unverified-blog.net"
+    ]
+}
