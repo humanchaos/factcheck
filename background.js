@@ -1108,16 +1108,172 @@ async function searchFactChecks(claimText, apiKey, lang = 'de') {
     }
 }
 
+// ─── TIER 1A: WIKIDATA ENTITY HYDRATION ──────────────────────────────
+// Resolves entity names to Wikidata QIDs and official properties.
+// Used to prevent name/title hallucinations (e.g., "The Chancellor" → Q114834789).
+// Fallback-safe: returns null on any error.
+async function queryWikidata(entityName) {
+    try {
+        console.log('[FAKTCHECK BG] ── TIER 1A: Wikidata lookup ──', entityName);
+        // Step 1: Search for entity QID
+        const searchUrl = `https://www.wikidata.org/w/api.php?action=wbsearchentities&search=${encodeURIComponent(entityName)}&language=de&format=json&origin=*&limit=3`;
+        const searchResp = await fetch(searchUrl);
+        if (!searchResp.ok) return null;
+        const searchData = await searchResp.json();
+        const topResult = searchData.search?.[0];
+        if (!topResult) {
+            console.log('[FAKTCHECK BG] Wikidata: No entity found for', entityName);
+            return null;
+        }
+
+        const qid = topResult.id;
+        console.log('[FAKTCHECK BG] Wikidata: Found', qid, '→', topResult.label, '|', topResult.description);
+
+        // Step 2: Fetch entity claims (P39=position held, P580=start date)
+        const entityUrl = `https://www.wikidata.org/w/api.php?action=wbgetentities&ids=${qid}&props=claims|labels|descriptions&languages=de|en&format=json&origin=*`;
+        const entityResp = await fetch(entityUrl);
+        if (!entityResp.ok) return null;
+        const entityData = await entityResp.json();
+        const entity = entityData.entities?.[qid];
+        if (!entity) return null;
+
+        // Extract position held (P39) — most recent
+        const positions = entity.claims?.P39 || [];
+        const currentPosition = positions.find(p => !p.qualifiers?.P582) || positions[0]; // P582=end date, missing = current
+        let officialTitle = null;
+        let startDate = null;
+        if (currentPosition) {
+            const positionId = currentPosition.mainsnak?.datavalue?.value?.id;
+            if (positionId) {
+                // Resolve position label
+                const posUrl = `https://www.wikidata.org/w/api.php?action=wbgetentities&ids=${positionId}&props=labels&languages=de|en&format=json&origin=*`;
+                const posResp = await fetch(posUrl);
+                if (posResp.ok) {
+                    const posData = await posResp.json();
+                    officialTitle = posData.entities?.[positionId]?.labels?.de?.value
+                        || posData.entities?.[positionId]?.labels?.en?.value;
+                }
+            }
+            // Extract start date (P580)
+            const startDateVal = currentPosition.qualifiers?.P580?.[0]?.datavalue?.value?.time;
+            if (startDateVal) {
+                startDate = startDateVal.replace(/^\+/, '').split('T')[0]; // e.g. "2025-03-03"
+            }
+        }
+
+        const label = entity.labels?.de?.value || entity.labels?.en?.value || topResult.label;
+        const description = entity.descriptions?.de?.value || entity.descriptions?.en?.value || topResult.description;
+
+        const result = { qid, label, description, officialTitle, startDate };
+        console.log('[FAKTCHECK BG] Wikidata result:', JSON.stringify(result));
+        return result;
+    } catch (error) {
+        console.log('[FAKTCHECK BG] Wikidata lookup failed (non-fatal):', error.message);
+        return null;
+    }
+}
+
+// ─── TIER 1B: EUROSTAT STATISTICAL API ───────────────────────────────
+// Fetches hard economic data directly from Eurostat JSON API.
+// Supports: GDP growth (tec00115), inflation HICP (prc_hicp_aind),
+// population (demo_gind), unemployment (une_rt_m).
+// Fallback-safe: returns null on any error.
+const EUROSTAT_INDICATORS = {
+    gdp_growth: 'tec00115',
+    inflation: 'prc_hicp_aind',
+    population: 'demo_gind',
+    unemployment: 'une_rt_m'
+};
+
+async function queryEurostat(indicator, geo, year) {
+    try {
+        const datasetId = EUROSTAT_INDICATORS[indicator] || indicator;
+        console.log('[FAKTCHECK BG] ── TIER 1B: Eurostat lookup ──', datasetId, geo, year);
+
+        const url = `https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/${datasetId}?format=JSON&geo=${geo}&time=${year}&lang=en`;
+        const resp = await fetch(url, { signal: AbortSignal.timeout(5000) });
+        if (!resp.ok) {
+            console.log('[FAKTCHECK BG] Eurostat returned', resp.status);
+            return null;
+        }
+
+        const data = await resp.json();
+        // Eurostat JSON format: data.value is a map of index→value
+        const values = data.value || {};
+        const firstKey = Object.keys(values)[0];
+        if (firstKey === undefined) {
+            console.log('[FAKTCHECK BG] Eurostat: No data for', indicator, geo, year);
+            return null;
+        }
+
+        const value = values[firstKey];
+        const unit = data.extension?.annotation?.find(a => a.title === 'unit')?.value || data.dimension?.unit?.category?.label?.[Object.keys(data.dimension?.unit?.category?.index || {})[0]] || '';
+
+        const result = { value, unit, source: 'eurostat.ec.europa.eu', dataset: datasetId, geo, year };
+        console.log('[FAKTCHECK BG] Eurostat result:', JSON.stringify(result));
+        return result;
+    } catch (error) {
+        console.log('[FAKTCHECK BG] Eurostat lookup failed (non-fatal):', error.message);
+        return null;
+    }
+}
+
+// Helper: detect if claim mentions entities that could be hydrated via Wikidata
+function detectEntityName(claimText) {
+    // Match common political/person patterns in DE and EN
+    const patterns = [
+        /(?:Bundeskanzler|Kanzler|Präsident|Minister|Chancellor|President)\s+(?:von\s+)?(?:Österreich|Deutschland|Austria|Germany)?\s*(?:ist|is|war|was)?\s*([A-ZÄÖÜ][a-zäöüß]+(?:\s+[A-ZÄÖÜ][a-zäöüß]+){0,2})/i,
+        /([A-ZÄÖÜ][a-zäöüß]+(?:\s+[A-ZÄÖÜ][a-zäöüß]+){1,2})\s+(?:ist|is|war|was)\s+(?:der|die|das|the|a)?\s*(?:aktuelle|derzeitige|current|neue|new)?\s*(?:Bundeskanzler|Kanzler|Präsident|Minister|Chancellor|President)/i,
+    ];
+    for (const p of patterns) {
+        const m = claimText.match(p);
+        if (m?.[1]) return m[1].trim();
+    }
+    return null;
+}
+
+// Helper: detect if claim mentions economic indicators that Eurostat could answer
+function detectEurostatQuery(claimText) {
+    const lower = claimText.toLowerCase();
+    let indicator = null;
+    let geo = null;
+
+    // Detect indicator
+    if (/\b(bip|gdp|bruttoinlandsprodukt|wirtschaftswachstum|growth)\b/i.test(lower)) indicator = 'gdp_growth';
+    else if (/\b(inflation|teuerung|preissteigerung|hicp|verbraucherpreis)\b/i.test(lower)) indicator = 'inflation';
+    else if (/\b(einwohner|bevölkerung|population|inhabitants)\b/i.test(lower)) indicator = 'population';
+    else if (/\b(arbeitslosigkeit|unemployment|erwerbslos)\b/i.test(lower)) indicator = 'unemployment';
+
+    if (!indicator) return null;
+
+    // Detect country
+    if (/\b(österreich|austria|\bAT\b)\b/i.test(lower)) geo = 'AT';
+    else if (/\b(deutschland|germany|\bDE\b)\b/i.test(lower)) geo = 'DE';
+    else if (/\b(eu|europäische union|european union)\b/i.test(lower)) geo = 'EU27_2020';
+    else if (/\b(frankreich|france|\bFR\b)\b/i.test(lower)) geo = 'FR';
+    else if (/\b(italien|italy|\bIT\b)\b/i.test(lower)) geo = 'IT';
+
+    if (!geo) return null;
+
+    // Detect year
+    const yearMatch = lower.match(/\b(20[2-3]\d)\b/);
+    const year = yearMatch ? yearMatch[1] : new Date().getFullYear().toString();
+
+    return { indicator, geo, year };
+}
+
 // ============================================================================
-// ✅ FIX v5.2: THREE-STAGE + LOCAL + PRE-CHECK VERIFICATION
-// Stage 0: searchFactChecks()     — checks existing professional fact-checks (free API)
-// Stage 1: researchAndSummarize() — finds evidence with Google Search (API call)
-// Stage 2: mapEvidence()          — maps groundingSupports to URLs (LOCAL, zero cost)
-// Stage 3: judgeEvidence()        — renders verdict from attributed evidence (API call)
+// ✅ FAKTCHECK v2.0: FOUR-TIER VERIFICATION PIPELINE
+// Tier 0:  searchFactChecks()     — professional fact-checks (free API)
+// Tier 1A: queryWikidata()        — entity hydration (free API)
+// Tier 1B: queryEurostat()        — structured statistics (free API)
+// Tier 2:  researchAndSummarize() — Gemini search grounding (API call)
+// Local:   mapEvidence()          — maps supports to URLs (zero cost)
+// Stage 3: judgeEvidence()        — renders verdict from evidence (API call)
 // ============================================================================
 
 async function verifyClaim(claimText, apiKey, lang = 'de', claimType = 'factual', videoId = '') {
-    console.log('[FAKTCHECK BG] ========== VERIFY CLAIM v5.2 (Stage 0 + 2-Stage + Local) ==========');
+    console.log('[FAKTCHECK BG] ========== VERIFY CLAIM v2.0 (4-Tier Pipeline) ==========');
     console.log('[FAKTCHECK BG] Claim:', claimText.slice(0, 80) + '...');
     console.log('[FAKTCHECK BG] Type:', claimType, '| VideoID:', videoId || 'none');
 
@@ -1125,15 +1281,45 @@ async function verifyClaim(claimText, apiKey, lang = 'de', claimType = 'factual'
     if (cached) return cached;
 
     try {
-        // ─── STAGE 0: Check professional fact-checkers (free, ~100ms) ───
+        // ─── TIER 0: Check professional fact-checkers (free, ~100ms) ───
         const existingFactChecks = await searchFactChecks(claimText, apiKey, lang);
 
-        // ─── STEP 1: Research and summarize (grounding only, no verdict) ───
+        // ─── TIER 1: Structured Data (Wikidata + Eurostat, free, ~200ms) ───
+        let tier1Data = [];
+
+        // Tier 1A: Wikidata Entity Hydration
+        const entityName = detectEntityName(claimText);
+        let wikidataResult = null;
+        if (entityName) {
+            wikidataResult = await queryWikidata(entityName);
+            if (wikidataResult) {
+                const wd = wikidataResult;
+                tier1Data.push(`WIKIDATA_ENTITY: ${wd.label} (${wd.qid}) — ${wd.description || ''}${wd.officialTitle ? '. Official title: ' + wd.officialTitle : ''}${wd.startDate ? ' since ' + wd.startDate : ''}`);
+            }
+        }
+
+        // Tier 1B: Eurostat Statistical Data
+        const eurostatQuery = detectEurostatQuery(claimText);
+        let eurostatResult = null;
+        if (eurostatQuery) {
+            eurostatResult = await queryEurostat(eurostatQuery.indicator, eurostatQuery.geo, eurostatQuery.year);
+            if (eurostatResult) {
+                tier1Data.push(`EUROSTAT_DATA: ${eurostatQuery.indicator} for ${eurostatQuery.geo} (${eurostatQuery.year}) = ${eurostatResult.value}${eurostatResult.unit ? ' ' + eurostatResult.unit : ''} (Source: ${eurostatResult.source})`);
+            }
+        }
+
+        if (tier1Data.length > 0) {
+            console.log('[FAKTCHECK BG] Tier 1 found', tier1Data.length, 'structured data points');
+        } else {
+            console.log('[FAKTCHECK BG] Tier 1: No structured data found (falling through to Tier 2)');
+        }
+
+        // ─── TIER 2: Gemini Search Grounding (API call) ───
         const evidence = await searchOnly(claimText, apiKey);
 
         // Safety net: if search failed entirely, return unverifiable
         if (evidence.error && evidence.sources.length === 0) {
-            console.warn('[FAKTCHECK BG v5.2] researchAndSummarize failed — aborting');
+            console.warn('[FAKTCHECK BG v2.0] researchAndSummarize failed — aborting');
             return {
                 verdict: 'unverifiable',
                 displayVerdict: 'unverifiable',
@@ -1144,15 +1330,19 @@ async function verifyClaim(claimText, apiKey, lang = 'de', claimType = 'factual'
             };
         }
 
-        // ─── STEP 2: Map evidence locally (zero API calls) ───
+        // ─── LOCAL: Map evidence (zero API calls) ───
         const evidenceQuotes = mapEvidence(evidence.groundingSupports, evidence.sources);
 
-        // Build attribution list for judge: "The model said [X] based on [URL]"
+        // Build attribution list for judge
         const attributionList = evidenceQuotes.length > 0
             ? evidenceQuotes.map((eq, i) => `EVIDENCE_${i + 1}: "${eq.quote}" (Source: ${eq.source}, URL: ${eq.url}, Tier: ${eq.tier})`).join('\n')
             : 'NO ATTRIBUTED EVIDENCE AVAILABLE';
 
-        // Build fact-check context for judge (if Stage 0 found results)
+        // Build structured data context from Tier 1
+        const structuredDataBlock = tier1Data.length > 0
+            ? '\n\nSTRUCTURED_DATA (verified, hard facts — prioritize over web search):\n' + tier1Data.join('\n')
+            : '';
+        // Build fact-check context for judge (if Tier 0 found results)
         let factCheckContext = '';
         if (existingFactChecks.length > 0) {
             const fcLines = existingFactChecks.flatMap(fc =>
@@ -1164,17 +1354,17 @@ async function verifyClaim(claimText, apiKey, lang = 'de', claimType = 'factual'
         // Also pass raw summary text as context
         const snippetsForJudge = evidence.rawText ? [evidence.rawText] : [];
 
-        // ─── STEP 3: Judge evidence (no search, verdict only) ───
-        const judgeResponse = await judgeEvidence(claimText, snippetsForJudge, evidence.sources, apiKey, lang, claimType, [attributionList + factCheckContext]);
+        // ─── STAGE 3: Judge evidence (no search, verdict only) ───
+        const judgeResponse = await judgeEvidence(claimText, snippetsForJudge, evidence.sources, apiKey, lang, claimType, [attributionList + structuredDataBlock + factCheckContext]);
 
-        console.log('[FAKTCHECK BG v5.1] Judge response:', judgeResponse.slice(0, 300));
+        console.log('[FAKTCHECK BG v2.0] Judge response:', judgeResponse.slice(0, 300));
 
         // Parse the judge's response
         let textToParse = judgeResponse;
 
         // Detect "Okay, ich werde..." preamble and skip to VERDICT:
         if (textToParse.match(/^(Okay|OK|Ich werde|I will|Let me|Lass mich)/i)) {
-            console.error('[FAKTCHECK BG v5.1] ⚠️ Judge started with acknowledgment — extracting VERDICT');
+            console.error('[FAKTCHECK BG v2.0] ⚠️ Judge started with acknowledgment — extracting VERDICT');
             const verdictIdx = textToParse.indexOf('VERDICT:');
             if (verdictIdx > 0) textToParse = textToParse.substring(verdictIdx);
         }
@@ -1183,20 +1373,20 @@ async function verifyClaim(claimText, apiKey, lang = 'de', claimType = 'factual'
         const basisMatch = textToParse.match(/CONFIDENCE_BASIS:\s*(direct_match|paraphrase|insufficient_data)/i);
         const confidenceBasis = basisMatch ? basisMatch[1].toLowerCase() : null;
         if (confidenceBasis) {
-            console.log('[FAKTCHECK BG v5.1] Judge CONFIDENCE_BASIS:', confidenceBasis);
+            console.log('[FAKTCHECK BG v2.0] Judge CONFIDENCE_BASIS:', confidenceBasis);
         }
 
         // Extract PRIMARY_SOURCE and QUOTE for logging
         const primarySourceMatch = textToParse.match(/PRIMARY_SOURCE:\s*(https?:\/\/\S+)/i);
         const quoteMatch = textToParse.match(/QUOTE:\s*(.+)/i);
-        if (primarySourceMatch) console.log('[FAKTCHECK BG v5.1] Primary source:', primarySourceMatch[1]);
-        if (quoteMatch) console.log('[FAKTCHECK BG v5.1] Quote:', quoteMatch[1].slice(0, 150));
+        if (primarySourceMatch) console.log('[FAKTCHECK BG v2.0] Primary source:', primarySourceMatch[1]);
+        if (quoteMatch) console.log('[FAKTCHECK BG v2.0] Quote:', quoteMatch[1].slice(0, 150));
 
         // Try structured text parsing first, then JSON, then free text
         let parsed = parseStructuredText(textToParse) || extractJSON(textToParse) || parseVerdictFromText(textToParse);
 
         if (!parsed) {
-            console.warn('[FAKTCHECK BG v5.1] All parsing failed');
+            console.warn('[FAKTCHECK BG v2.0] All parsing failed');
             parsed = {
                 verdict: evidence.sources.length > 0 ? 'partially_true' : 'unverifiable',
                 confidence: evidence.sources.length > 0 ? 0.50 : 0.30,
@@ -1224,17 +1414,22 @@ async function verifyClaim(claimText, apiKey, lang = 'de', claimType = 'factual'
             }
         }
 
-        // Merge grounding sources from Step 1 into parsed result
+        // Attach Tier 1 structured data for UI
+        if (tier1Data.length > 0) {
+            parsed._tier1Data = tier1Data;
+        }
+
+        // Merge grounding sources from Tier 2 into parsed result
         if (evidence.sources.length > 0) {
             parsed._groundingSources = evidence.sources;
         }
 
         const validated = validateVerification(parsed, claimType);
         await setCache(claimText, validated, videoId);
-        console.log('[FAKTCHECK BG v5.2] ✅ Verdict:', validated.verdict, '| Confidence:', validated.confidence, '| Quality:', validated.source_quality);
+        console.log('[FAKTCHECK BG v2.0] ✅ Verdict:', validated.verdict, '| Confidence:', validated.confidence, '| Quality:', validated.source_quality);
         return validated;
     } catch (error) {
-        console.error('[FAKTCHECK BG v5.2] Verify failed:', error.message);
+        console.error('[FAKTCHECK BG v2.0] Verify failed:', error.message);
         return {
             verdict: 'unverifiable',
             displayVerdict: 'unverifiable',
