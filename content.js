@@ -886,27 +886,27 @@
     }
 
     function updateClaimCard(claimId, updates) {
-        const card = document.querySelector(`[data-claim-id="${claimId}"]`);
-        if (!card) return;
-        const safe = S.sanitizeClaim({ id: claimId, ...updates });
-        if (!safe) return;
-        const verdict = safe.displayVerdict || safe.verdict;
-        card.className = `faktcheck-card verdict-${verdict}`;
+        const oldCard = document.querySelector(`[data-claim-id="${claimId}"]`);
+        if (!oldCard) return;
 
-        const verdictEl = card.querySelector('.claim-verdict');
-        if (verdictEl) {
-            verdictEl.innerHTML = '';
-            verdictEl.appendChild(S.createElement('span', { class: 'verdict-icon' }, VERDICT_ICONS[verdict] || '?'));
-            verdictEl.appendChild(S.createText(' ' + tv(verdict)));
+        // Preserve original text from old card
+        const origText = oldCard.querySelector('.claim-text')?.textContent || '';
+
+        // Build full claim data for createClaimCard (merge original + verification)
+        const fullClaim = {
+            id: claimId,
+            text: origText,
+            timestamp: 0,
+            ...updates  // verdict, explanation, sources, evidence_quotes, quote, etc.
+        };
+
+        // Rebuild entire card with full evidence chain
+        const newCard = createClaimCard(fullClaim);
+        if (newCard) {
+            oldCard.replaceWith(newCard);
         }
 
-        if (safe.explanation) {
-            let explEl = card.querySelector('.claim-explanation');
-            if (!explEl) { explEl = S.createElement('div', { class: 'claim-explanation' }); card.querySelector('.claim-text')?.after(explEl); }
-            explEl.textContent = safe.explanation;
-        }
-
-        updateTruthMeter(safe.verdict);
+        updateTruthMeter(updates.verdict || updates.displayVerdict);
     }
 
     // ==================== Helpers ====================
