@@ -752,9 +752,11 @@
             chain.appendChild(feedbackBar);
 
             // Toggle behavior
-            toggleBtn.addEventListener('click', () => {
+            toggleBtn.addEventListener('click', (e) => {
+                e.stopPropagation(); // prevent card click from double-firing
                 const isExpanded = chain.classList.contains('visible');
                 chain.classList.toggle('visible');
+                card.classList.toggle('expanded');
                 toggleBtn.classList.toggle('expanded');
                 const chevron = toggleBtn.querySelector('.chevron');
                 if (chevron) {
@@ -766,6 +768,19 @@
 
             card.appendChild(toggleBtn);
             card.appendChild(chain);
+
+            // ─── CARD-LEVEL CLICK: entire card is clickable to expand ───
+            card.style.cursor = 'pointer';
+            card.addEventListener('click', (e) => {
+                // Don't fire on clicks inside the chain itself (links, buttons, feedback)
+                if (chain.contains(e.target) && e.target !== chain) return;
+                // Don't fire on timestamp clicks
+                if (e.target.closest('.claim-timestamp')) return;
+                // Don't fire on the toggle button (it has its own handler)
+                if (e.target.closest('.evidence-toggle')) return;
+                // Delegate to toggle button
+                toggleBtn.click();
+            });
         }
 
         if (safe.confidence > 0) card.appendChild(S.createElement('div', { class: 'claim-confidence' }, `${Math.round(safe.confidence * 100)}% confident`));

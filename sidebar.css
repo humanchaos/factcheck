@@ -593,6 +593,21 @@
 }
 
 /* Expand/collapse toggle */
+.faktcheck-card {
+    cursor: pointer;
+    transition: transform 0.15s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.faktcheck-card:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 16px rgba(0, 204, 255, 0.08);
+}
+
+.faktcheck-card.expanded {
+    border-left: 3px solid #00ccff;
+    box-shadow: 0 2px 12px rgba(0, 204, 255, 0.12);
+}
+
 .evidence-toggle {
     display: flex;
     align-items: center;
