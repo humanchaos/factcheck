@@ -1,8 +1,10 @@
-# 📑 factcheck
+# 📑 FAKTCHECK LIVE
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Version](https://img.shields.io/badge/version-2.0.0-blue.svg)](CHANGELOG.md)
 [![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://github.com/humanchaos/factcheck/graphs/commit-activity)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](http://makeapullrequest.com)
+[![Golden Tests](https://img.shields.io/badge/Golden_Tests-21%2F22_(95.5%25)-brightgreen.svg)](TESTING.md)
 [![Buy Me A Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-ffdd00?style=for-the-badge&logo=buy-me-a-coffee&logoColor=black)](https://www.buymeacoffee.com/humanchaos)
 
 **Protecting the truth in the digital age.**
@@ -64,31 +66,67 @@ cd factcheck
 | Platform | Chrome Extension (Manifest V3) |
 | AI Engine | Google Gemini 2.0 Flash |
 | Grounding | Google Search (via Gemini) |
+| Structured Data | Wikidata API, Eurostat JSON API |
 | Security | XSS protection, input sanitization, rate limiting |
 | Languages | JavaScript, HTML, CSS |
 
-### How It Works — Three-Stage Verification Pipeline
+### How It Works — 4-Tier Verification Pipeline
 
-Every claim goes through a **Separation of Powers** pipeline where no single AI call can both find evidence *and* render a verdict:
+Every claim goes through a **hierarchical verification cascade** where each tier only fires if the previous one didn't resolve the claim. No single AI call can both find evidence *and* render a verdict (**Separation of Powers**).
 
-1. **🔍 Search** (`searchOnly`) — Gemini + Google Search finds raw evidence snippets and source URLs. No verdict is issued.
-2. **📋 Extract** (`extractFacts`) — A second Gemini call decomposes snippets into structured **Fact Triplets** (Subject → Relation → Object), each tagged as `supporting`, `contradicting`, or `nuanced`.
-3. **⚖️ Judge** (`judgeEvidence`) — A third Gemini call (zero grounding) renders a verdict based *only* on the extracted facts. Includes a **Mathematical Outlier** guardrail: if a claim's number exceeds evidence by >10×, it returns `FALSE`.
+| Tier | Function | Source | Cost |
+|------|----------|--------|------|
+| **Tier 0** | `searchFactChecks()` | Google Fact Check Tools API | Free |
+| **Tier 1A** | `queryWikidata()` | Wikidata Entity API | Free |
+| **Tier 1B** | `queryEurostat()` | Eurostat JSON API | Free |
+| **Tier 2** | `searchOnly()` | Gemini + Google Search | 1 API call |
+| **Local** | `mapEvidence()` | Maps groundingSupports → URLs | Zero cost |
+| **Judge** | `judgeEvidence()` | Gemini JSON mode (no search) | 1 API call |
 
 ```mermaid
 graph TD
-    A[YouTube Video] -->|Extract Transcript| B(Content Script)
-    B -->|Send Payload| C{Background Script}
-    C -->|Stage 1| D["🔍 searchOnly<br/>Gemini + Google Search"]
-    D -->|Raw Snippets + URLs| E["📋 extractFacts<br/>Fact Triplets"]
-    E -->|Structured Evidence| F["⚖️ judgeEvidence<br/>Zero Grounding"]
-    F -->|Verdict + Confidence| C
-    C -->|Render UI| G[Extension Sidebar]
+    A["YouTube Video"] -->|Extract Transcript| B("Content Script")
+    B -->|Send Payload| C{"Background Script"}
+    C -->|Tier 0| D["🏆 searchFactChecks<br/>Fact Check Tools API"]
+    D -->|No match| E["🏛️ Tier 1A: queryWikidata<br/>Entity Hydration"]
+    E --> F["📊 Tier 1B: queryEurostat<br/>Statistical Data"]
+    F --> G["🔍 Tier 2: searchOnly<br/>Gemini + Google Search"]
+    G -->|Raw Snippets + URLs| H["📋 mapEvidence (LOCAL)<br/>Attribute Quotes to URLs"]
+    H -->|Attributed Evidence| I["⚖️ judgeEvidence<br/>JSON Mode, Zero Grounding"]
+    I -->|Structured JSON| C
+    C -->|Render UI| J["Extension Sidebar"]
+    D -->|Match found| C
 ```
+
+### 🛡️ Math Guardrail
+
+LLMs hallucinate with large numbers. FAKTCHECK includes a **code-level safeguard** that fires before any AI verdict:
+
+> **Rule:** If the claimed value exceeds the evidence value by **≥ 10×** (or ≤ 0.1×), the system automatically overrides the verdict to `FALSE` and sets `math_outlier: true`.
+
+| Claim | Evidence | Ratio | Result |
+|-------|----------|-------|--------|
+| "US tariff revenue is $18 trillion" | ~$80 billion | 225× | ❌ `FALSE` — Math Outlier |
+| "Austria's GDP grows 5%" | WIFO: 1.2% | 4.2× | Passes to judge |
+
+When triggered, the UI shows an orange/red **⚠️ Mathematically Implausible** warning card.
+
+### 🔎 Interactive Evidence Chain
+
+Every claim card expands to show a full **Evidence Chain** with progressive disclosure:
+
+- **🏆 Professional Fact-Checks** — Results from Tier 0 (Google Fact Check Tools API)
+- **Tier badge** with domain-aware icon (🏛️ Gov, 📰 PSB, 🔬 Science, ✅ Fact-Check)
+- **Attributed quotes** — Exact sentences mapped to source URLs (hallucination-proof)
+- **Debate Mode** — When evidence conflicts, a 🟢/🔴 split shows *Supporting* vs. *Contradicting* quotes
+- **Feedback** — 👍/👎 per claim + 🚩 Source Report per quote
+- **Verification links** — Every source opens in a new tab (`target="_blank"`)
+
+---
 
 ### Domain-Aware Source Authority
 
-Sources are tiered using a [registry of 41+ domains](assets/registry/sources-global.json) with wildcard support:
+Sources are tiered using a [registry of 57+ domains](assets/registry/sources-global.json) with wildcard support:
 
 | Tier | Icon | Category | Examples |
 |------|------|----------|----------|
@@ -102,40 +140,47 @@ Sources are tiered using a [registry of 41+ domains](assets/registry/sources-glo
 
 Confidence is calculated deterministically: `Confidence = Base × SourceTier × Agreement` — no LLM "feelings."
 
-### Evidence Chain & Debate Mode
+For the complete API schema including JSON output format and tier definitions, see **[API_SPEC.md](API_SPEC.md)**.
 
-Every claim card expands to show a full **Evidence Chain**:
-- **Tier badge** with domain-aware icon (🏛️, 📰, 🔬, etc.)
-- **Smoking gun quote** from the source, or a fallback message if none exists
-- **Debate Mode**: When evidence conflicts, a 🟢/🔴 split view shows *Supporting* vs. *Contradicting* facts
+---
+
+## 🧪 Testing
+
+FAKTCHECK uses a **22 Golden Test** suite that must pass before any release. The **Assessment Ratio** (≥90%) is our Definition of Done.
+
+```bash
+GEMINI_API_KEY=AIza... node test-dryrun.js
+```
+
+Current status: **21/22 (95.5%)** — see [TESTING.md](TESTING.md) for the full test matrix, pass criteria, and kill switch rules.
 
 ---
 
 ## 🗺️ Community Roadmap
 
-This project is in its early **Alpha** stage. The goal is to move from "Messy Prototype" to a "Robust Public Utility." Every [☕ coffee](https://www.buymeacoffee.com/humanchaos) or [💖 sponsorship](https://github.com/sponsors/humanchaos) directly accelerates these milestones.
+### 🟢 Phase 1: The Foundation ✅
 
-### 🟢 Phase 1: The Foundation ✅ Complete
+- Three-Stage Verification Pipeline — Separation of Powers
+- Domain-Aware Source Registry — 57+ domains, deterministic confidence
+- Multi-Language Support — 6 languages with auto-detection
+- Community Governance — Code of Conduct, Security, Privacy, Trust Policy
 
-- **Three-Stage Verification Pipeline** — Separation of Powers: no single AI call does retrieval + judgment
-- **Domain-Aware Source Registry** — 41+ domains with wildcard support and deterministic confidence scoring
-- **Evidence Chain UI** — Expandable proof cards with tier badges, quotes, and verification links
-- **Multi-Language Support** — UI in 6 languages (DE, EN, FR, ES, IT, PT) with auto-detection
-- **Community Governance** — Code of Conduct, Security Policy, Privacy Policy, Trust Policy
+### 🟢 Phase 2: Trust Intelligence ✅ (v2.0.0)
 
-### 🟡 Phase 2: Trust Intelligence (Current Focus)
+- **4-Tier Pipeline** — Professional fact-checks → Wikidata → Eurostat → Gemini Search
+- **Interactive Evidence Chain** — Accordion UI with attributed quotes, tier badges, verification links
+- **Structured JSON Judge** — `response_mime_type: application/json` eliminates regex parsing
+- **Math Guardrail** — 10× outlier rule with UI warning card
+- **Debate Mode** — 🟢/🔴 split view for conflicting evidence
+- **Feedback System** — 👍/👎 + 🚩 Source Report per quote
+- **22 Golden Tests** — 95.5% pass rate, automated stability checks
 
-- **Debate Mode** — ✅ Done! Green/red split view when evidence conflicts
-- **Fact Triplets** — ✅ Done! Structured evidence extraction with sentiment classification
-- **Source Click Tracking** — ✅ Done! Local analytics for source interaction patterns
-- **Source Decay** — Dynamic credibility weighting based on user feedback (next)
-- **Real-time Optimization** — Reduce CPU usage during transcript parsing
+### 🟡 Phase 3: The Trust Engine (Next)
 
-### 🔵 Phase 3: The Trust Engine (Future)
-
-- **Weighted Consensus** — Algorithmic source weighting based on international standards ([IFCN](https://www.ifcncodeofprinciples.poynter.org/))
-- **Cross-Platform Support** — Expand beyond YouTube to Twitter (X), Reddit, and news sites
-- **Community Verification** — Allow trusted human contributors to flag AI hallucinations
+- **Source Decay** — Dynamic credibility weighting based on user feedback
+- **Weighted Consensus** — Algorithmic weighting based on [IFCN](https://www.ifcncodeofprinciples.poynter.org/) standards
+- **Cross-Platform** — Expand beyond YouTube to Twitter (X), Reddit, news sites
+- **Community Verification** — Trusted human contributors flag AI hallucinations
 
 ---
 
