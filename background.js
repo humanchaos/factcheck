@@ -108,26 +108,90 @@ function validateClaims(data) {
     return valid;
 }
 
-// V3.0 Source Tier Domains
-const SOURCE_TIERS = {
-    tier1: [ // Official/Parliamentary - 1 source = sufficient
-        'parlament.gv.at', 'ris.bka.gv.at', 'orf.at', 'bundeskanzleramt.gv.at',
-        'bmj.gv.at', 'bmi.gv.at', 'rechnungshof.gv.at', 'bka.gv.at'
-    ],
-    tier2: [ // Quality Media - 2 sources = sufficient
-        'derstandard.at', 'diepresse.com', 'wienerzeitung.at', 'profil.at',
-        'falter.at', 'kurier.at', 'kleinezeitung.at', 'news.at', 'apa.at'
-    ]
-};
+// ─── SOURCE REGISTRY (loaded from assets/registry/sources-global.json) ───
+let sourceRegistry = null;
+
+// Load registry at startup — falls back to hardcoded domains if fetch fails
+async function loadSourceRegistry() {
+    try {
+        const url = chrome.runtime.getURL('assets/registry/sources-global.json');
+        const res = await fetch(url);
+        sourceRegistry = await res.json();
+        console.log(`[FAKTCHECK BG] ✅ Source registry loaded: v${sourceRegistry.version}, ${Object.keys(sourceRegistry.domains).length} domains`);
+    } catch (err) {
+        console.warn('[FAKTCHECK BG] ⚠️ Failed to load source registry, using defaults:', err.message);
+        sourceRegistry = {
+            domains: {
+                'parlament.gv.at': { tier: 1 }, 'ris.bka.gv.at': { tier: 1 },
+                'bundeskanzleramt.at': { tier: 1 }, 'statistik.at': { tier: 1 },
+                'orf.at': { tier: 2 }, 'derstandard.at': { tier: 2 },
+                'apa.at': { tier: 1 }, 'reuters.com': { tier: 1 }
+            },
+            wildcards: { '*.gv.at': { tier: 1 }, '*.gov': { tier: 1 }, '*.edu': { tier: 2 } }
+        };
+    }
+}
+
+// Load immediately when service worker starts
+loadSourceRegistry();
 
 function getSourceTier(url) {
-    if (!url) return 3;
+    if (!url) return 4;
     try {
-        const domain = new URL(url).hostname.replace('www.', '');
-        if (SOURCE_TIERS.tier1.some(d => domain.includes(d))) return 1;
-        if (SOURCE_TIERS.tier2.some(d => domain.includes(d))) return 2;
-    } catch (e) { }
-    return 3;
+        const hostname = new URL(url).hostname.replace(/^www\./, '');
+
+        // 1. Exact domain match
+        if (sourceRegistry?.domains?.[hostname]) {
+            return sourceRegistry.domains[hostname].tier;
+        }
+
+        // 2. Parent domain match (e.g. 'news.orf.at' → 'orf.at')
+        const parts = hostname.split('.');
+        for (let i = 1; i < parts.length; i++) {
+            const parent = parts.slice(i).join('.');
+            if (sourceRegistry?.domains?.[parent]) {
+                return sourceRegistry.domains[parent].tier;
+            }
+        }
+
+        // 3. Wildcard TLD match (e.g. '*.gv.at', '*.gov', '*.edu')
+        if (sourceRegistry?.wildcards) {
+            for (const [pattern, meta] of Object.entries(sourceRegistry.wildcards)) {
+                const suffix = pattern.replace('*.', '.');
+                if (hostname.endsWith(suffix)) return meta.tier;
+            }
+        }
+    } catch (_e) { }
+    return 4; // Unknown source
+}
+
+// Get source metadata (label, type, region) for UI display
+function getSourceMeta(url) {
+    if (!url || !sourceRegistry?.domains) return null;
+    try {
+        const hostname = new URL(url).hostname.replace(/^www\./, '');
+        if (sourceRegistry.domains[hostname]) return sourceRegistry.domains[hostname];
+        const parts = hostname.split('.');
+        for (let i = 1; i < parts.length; i++) {
+            const parent = parts.slice(i).join('.');
+            if (sourceRegistry.domains[parent]) return sourceRegistry.domains[parent];
+        }
+    } catch (_e) { }
+    return null;
+}
+
+// ─── R2.3: REPRODUCIBLE CONFIDENCE SCORING ──────────────────
+// Replaces "LLM vibes" with a deterministic, debuggable number.
+// matchType: how well sources corroborate the claim
+// topTier:   best source tier found (1=official, 5=unknown)
+// allSourcesAgree: no conflicting information found
+function calculateConfidence(matchType, topTier, allSourcesAgree) {
+    const baseMap = { direct: 0.9, paraphrase: 0.7, none: 0.0 };
+    const tierMap = { 1: 1.0, 2: 0.85, 3: 0.7, 4: 0.4, 5: 0.1 };
+    const base = baseMap[matchType] || 0.0;
+    const sourceMult = tierMap[topTier] || 0.5;
+    const agreementMult = allSourcesAgree ? 1.0 : 0.7;
+    return parseFloat((base * sourceMult * agreementMult).toFixed(2));
 }
 
 // V3.1 JSON Extraction (BATTLE-TESTED)
@@ -291,12 +355,15 @@ function parseVerdictFromText(text) {
 
 
 function validateVerification(data, claimType = 'factual') {
-    const validVerdicts = ['true', 'mostly_true', 'partially_true', 'mostly_false', 'false', 'unverifiable', 'misleading', 'opinion', 'deceptive'];
+    const validVerdicts = ['true', 'mostly_true', 'partially_true', 'mostly_false', 'false', 'unverifiable', 'unverified', 'misleading', 'opinion', 'deceptive'];
     if (typeof data !== 'object' || !data) {
         return { verdict: 'unverifiable', displayVerdict: 'unverifiable', confidence: 0.3, explanation: 'Invalid response', sources: [] };
     }
 
     let verdict = validVerdicts.includes(data.verdict) ? data.verdict : 'unverifiable';
+    // Normalize new judge verdicts to existing system
+    if (verdict === 'unverified') verdict = 'unverifiable';
+    if (verdict === 'misleading') verdict = 'partially_true';
     let confidence = Math.max(0, Math.min(1, Number(data.confidence) || 0.5));
     let explanation = sanitize(String(data.explanation || ''), 500);
 
@@ -323,18 +390,36 @@ function validateVerification(data, claimType = 'factual') {
     const tier2Count = tieredSources.filter(s => s.tier === 2).length;
     const totalSources = tieredSources.length;
 
-    // V3.0: Tier-aware confidence adjustment
-    if (verdict === 'true' || verdict === 'mostly_true') {
-        if (tier1Count >= 1) {
-            confidence = Math.max(confidence, 0.85);  // 1 Tier-1 source = high confidence
-        } else if (tier2Count >= 2) {
-            confidence = Math.max(confidence, 0.80);  // 2 Tier-2 sources
-        } else if (totalSources >= 2) {
-            confidence = Math.min(confidence, 0.75);  // 2+ Tier-3 only
-        } else if (totalSources === 1) {
-            verdict = 'partially_true';  // Downgrade: only 1 low-tier source
-            confidence = Math.min(confidence, 0.60);
-        }
+    // R2.3: Deterministic confidence via calculateConfidence()
+    const topTier = tieredSources.length > 0
+        ? Math.min(...tieredSources.map(s => s.tier))
+        : 5;
+    // Use CONFIDENCE_BASIS from judge if available, otherwise infer from sources
+    const confidenceBasis = data._confidenceBasis || null;
+    const matchType = confidenceBasis
+        ? confidenceBasis  // Judge explicitly stated: direct_match, paraphrase, or insufficient_data
+        : (tier1Count >= 1 ? 'direct'
+            : (tier2Count >= 1 || totalSources >= 2) ? 'paraphrase'
+                : 'none');
+    // Map judge's 'insufficient_data' to our 'none'
+    const normalizedMatchType = matchType === 'insufficient_data' ? 'none' : matchType;
+    // If LLM says TRUE but we have no quality sources, sources disagree
+    const llmPositive = ['true', 'mostly_true'].includes(verdict);
+    const allSourcesAgree = !(llmPositive && totalSources === 0);
+    const calibrated = calculateConfidence(normalizedMatchType, topTier, allSourcesAgree);
+
+    // Use calibrated score, but keep LLM score if it's lower (conservative)
+    if (calibrated > 0) {
+        confidence = Math.min(Math.max(calibrated, 0.1), 1.0);
+    }
+
+    // Downgrade verdict if sources don't back it up
+    if (llmPositive && matchType === 'none') {
+        verdict = 'unverifiable';
+        confidence = 0.30;
+    } else if (llmPositive && totalSources === 1 && topTier >= 4) {
+        verdict = 'partially_true';
+        confidence = Math.min(confidence, 0.60);
     }
 
     // V3.0: Causal analysis - ONLY for explicit causal claims
@@ -380,7 +465,11 @@ function validateVerification(data, claimType = 'factual') {
         sources: tieredSources,
         timeline: timeline,
         is_causal: isCausalClaim,
-        source_quality: tier1Count > 0 ? 'high' : tier2Count > 0 ? 'medium' : 'low'
+        source_quality: tier1Count > 0 ? 'high' : tier2Count > 0 ? 'medium' : 'low',
+        // Evidence Chain data from judge
+        quote: data._quote || '',
+        primary_source: data._primarySource || '',
+        confidence_basis: data._confidenceBasis || ''
     };
 }
 
@@ -714,132 +803,212 @@ No verifiable facts with sufficient context? Respond: []`;
     }
 }
 
+// ─── R2.1: SEPARATION OF POWERS — Two-Step Verification ────
+// Step 1: Search only — returns raw evidence, no verdict
+// Step 2: Judge only — renders verdict from evidence, no search
+// If Step 1 fails, Step 2 never runs (prevents hallucinated verdicts)
+
+async function searchOnly(claimText, apiKey) {
+    console.log('[FAKTCHECK BG] ── STEP 1: searchOnly ──');
+    const sanitized = sanitize(claimText, 1000);
+    const prompt = `Find factual sources for the following claim. Return ONLY the evidence you find.
+
+CLAIM: "${sanitized}"
+
+RESPONSE FORMAT (start DIRECTLY, no introduction):
+SNIPPET_1: [Quote or key fact from source]
+SNIPPET_2: [Quote or key fact from source]
+SNIPPET_3: [Quote or key fact from source]
+SOURCES: [URL1; URL2; URL3]
+
+RULES:
+- Search for this claim using Google
+- Return only factual snippets and source URLs
+- Do NOT render a verdict or opinion
+- If no sources found, respond with: SNIPPET_1: No sources found\nSOURCES: none`;
+
+    try {
+        const result = await callGeminiWithSearch(apiKey, prompt);
+        let rawText = '';
+        let groundingSources = [];
+
+        if (result && typeof result === 'object' && result._rawText) {
+            rawText = result._rawText;
+            groundingSources = result._groundingSources || [];
+        } else {
+            rawText = String(result || '');
+        }
+
+        // Extract snippets from response
+        const snippetMatches = rawText.match(/SNIPPET_\d+:\s*(.+)/gi) || [];
+        const snippets = snippetMatches.map(s => s.replace(/SNIPPET_\d+:\s*/i, '').trim()).filter(s => s && s !== 'No sources found');
+
+        console.log('[FAKTCHECK BG] searchOnly found', snippets.length, 'snippets,', groundingSources.length, 'grounding sources');
+        return { snippets, sources: groundingSources, rawText };
+    } catch (error) {
+        console.error('[FAKTCHECK BG] searchOnly failed:', error.message);
+        return { snippets: [], sources: [], rawText: '', error: error.message };
+    }
+}
+
+async function judgeEvidence(claimText, snippets, sources, apiKey, lang = 'de', claimType = 'factual') {
+    console.log('[FAKTCHECK BG] ── STEP 2: judgeEvidence (hallucination-proof) ──');
+    const sanitized = sanitize(claimText, 1000);
+    const isCausal = claimType === 'causal';
+    const evidenceBlock = snippets.length > 0
+        ? snippets.map((s, i) => `SEARCH_SNIPPET_${i + 1}: ${s}`).join('\n')
+        : 'NO SEARCH SNIPPETS AVAILABLE';
+    const sourceList = sources.length > 0
+        ? sources.map(s => s.url || s).join('; ')
+        : 'none';
+
+    // Hallucination-proof system instruction
+    const systemInstruction = lang === 'de'
+        ? `Du bist ein strikt gebundener Verifikationsrichter. Dir werden ein CLAIM und SEARCH_SNIPPETS gegeben.
+
+KRITISCHE REGELN:
+
+1. NULL externes Wissen: Dir ist VERBOTEN, dein internes Trainingswissen zu nutzen. Wenn die Snippets den Claim nicht erwähnen, MUSS die Antwort 'UNVERIFIED' sein.
+
+2. Direkter Widerspruch: Wenn die Snippets den Claim explizit widerlegen, antworte 'FALSE'.
+
+3. Direkte Bestätigung: Antworte nur 'TRUE' wenn eine offizielle oder seriöse Quelle die spezifischen Zahlen, Daten oder Namen im Claim explizit bestätigt.
+
+4. Teilweise Übereinstimmung: Wenn die Snippets Teile des Claims stützen aber ein Schlüsseldetail fehlt, antworte 'MISLEADING'.
+
+5. Meinung: Wenn der Claim ein Werturteil oder eine persönliche Meinung ist und KEINE prüfbare Faktenaussage enthält, antworte 'OPINION'.${isCausal ? '\n\n6. Kausalität: Prüfe ob die zeitliche Abfolge den kausalen Zusammenhang stützt.' : ''}`
+        : `You are a strictly grounded Verification Judge. You will be given a CLAIM and a set of SEARCH_SNIPPETS.
+
+CRITICAL RULES:
+
+1. Zero External Knowledge: You are forbidden from using your internal training data. If the snippets don't mention the claim, you MUST return 'UNVERIFIED'.
+
+2. Direct Contradiction: If the snippets explicitly deny the claim, return 'FALSE'.
+
+3. Direct Support: Only return 'TRUE' if a Tier 1 or Tier 2 source explicitly confirms the specific numbers, dates, or names in the claim.
+
+4. Partial Match: If the snippets support part of the claim but omit a key detail, return 'MISLEADING'.
+
+5. Opinion: If the claim is a value judgment or personal opinion and contains NO verifiable factual assertion, return 'OPINION'.${isCausal ? '\n\n6. Causality: Check whether the timeline supports the causal relationship.' : ''}`;
+
+    const prompt = `${systemInstruction}
+
+CLAIM: "${sanitized}"
+
+SEARCH_SNIPPETS:
+${evidenceBlock}
+SOURCE_URLS: ${sourceList}
+
+MANDATORY OUTPUT FORMAT (start DIRECTLY, no introduction):
+VERDICT: [true | false | misleading | opinion | unverified]
+PRIMARY_SOURCE: [URL of the most relevant source]
+QUOTE: [The exact sentence from the snippet that justifies your verdict]
+CONFIDENCE_BASIS: [direct_match | paraphrase | insufficient_data]`;
+
+    try {
+        // Use callGemini WITHOUT search grounding — judge only
+        const result = await callGemini(apiKey, prompt);
+        return String(result || '');
+    } catch (error) {
+        console.error('[FAKTCHECK BG] judgeEvidence failed:', error.message);
+        return '';
+    }
+}
+
 // ============================================================================
-// ✅ FIX v3.3: COMPLETELY REWRITTEN VERIFY PROMPT
-// The old prompt caused Gemini to say "Okay, ich werde..." instead of doing it
+// ✅ FIX v4.0: TWO-STEP VERIFICATION (Separation of Powers)
+// Step 1: searchOnly() — finds evidence with Google Search
+// Step 2: judgeEvidence() — renders verdict from evidence only
 // ============================================================================
 
 async function verifyClaim(claimText, apiKey, lang = 'de', claimType = 'factual') {
-    console.log('[FAKTCHECK BG] ========== VERIFY CLAIM v3.3 ==========');
+    console.log('[FAKTCHECK BG] ========== VERIFY CLAIM v4.0 ==========');
     console.log('[FAKTCHECK BG] Claim:', claimText.slice(0, 80) + '...');
     console.log('[FAKTCHECK BG] Type:', claimType);
 
     const cached = await getCached(claimText);
     if (cached) return cached;
 
-    const sanitized = sanitize(claimText, 1000);
-    const isCausal = claimType === 'causal';
 
-    // ============================================================================
-    // v3.3 FIX: New prompt structure that FORCES immediate output
-    // Key changes:
-    // 1. No "task description" that sounds like instructions
-    // 2. Start with "Analysiere und bewerte JETZT" (Analyze and evaluate NOW)
-    // 3. Output format comes FIRST, not last
-    // 4. Explicit "Beginne direkt mit VERDICT:" instruction
-    // ============================================================================
-
-    const prompt = lang === 'de' ?
-        `Analysiere den folgenden Claim und gib SOFORT das Ergebnis aus.
-
-CLAIM: "${sanitized}"
-
-ANTWORT-FORMAT (beginne DIREKT mit VERDICT, KEINE Einleitung):
-VERDICT: [true|false|partially_true|deceptive|opinion|unverifiable]
-CONFIDENCE: [0.0-1.0]
-EXPLANATION: [1-2 Sätze Begründung auf Deutsch]
-KEY_FACTS: [Fakt 1; Fakt 2]
-SOURCES: [URL1; URL2]
-
-BEWERTUNGS-KRITERIEN:
-- TRUE: Fakten durch offizielle Quellen (parlament.gv.at, orf.at) oder 2+ seriöse Medien bestätigt
-- FALSE: Fakten widerlegt durch offizielle Daten
-- PARTIALLY_TRUE: Kern stimmt, Details ungenau oder nur 1 unsichere Quelle
-- DECEPTIVE: Fakten korrekt aber irreführend dargestellt${isCausal ? ' (z.B. Kausalität zeitlich unmöglich)' : ''}
-- OPINION: Werturteil/Meinung, keine prüfbare Faktenaussage
-- UNVERIFIABLE: KEINE Quellen gefunden (nur als letzter Ausweg!)
-
-WICHTIG: Antworte SOFORT mit "VERDICT:" - keine Einleitung wie "Okay" oder "Ich werde"!` :
-
-        `Analyze the following claim and output the result IMMEDIATELY.
-
-CLAIM: "${sanitized}"
-
-RESPONSE FORMAT (start DIRECTLY with VERDICT, NO introduction):
-VERDICT: [true|false|partially_true|deceptive|opinion|unverifiable]
-CONFIDENCE: [0.0-1.0]
-EXPLANATION: [1-2 sentences]
-KEY_FACTS: [Fact 1; Fact 2]
-SOURCES: [URL1; URL2]
-
-EVALUATION CRITERIA:
-- TRUE: Facts confirmed by official sources or 2+ quality media
-- FALSE: Facts disproven by official data
-- PARTIALLY_TRUE: Core is correct, details uncertain or only 1 weak source
-- DECEPTIVE: Facts correct but misleadingly presented
-- OPINION: Value judgment, not a verifiable factual claim
-- UNVERIFIABLE: NO sources found (only as last resort!)
-
-IMPORTANT: Respond IMMEDIATELY with "VERDICT:" - no introduction like "Okay" or "I will"!`;
 
     try {
-        // Use Google Search for verification!
-        const result = await callGeminiWithSearch(apiKey, prompt);
+        // ─── STEP 1: Search for evidence (grounding only, no verdict) ───
+        const evidence = await searchOnly(claimText, apiKey);
 
-        // V3.2: Handle new return format with grounding sources
-        let textToParse = result;
-        let groundingSources = [];
-
-        if (result && typeof result === 'object' && result._rawText) {
-            textToParse = result._rawText;
-            groundingSources = result._groundingSources || [];
+        // Safety net: if search failed entirely, return unverifiable
+        if (evidence.error && evidence.snippets.length === 0 && evidence.sources.length === 0) {
+            console.warn('[FAKTCHECK BG v4.0] searchOnly failed — aborting (no judgeEvidence)');
+            return {
+                verdict: 'unverifiable',
+                displayVerdict: 'unverifiable',
+                confidence: 0,
+                explanation: 'Search failed: ' + evidence.error,
+                sources: [],
+                error: evidence.error
+            };
         }
 
-        console.log('[FAKTCHECK BG v3.3] Raw response:', String(textToParse).slice(0, 300));
-        console.log('[FAKTCHECK BG v3.3] Grounding sources:', groundingSources.length);
+        // ─── STEP 2: Judge evidence (no search, verdict only) ───
+        const judgeResponse = await judgeEvidence(claimText, evidence.snippets, evidence.sources, apiKey, lang, claimType);
 
-        // ============================================================================
-        // v3.3 FIX: Detect the "Okay, ich werde..." problem and log it
-        // ============================================================================
-        const responseText = String(textToParse);
-        if (responseText.match(/^(Okay|OK|Ich werde|I will|Let me|Lass mich)/i)) {
-            console.error('[FAKTCHECK BG v3.3] ⚠️ DETECTED: AI started with acknowledgment instead of VERDICT!');
-            console.error('[FAKTCHECK BG v3.3] Response start:', responseText.slice(0, 150));
-            // Try to find VERDICT: somewhere in the response anyway
-            const verdictIdx = responseText.indexOf('VERDICT:');
-            if (verdictIdx > 0) {
-                console.log('[FAKTCHECK BG v3.3] Found VERDICT at position', verdictIdx, '- extracting...');
-                textToParse = responseText.substring(verdictIdx);
-            }
+        console.log('[FAKTCHECK BG v4.0] Judge response:', judgeResponse.slice(0, 300));
+
+        // Parse the judge's response
+        let textToParse = judgeResponse;
+
+        // Detect "Okay, ich werde..." preamble and skip to VERDICT:
+        if (textToParse.match(/^(Okay|OK|Ich werde|I will|Let me|Lass mich)/i)) {
+            console.error('[FAKTCHECK BG v4.0] ⚠️ Judge started with acknowledgment — extracting VERDICT');
+            const verdictIdx = textToParse.indexOf('VERDICT:');
+            if (verdictIdx > 0) textToParse = textToParse.substring(verdictIdx);
         }
 
-        // V3.2: Try structured text parsing first, then JSON, then free text
+        // Extract CONFIDENCE_BASIS from judge response
+        const basisMatch = textToParse.match(/CONFIDENCE_BASIS:\s*(direct_match|paraphrase|insufficient_data)/i);
+        const confidenceBasis = basisMatch ? basisMatch[1].toLowerCase() : null;
+        if (confidenceBasis) {
+            console.log('[FAKTCHECK BG v4.0] Judge CONFIDENCE_BASIS:', confidenceBasis);
+        }
+
+        // Extract PRIMARY_SOURCE and QUOTE for logging
+        const primarySourceMatch = textToParse.match(/PRIMARY_SOURCE:\s*(https?:\/\/\S+)/i);
+        const quoteMatch = textToParse.match(/QUOTE:\s*(.+)/i);
+        if (primarySourceMatch) console.log('[FAKTCHECK BG v4.0] Primary source:', primarySourceMatch[1]);
+        if (quoteMatch) console.log('[FAKTCHECK BG v4.0] Quote:', quoteMatch[1].slice(0, 150));
+
+        // Try structured text parsing first, then JSON, then free text
         let parsed = parseStructuredText(textToParse) || extractJSON(textToParse) || parseVerdictFromText(textToParse);
 
         if (!parsed) {
-            console.warn('[FAKTCHECK BG v3.3] All parsing failed');
-            // Fallback: use grounding sources if available
+            console.warn('[FAKTCHECK BG v4.0] All parsing failed');
             parsed = {
-                verdict: groundingSources.length > 0 ? 'partially_true' : 'unverifiable',
-                confidence: groundingSources.length > 0 ? 0.50 : 0.30,
-                explanation: groundingSources.length > 0
-                    ? 'Sources found, but no explicit analysis from Gemini.'
+                verdict: evidence.sources.length > 0 ? 'partially_true' : 'unverifiable',
+                confidence: evidence.sources.length > 0 ? 0.50 : 0.30,
+                explanation: evidence.sources.length > 0
+                    ? 'Sources found, but analysis could not be parsed.'
                     : 'Could not parse response',
                 sources: []
             };
         }
 
-        // V3.2: Merge grounding sources into parsed result
-        if (groundingSources.length > 0) {
-            parsed._groundingSources = groundingSources;
+        // Attach judge evidence chain data for UI rendering
+        if (parsed) {
+            if (confidenceBasis) parsed._confidenceBasis = confidenceBasis;
+            if (primarySourceMatch) parsed._primarySource = primarySourceMatch[1];
+            if (quoteMatch) parsed._quote = quoteMatch[1].trim();
+        }
+
+        // Merge grounding sources from Step 1 into parsed result
+        if (evidence.sources.length > 0) {
+            parsed._groundingSources = evidence.sources;
         }
 
         const validated = validateVerification(parsed, claimType);
         await setCache(claimText, validated);
-        console.log('[FAKTCHECK BG v3.3] ✅ Verdict:', validated.verdict, '| Confidence:', validated.confidence, '| Quality:', validated.source_quality);
+        console.log('[FAKTCHECK BG v4.0] ✅ Verdict:', validated.verdict, '| Confidence:', validated.confidence, '| Quality:', validated.source_quality);
         return validated;
     } catch (error) {
-        console.error('[FAKTCHECK BG v3.3] Verify failed:', error.message);
+        console.error('[FAKTCHECK BG v4.0] Verify failed:', error.message);
         return {
             verdict: 'unverifiable',
             displayVerdict: 'unverifiable',

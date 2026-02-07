@@ -494,6 +494,7 @@
         const verdict = safe.displayVerdict || safe.verdict;
         const card = S.createElement('div', { class: `faktcheck-card verdict-${verdict}`, 'data-claim-id': safe.id });
 
+        // ─── COLLAPSED STATE: Header row ───
         const header = S.createElement('div', { class: 'claim-header' });
         const timestamp = S.createElement('span', { class: 'claim-timestamp' }, formatTime(safe.timestamp));
         timestamp.addEventListener('click', () => {
@@ -502,7 +503,7 @@
         });
         header.appendChild(timestamp);
 
-        // Use getVerdictDisplay for proper satire handling
+        // Verdict badge with icon
         const isSatireContext = safe.is_satire_context || false;
         const verdictInfo = getVerdictDisplay(verdict, isSatireContext);
         const verdictEl = S.createElement('span', {
@@ -513,25 +514,149 @@
         header.appendChild(verdictEl);
         card.appendChild(header);
 
+        // Hydrated claim text
         card.appendChild(S.createElement('div', { class: 'claim-text' }, safe.text));
-        if (safe.explanation) card.appendChild(S.createElement('div', { class: 'claim-explanation' }, safe.explanation));
 
-        if (safe.key_facts?.length > 0) {
-            const facts = S.createElement('div', { class: 'claim-facts' });
-            safe.key_facts.forEach(f => facts.appendChild(S.createElement('div', { class: 'fact-item' }, '• ' + f)));
-            card.appendChild(facts);
+        // Quick signal line (collapsed summary)
+        const signalText = buildQuickSignal(safe);
+        if (signalText) {
+            const signal = S.createElement('div', { class: 'claim-signal' });
+            const dotClass = ['true', 'mostly_true'].includes(verdict) ? 'signal-confirmed'
+                : ['false', 'mostly_false', 'deceptive'].includes(verdict) ? 'signal-denied'
+                    : ['partially_true', 'misleading'].includes(verdict) ? 'signal-partial'
+                        : 'signal-unknown';
+            signal.appendChild(S.createElement('span', { class: `signal-dot ${dotClass}` }));
+            signal.appendChild(S.createText(signalText));
+            card.appendChild(signal);
         }
 
-        if (safe.sources?.length > 0) {
-            const sources = S.createElement('div', { class: 'claim-sources' });
-            safe.sources.forEach(src => {
-                if (src.url) sources.appendChild(S.createElement('a', { href: src.url, target: '_blank', rel: 'noopener noreferrer', class: 'source-link' }, '📄 ' + src.title));
+        // ─── EVIDENCE CHAIN (expandable) ───
+        const hasEvidence = safe.explanation || safe.quote || safe.sources?.length > 0;
+        if (hasEvidence) {
+            // Toggle button
+            const toggleBtn = S.createElement('button', { class: 'evidence-toggle' });
+            toggleBtn.appendChild(S.createText('Show Proof '));
+            toggleBtn.appendChild(S.createElement('span', { class: 'chevron' }, '▼'));
+
+            // Evidence chain container (hidden by default)
+            const chain = S.createElement('div', { class: 'evidence-chain' });
+
+            // 1. Judge reasoning
+            if (safe.explanation) {
+                chain.appendChild(S.createElement('div', { class: 'evidence-reasoning' }, safe.explanation));
+            }
+
+            // 2. Primary source item with tier badge + quote + verification link
+            if (safe.quote || safe.primary_source || safe.sources?.length > 0) {
+                const sourceItem = S.createElement('div', { class: 'evidence-source-item' });
+
+                // Tier badge for best source
+                const bestTier = safe.sources?.length > 0
+                    ? Math.min(...safe.sources.map(s => s.tier || 4))
+                    : 4;
+                const tierLabels = { 1: 'Tier 1: Official', 2: 'Tier 2: News', 3: 'Tier 3: Reference', 4: 'Tier 4: Other', 5: 'Tier 5: Unknown' };
+                sourceItem.appendChild(S.createElement('span', {
+                    class: `tier-tag tier-${bestTier}`
+                }, tierLabels[bestTier] || 'Unknown'));
+
+                // Smoking gun quote
+                if (safe.quote) {
+                    sourceItem.appendChild(S.createElement('div', { class: 'evidence-quote' }, safe.quote));
+                }
+
+                // Primary verification link
+                if (safe.primary_source) {
+                    const link = S.createElement('a', {
+                        href: safe.primary_source,
+                        target: '_blank',
+                        rel: 'noopener noreferrer',
+                        class: 'evidence-verify-link'
+                    });
+                    try {
+                        const host = new URL(safe.primary_source).hostname;
+                        link.textContent = `Verify at ${host} ↗`;
+                    } catch {
+                        link.textContent = 'See source ↗';
+                    }
+                    sourceItem.appendChild(link);
+                } else if (safe.sources?.length > 0 && safe.sources[0].url) {
+                    const link = S.createElement('a', {
+                        href: safe.sources[0].url,
+                        target: '_blank',
+                        rel: 'noopener noreferrer',
+                        class: 'evidence-verify-link'
+                    });
+                    try {
+                        const host = new URL(safe.sources[0].url).hostname;
+                        link.textContent = `Verify at ${host} ↗`;
+                    } catch {
+                        link.textContent = 'See source ↗';
+                    }
+                    sourceItem.appendChild(link);
+                }
+
+                chain.appendChild(sourceItem);
+            }
+
+            // 3. Additional sources (compact list)
+            const extraSources = safe.sources?.slice(1) || [];
+            if (extraSources.length > 0) {
+                const sourcesDiv = S.createElement('div', { class: 'claim-sources' });
+                extraSources.forEach(src => {
+                    if (src.url) {
+                        const tierClass = `tier-${src.tier || 4}`;
+                        sourcesDiv.appendChild(S.createElement('a', {
+                            href: src.url, target: '_blank', rel: 'noopener noreferrer',
+                            class: `source-link ${tierClass}`
+                        }, '📄 ' + src.title));
+                    }
+                });
+                chain.appendChild(sourcesDiv);
+            }
+
+            // 4. Confidence basis label
+            if (safe.confidence_basis) {
+                const basisLabels = { direct_match: '✓ Direct Match', paraphrase: '≈ Paraphrase', insufficient_data: '⚠ Insufficient Data' };
+                const basisClass = safe.confidence_basis === 'direct_match' ? 'basis-direct'
+                    : safe.confidence_basis === 'paraphrase' ? 'basis-paraphrase' : 'basis-insufficient';
+                chain.appendChild(S.createElement('div', {
+                    class: `evidence-basis ${basisClass}`
+                }, basisLabels[safe.confidence_basis] || safe.confidence_basis));
+            }
+
+            // Toggle behavior
+            toggleBtn.addEventListener('click', () => {
+                const isExpanded = chain.classList.contains('visible');
+                chain.classList.toggle('visible');
+                toggleBtn.classList.toggle('expanded');
+                const chevron = toggleBtn.querySelector('.chevron');
+                if (chevron) {
+                    toggleBtn.firstChild.textContent = isExpanded ? 'Show Proof ' : 'Hide Proof ';
+                }
             });
-            card.appendChild(sources);
+
+            card.appendChild(toggleBtn);
+            card.appendChild(chain);
         }
 
         if (safe.confidence > 0) card.appendChild(S.createElement('div', { class: 'claim-confidence' }, `${Math.round(safe.confidence * 100)}% confident`));
         return card;
+    }
+
+    // Build quick signal text for collapsed state
+    function buildQuickSignal(safe) {
+        const sources = safe.sources || [];
+        const tier1 = sources.filter(s => s.tier === 1).length;
+        const tier2 = sources.filter(s => s.tier === 2).length;
+        const total = sources.length;
+        const verdict = safe.displayVerdict || safe.verdict;
+
+        if (verdict === 'opinion') return 'Value judgment — not verifiable';
+        if (verdict === 'unverifiable') return total > 0 ? `${total} sources found, but insufficient evidence` : 'No sources found';
+        if (tier1 > 0) return `Confirmed by ${tier1} official source${tier1 > 1 ? 's' : ''}`;
+        if (tier2 > 0) return `${tier2} news source${tier2 > 1 ? 's' : ''} reporting`;
+        if (total > 0) return `${total} source${total > 1 ? 's' : ''} found`;
+        return '';
     }
 
     function updateClaimCard(claimId, updates) {

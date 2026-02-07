@@ -1,0 +1,274 @@
+{
+    "version": "2026.02.07",
+    "comment": "Source Tier Registry: 1=Official, 2=News of Record, 3=Fact-Checkers, 4=General, 5=Unreliable",
+    "domains": {
+        "parlament.gv.at": {
+            "tier": 1,
+            "type": "gov",
+            "region": "AT",
+            "label": "Austrian Parliament"
+        },
+        "ris.bka.gv.at": {
+            "tier": 1,
+            "type": "gov",
+            "region": "AT",
+            "label": "Federal Legal System"
+        },
+        "statistik.at": {
+            "tier": 1,
+            "type": "data",
+            "region": "AT",
+            "label": "Statistik Austria"
+        },
+        "bundeskanzleramt.at": {
+            "tier": 1,
+            "type": "gov",
+            "region": "AT",
+            "label": "Chancellery"
+        },
+        "bmj.gv.at": {
+            "tier": 1,
+            "type": "gov",
+            "region": "AT",
+            "label": "Ministry of Justice"
+        },
+        "bmi.gv.at": {
+            "tier": 1,
+            "type": "gov",
+            "region": "AT",
+            "label": "Ministry of Interior"
+        },
+        "rechnungshof.gv.at": {
+            "tier": 1,
+            "type": "gov",
+            "region": "AT",
+            "label": "Court of Audit"
+        },
+        "bka.gv.at": {
+            "tier": 1,
+            "type": "gov",
+            "region": "AT",
+            "label": "Federal Chancellery"
+        },
+        "gov.uk": {
+            "tier": 1,
+            "type": "gov",
+            "region": "UK",
+            "label": "UK Government"
+        },
+        "usa.gov": {
+            "tier": 1,
+            "type": "gov",
+            "region": "US",
+            "label": "US Government"
+        },
+        "europa.eu": {
+            "tier": 1,
+            "type": "gov",
+            "region": "EU",
+            "label": "European Union"
+        },
+        "who.int": {
+            "tier": 1,
+            "type": "science",
+            "region": "INT",
+            "label": "WHO"
+        },
+        "un.org": {
+            "tier": 1,
+            "type": "gov",
+            "region": "INT",
+            "label": "United Nations"
+        },
+        "reuters.com": {
+            "tier": 1,
+            "type": "agency",
+            "region": "INT",
+            "label": "Reuters"
+        },
+        "apnews.com": {
+            "tier": 1,
+            "type": "agency",
+            "region": "INT",
+            "label": "Associated Press"
+        },
+        "afp.com": {
+            "tier": 1,
+            "type": "agency",
+            "region": "INT",
+            "label": "AFP"
+        },
+        "apa.at": {
+            "tier": 1,
+            "type": "agency",
+            "region": "AT",
+            "label": "APA"
+        },
+        "orf.at": {
+            "tier": 2,
+            "type": "psb",
+            "region": "AT",
+            "label": "ORF"
+        },
+        "bbc.com": {
+            "tier": 2,
+            "type": "psb",
+            "region": "UK",
+            "label": "BBC"
+        },
+        "bbc.co.uk": {
+            "tier": 2,
+            "type": "psb",
+            "region": "UK",
+            "label": "BBC"
+        },
+        "nytimes.com": {
+            "tier": 2,
+            "type": "news",
+            "region": "US",
+            "label": "NY Times"
+        },
+        "tagesschau.de": {
+            "tier": 2,
+            "type": "psb",
+            "region": "DE",
+            "label": "Tagesschau"
+        },
+        "derstandard.at": {
+            "tier": 2,
+            "type": "news",
+            "region": "AT",
+            "label": "Der Standard"
+        },
+        "diepresse.com": {
+            "tier": 2,
+            "type": "news",
+            "region": "AT",
+            "label": "Die Presse"
+        },
+        "wienerzeitung.at": {
+            "tier": 2,
+            "type": "news",
+            "region": "AT",
+            "label": "Wiener Zeitung"
+        },
+        "profil.at": {
+            "tier": 2,
+            "type": "news",
+            "region": "AT",
+            "label": "Profil"
+        },
+        "falter.at": {
+            "tier": 2,
+            "type": "news",
+            "region": "AT",
+            "label": "Falter"
+        },
+        "kurier.at": {
+            "tier": 2,
+            "type": "news",
+            "region": "AT",
+            "label": "Kurier"
+        },
+        "kleinezeitung.at": {
+            "tier": 2,
+            "type": "news",
+            "region": "AT",
+            "label": "Kleine Zeitung"
+        },
+        "news.at": {
+            "tier": 2,
+            "type": "news",
+            "region": "AT",
+            "label": "News"
+        },
+        "snopes.com": {
+            "tier": 3,
+            "type": "factcheck",
+            "region": "US",
+            "label": "Snopes"
+        },
+        "politifact.com": {
+            "tier": 3,
+            "type": "factcheck",
+            "region": "US",
+            "label": "PolitiFact"
+        },
+        "mimikama.org": {
+            "tier": 3,
+            "type": "factcheck",
+            "region": "AT",
+            "label": "Mimikama"
+        },
+        "faktencheck.afp.com": {
+            "tier": 3,
+            "type": "factcheck",
+            "region": "INT",
+            "label": "AFP Faktencheck"
+        },
+        "factcheck.org": {
+            "tier": 3,
+            "type": "factcheck",
+            "region": "US",
+            "label": "FactCheck.org"
+        },
+        "fullfact.org": {
+            "tier": 3,
+            "type": "factcheck",
+            "region": "UK",
+            "label": "Full Fact"
+        },
+        "correctiv.org": {
+            "tier": 3,
+            "type": "factcheck",
+            "region": "DE",
+            "label": "Correctiv"
+        },
+        "wikipedia.org": {
+            "tier": 3,
+            "type": "wiki",
+            "region": "INT",
+            "label": "Wikipedia"
+        },
+        "infowars.com": {
+            "tier": 5,
+            "type": "disinfo",
+            "region": "US",
+            "label": "InfoWars"
+        },
+        "rt.com": {
+            "tier": 5,
+            "type": "disinfo",
+            "region": "RU",
+            "label": "RT"
+        },
+        "sputniknews.com": {
+            "tier": 5,
+            "type": "disinfo",
+            "region": "RU",
+            "label": "Sputnik"
+        }
+    },
+    "wildcards": {
+        "*.gv.at": {
+            "tier": 1,
+            "label": "Austrian Government"
+        },
+        "*.gov": {
+            "tier": 1,
+            "label": "Government"
+        },
+        "*.edu": {
+            "tier": 2,
+            "label": "Academic"
+        },
+        "*.ac.at": {
+            "tier": 2,
+            "label": "Austrian Academic"
+        },
+        "*.ac.uk": {
+            "tier": 2,
+            "label": "UK Academic"
+        }
+    }
+}

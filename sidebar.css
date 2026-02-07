@@ -557,6 +557,230 @@
     color: #ff6666;
 }
 
+/* ─── Evidence Chain: Progressive Disclosure ─── */
+
+/* Quick signal line (collapsed state) */
+.claim-signal {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    color: #888899;
+    margin-bottom: 6px;
+}
+
+.claim-signal .signal-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.signal-dot.signal-confirmed {
+    background: #00ff88;
+}
+
+.signal-dot.signal-denied {
+    background: #ff4444;
+}
+
+.signal-dot.signal-partial {
+    background: #ffaa00;
+}
+
+.signal-dot.signal-unknown {
+    background: #888888;
+}
+
+/* Expand/collapse toggle */
+.evidence-toggle {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    background: transparent;
+    border: 1px solid #3a3a45;
+    color: #888899;
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    width: 100%;
+    justify-content: center;
+    margin-top: 6px;
+}
+
+.evidence-toggle:hover {
+    background: #2a2a35;
+    border-color: #00ccff;
+    color: #00ccff;
+}
+
+.evidence-toggle .chevron {
+    transition: transform 0.25s ease;
+    font-size: 8px;
+}
+
+.evidence-toggle.expanded .chevron {
+    transform: rotate(180deg);
+}
+
+/* Evidence chain container */
+.evidence-chain {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+        opacity 0.25s ease;
+    opacity: 0;
+}
+
+.evidence-chain.visible {
+    max-height: 600px;
+    opacity: 1;
+    margin-top: 10px;
+}
+
+/* Judge reasoning */
+.evidence-reasoning {
+    background: #1a1a25;
+    border-left: 3px solid #00ccff;
+    padding: 8px 10px;
+    margin-bottom: 10px;
+    border-radius: 0 4px 4px 0;
+    font-size: 12px;
+    line-height: 1.5;
+    color: #ccccdd;
+}
+
+.evidence-reasoning::before {
+    content: '🧠 ';
+}
+
+/* Source authority item in chain */
+.evidence-source-item {
+    background: #1a1a28;
+    border-radius: 6px;
+    padding: 10px;
+    margin-bottom: 8px;
+    border: 1px solid #2a2a38;
+}
+
+/* Tier badge */
+.tier-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 9px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 6px;
+}
+
+.tier-tag.tier-1 {
+    background: rgba(0, 150, 255, 0.2);
+    color: #00aaff;
+    border: 1px solid rgba(0, 150, 255, 0.3);
+}
+
+.tier-tag.tier-2 {
+    background: rgba(150, 100, 255, 0.2);
+    color: #aa88ff;
+    border: 1px solid rgba(150, 100, 255, 0.3);
+}
+
+.tier-tag.tier-3 {
+    background: rgba(200, 200, 200, 0.1);
+    color: #999999;
+    border: 1px solid rgba(200, 200, 200, 0.2);
+}
+
+.tier-tag.tier-4,
+.tier-tag.tier-5 {
+    background: rgba(100, 100, 100, 0.15);
+    color: #666677;
+    border: 1px solid rgba(100, 100, 100, 0.2);
+}
+
+/* Smoking Gun quote */
+.evidence-quote {
+    background: rgba(255, 255, 255, 0.03);
+    border-left: 2px solid #555566;
+    padding: 6px 10px;
+    margin: 6px 0;
+    font-size: 11px;
+    line-height: 1.5;
+    color: #aaaabc;
+    font-style: italic;
+}
+
+.evidence-quote::before {
+    content: '"';
+    font-size: 18px;
+    color: #555566;
+    margin-right: 2px;
+    vertical-align: text-top;
+    line-height: 0.8;
+}
+
+.evidence-quote::after {
+    content: '"';
+    font-size: 18px;
+    color: #555566;
+    margin-left: 2px;
+}
+
+/* Verification link */
+.evidence-verify-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    color: #00ccff;
+    font-size: 10px;
+    font-weight: 600;
+    text-decoration: none !important;
+    padding: 4px 8px;
+    border-radius: 4px;
+    background: rgba(0, 204, 255, 0.08);
+    transition: all 0.2s;
+    margin-top: 4px;
+}
+
+.evidence-verify-link:hover {
+    background: rgba(0, 204, 255, 0.15);
+    transform: translateX(2px);
+}
+
+/* Confidence basis label */
+.evidence-basis {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    font-size: 9px;
+    font-weight: 600;
+    color: #555566;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-top: 4px;
+}
+
+.evidence-basis.basis-direct {
+    color: #00ff88;
+}
+
+.evidence-basis.basis-paraphrase {
+    color: #ffaa00;
+}
+
+.evidence-basis.basis-insufficient {
+    color: #ff6666;
+}
+
 /* Footer */
 .faktcheck-footer {
     display: flex;
