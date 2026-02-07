@@ -67,32 +67,47 @@ cd factcheck
 | Security | XSS protection, input sanitization, rate limiting |
 | Languages | JavaScript, HTML, CSS |
 
-### How It Works
+### How It Works — Three-Stage Verification Pipeline
 
-1. **Extract** — Transcripts or live captions are captured from YouTube
-2. **Analyze** — Gemini identifies verifiable claims and assigns checkability scores
-3. **Verify** — Each claim is cross-referenced using Google Search grounding
-4. **Display** — Results appear in a real-time sidebar with verdict, sources, and confidence
+Every claim goes through a **Separation of Powers** pipeline where no single AI call can both find evidence *and* render a verdict:
+
+1. **🔍 Search** (`searchOnly`) — Gemini + Google Search finds raw evidence snippets and source URLs. No verdict is issued.
+2. **📋 Extract** (`extractFacts`) — A second Gemini call decomposes snippets into structured **Fact Triplets** (Subject → Relation → Object), each tagged as `supporting`, `contradicting`, or `nuanced`.
+3. **⚖️ Judge** (`judgeEvidence`) — A third Gemini call (zero grounding) renders a verdict based *only* on the extracted facts. Includes a **Mathematical Outlier** guardrail: if a claim's number exceeds evidence by >10×, it returns `FALSE`.
 
 ```mermaid
 graph TD
     A[YouTube Video] -->|Extract Transcript| B(Content Script)
     B -->|Send Payload| C{Background Script}
-    C -->|API Request| D[Gemini 2.0 Flash]
-    D -->|Search Grounding| E[Google Search]
-    E -->|Factual Data| D
-    D -->|Analysis Result| C
-    C -->|Render UI| F[Extension Sidebar]
+    C -->|Stage 1| D["🔍 searchOnly<br/>Gemini + Google Search"]
+    D -->|Raw Snippets + URLs| E["📋 extractFacts<br/>Fact Triplets"]
+    E -->|Structured Evidence| F["⚖️ judgeEvidence<br/>Zero Grounding"]
+    F -->|Verdict + Confidence| C
+    C -->|Render UI| G[Extension Sidebar]
 ```
 
-### Source Tiers
+### Domain-Aware Source Authority
 
-| Tier | Icon | Examples |
-|------|------|----------|
-| 1 | 🥇 | Official statistics, government docs, parliamentary records |
-| 2 | 🥈 | Quality journalism (APA, Reuters, ORF, BBC, NYT) |
-| 3 | 🥉 | Fact-checkers (Mimikama, Snopes, Wikipedia) |
-| 4 | 📄 | Other sources |
+Sources are tiered using a [registry of 41+ domains](assets/registry/sources-global.json) with wildcard support:
+
+| Tier | Icon | Category | Examples |
+|------|------|----------|----------|
+| 1 | 🏛️ | Official / Authority | Government (.gov, .gv.at), UN, WHO |
+| 1 | 🌍 | Wire Agencies | Reuters, AP, AFP, APA |
+| 2 | 📰 | Public Broadcasters | BBC, ORF, Tagesschau |
+| 2 | 📡 | News of Record | NYT, Der Standard, Die Presse |
+| 3 | ✅ | Fact-Checkers | Snopes, PolitiFact, Mimikama |
+| 4 | 📄 | General / Unclassified | Unknown domains |
+| 5 | ⚠️ | Unreliable | RT, InfoWars, Sputnik |
+
+Confidence is calculated deterministically: `Confidence = Base × SourceTier × Agreement` — no LLM "feelings."
+
+### Evidence Chain & Debate Mode
+
+Every claim card expands to show a full **Evidence Chain**:
+- **Tier badge** with domain-aware icon (🏛️, 📰, 🔬, etc.)
+- **Smoking gun quote** from the source, or a fallback message if none exists
+- **Debate Mode**: When evidence conflicts, a 🟢/🔴 split view shows *Supporting* vs. *Contradicting* facts
 
 ---
 
@@ -100,31 +115,34 @@ graph TD
 
 This project is in its early **Alpha** stage. The goal is to move from "Messy Prototype" to a "Robust Public Utility." Every [☕ coffee](https://www.buymeacoffee.com/humanchaos) or [💖 sponsorship](https://github.com/sponsors/humanchaos) directly accelerates these milestones.
 
-### 🟢 Phase 1: The Foundation (Current Focus)
+### 🟢 Phase 1: The Foundation ✅ Complete
 
-- **Infrastructure Audit** — Standardize code structure and fix security gaps identified during launch
-- **API Resilience** — Better error handling for Gemini rate limits to prevent extension crashes
-- **Multi-Language Support** — ✅ Done! UI now supports 6 languages (DE, EN, FR, ES, IT, PT) with auto-detection
-- **Manual Onboarding** — Clearer docs for developers to set up local dev environments
+- **Three-Stage Verification Pipeline** — Separation of Powers: no single AI call does retrieval + judgment
+- **Domain-Aware Source Registry** — 41+ domains with wildcard support and deterministic confidence scoring
+- **Evidence Chain UI** — Expandable proof cards with tier badges, quotes, and verification links
+- **Multi-Language Support** — UI in 6 languages (DE, EN, FR, ES, IT, PT) with auto-detection
+- **Community Governance** — Code of Conduct, Security Policy, Privacy Policy, Trust Policy
 
-### 🟡 Phase 2: User Friction & Performance (Next)
+### 🟡 Phase 2: Trust Intelligence (Current Focus)
 
-- **The "API Key" Solution** — Explore [Transformers.js](https://huggingface.co/docs/transformers.js) for local, on-device processing to remove the API key requirement
-- **Real-time Optimization** — Reduce CPU usage when parsing YouTube transcripts so the extension doesn't lag the video
-- **UI/UX Overhaul** — Move from a developer's UI to a clean, accessible interface that anyone can understand
+- **Debate Mode** — ✅ Done! Green/red split view when evidence conflicts
+- **Fact Triplets** — ✅ Done! Structured evidence extraction with sentiment classification
+- **Source Click Tracking** — ✅ Done! Local analytics for source interaction patterns
+- **Source Decay** — Dynamic credibility weighting based on user feedback (next)
+- **Real-time Optimization** — Reduce CPU usage during transcript parsing
 
 ### 🔵 Phase 3: The Trust Engine (Future)
 
-- **Weighted Consensus** — Develop an algorithmic model to weight sources based on international standards ([IFCN](https://www.ifcncodeofprinciples.poynter.org/))
-- **Cross-Platform Support** — Expand beyond YouTube to verify claims on Twitter (X), Reddit, and news sites
-- **Community Verification** — Allow trusted human contributors to flag AI hallucinations and improve accuracy over time
+- **Weighted Consensus** — Algorithmic source weighting based on international standards ([IFCN](https://www.ifcncodeofprinciples.poynter.org/))
+- **Cross-Platform Support** — Expand beyond YouTube to Twitter (X), Reddit, and news sites
+- **Community Verification** — Allow trusted human contributors to flag AI hallucinations
 
 ---
 
 ## 🔒 Privacy
 
 - Your API key is stored **locally** in your browser (never synced or transmitted)
-- **No user tracking** or analytics
+- **No user tracking** or analytics — source click data stays on your device
 - Video content is only sent to the Gemini API for analysis
 - Nothing is stored permanently
 

@@ -5,6 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.0] - 2026-02-07
+
+### Added
+- **Three-Stage Pipeline:** `searchOnly` → `extractFacts` → `judgeEvidence` — Separation of Powers ensures no single AI call does both retrieval and judgment.
+- **Structured Fact Triplets:** `extractFacts()` now returns `{subject, relation, object, snippet, sentiment}` JSON objects, classified as `supporting`, `contradicting`, or `nuanced`.
+- **Debate Mode UI:** When evidence conflicts, the sidebar evidence chain displays a 🟢/🔴 split view with *Evidence For* vs. *Evidence Against*.
+- **Domain-Aware Authority Icons:** Source tier badges now show domain-type icons (🏛️ gov, 📰 psb, 🌍 agency, 📡 news, ✅ factcheck, ⚠️ disinfo) via `typeIcons` in `sources-global.json`.
+- **Mathematical Outlier Guardrail:** `judgeEvidence` detects claims with numbers >10× higher than evidence and returns `FALSE` with a specific reason.
+- **Source Click Tracking (v1):** Every source link click is logged to `chrome.storage.local` for future Source Decay weighting.
+- **Deterministic Confidence:** `Confidence = Base × SourceTier × Agreement` — formula-based, no LLM scoring.
+- **Evidence Chain UI:** Expandable proof cards with tier badges, smoking gun quotes, domain icons, and verification links.
+
+### Changed
+- **Source Tiers:** Expanded from 4-tier to 5-tier system. Tier 5 marks known unreliable sources (RT, InfoWars, Sputnik).
+- **Source Registry:** Added `typeIcons` lookup table to `sources-global.json` for domain-aware iconography.
+- **`validateVerification()`:** Now passes `evidence[]` and `is_debated` through to frontend.
+- **`sanitizeClaim()`:** Whitelists `evidence`, `is_debated`, `icon`, `sourceType` with proper sanitization.
+- **Test Runner:** `test-dryrun.js` updated to match structured triplet format.
+
 ## [0.1.0] - 2026-02-07
 
 ### Added
