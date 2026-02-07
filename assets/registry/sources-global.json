@@ -1,6 +1,44 @@
 {
     "version": "2026.02.07",
     "comment": "Source Tier Registry: 1=Official, 2=News of Record, 3=Fact-Checkers, 4=General, 5=Unreliable",
+    "typeIcons": {
+        "gov": {
+            "icon": "🏛️",
+            "label": "Official"
+        },
+        "data": {
+            "icon": "📈",
+            "label": "Statistics"
+        },
+        "science": {
+            "icon": "🔬",
+            "label": "Science"
+        },
+        "agency": {
+            "icon": "🌍",
+            "label": "Wire Agency"
+        },
+        "psb": {
+            "icon": "📰",
+            "label": "Public Broadcaster"
+        },
+        "news": {
+            "icon": "📡",
+            "label": "News of Record"
+        },
+        "factcheck": {
+            "icon": "✅",
+            "label": "Fact-Checker"
+        },
+        "wiki": {
+            "icon": "📖",
+            "label": "Reference"
+        },
+        "disinfo": {
+            "icon": "⚠️",
+            "label": "Unreliable"
+        }
+    },
     "domains": {
         "parlament.gv.at": {
             "tier": 1,

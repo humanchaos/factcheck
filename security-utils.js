@@ -100,8 +100,10 @@ const SecurityUtils = {
                 ? claim.sources.filter(s => s && typeof s.url === 'string').slice(0, 10).map(s => ({
                     title: String(s.title || 'Source').slice(0, 200),
                     url: this.sanitizeUrl(s.url),
-                    tier: typeof s.tier === 'number' ? Math.max(1, Math.min(4, s.tier)) : 4,
-                    quote: s.quote ? String(s.quote).slice(0, 300) : undefined
+                    tier: typeof s.tier === 'number' ? Math.max(1, Math.min(5, s.tier)) : 4,
+                    quote: s.quote ? String(s.quote).slice(0, 300) : undefined,
+                    icon: s.icon ? String(s.icon).slice(0, 4) : '',
+                    sourceType: s.sourceType ? String(s.sourceType).slice(0, 30) : ''
                 })).filter(s => s.url)
                 : [],
             caveats: claim.caveats ? String(claim.caveats).slice(0, 500) : undefined,
@@ -110,7 +112,18 @@ const SecurityUtils = {
             primary_source: claim.primary_source ? this.sanitizeUrl(String(claim.primary_source)) : '',
             confidence_basis: ['direct_match', 'paraphrase', 'insufficient_data'].includes(claim.confidence_basis) ? claim.confidence_basis : '',
             source_quality: ['high', 'medium', 'low'].includes(claim.source_quality) ? claim.source_quality : 'low',
-            is_satire_context: !!claim.is_satire_context
+            is_satire_context: !!claim.is_satire_context,
+            // Structured evidence from extractFacts
+            evidence: Array.isArray(claim.evidence)
+                ? claim.evidence.slice(0, 10).map(e => ({
+                    subject: String(e.subject || '').slice(0, 200),
+                    relation: String(e.relation || '').slice(0, 100),
+                    object: String(e.object || '').slice(0, 200),
+                    snippet: typeof e.snippet === 'number' ? e.snippet : 0,
+                    sentiment: ['supporting', 'contradicting', 'nuanced'].includes(e.sentiment) ? e.sentiment : 'nuanced'
+                }))
+                : [],
+            is_debated: !!claim.is_debated
         };
     }
 };

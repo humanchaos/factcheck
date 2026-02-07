@@ -843,3 +843,83 @@
     color: #00ccff;
     border-color: #00ccff;
 }
+
+/* ─── Debate Mode (Supporting vs Contradicting) ─── */
+.debate-container {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin: 8px 0;
+}
+
+.debate-label {
+    font-size: 9px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 2px;
+}
+
+.debate-label-for {
+    color: #00ff88;
+}
+
+.debate-label-against {
+    color: #ff4466;
+}
+
+.evidence-for {
+    border-left: 3px solid #00ff88;
+    background: rgba(0, 255, 136, 0.04);
+    padding: 6px 10px;
+    border-radius: 0 4px 4px 0;
+    font-size: 11px;
+    color: #ccccdd;
+    line-height: 1.5;
+}
+
+.evidence-against {
+    border-left: 3px solid #ff4466;
+    background: rgba(255, 68, 102, 0.04);
+    padding: 6px 10px;
+    border-radius: 0 4px 4px 0;
+    font-size: 11px;
+    color: #ccccdd;
+    line-height: 1.5;
+}
+
+.evidence-nuanced {
+    border-left: 3px solid #ffaa00;
+    background: rgba(255, 170, 0, 0.04);
+    padding: 6px 10px;
+    border-radius: 0 4px 4px 0;
+    font-size: 11px;
+    color: #ccccdd;
+    line-height: 1.5;
+}
+
+.evidence-triplet-relation {
+    color: #888899;
+    font-size: 9px;
+    text-transform: uppercase;
+}
+
+.no-direct-evidence {
+    color: #888899;
+    font-style: italic;
+    font-size: 11px;
+    padding: 6px 10px;
+    border-left: 3px solid #444455;
+    background: rgba(100, 100, 100, 0.06);
+    border-radius: 0 4px 4px 0;
+}
+
+/* Source type badge */
+.source-type-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    font-size: 8px;
+    color: #888899;
+    margin-left: 6px;
+}

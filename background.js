@@ -380,11 +380,18 @@ function validateVerification(data, claimType = 'factual') {
         }
     }
 
-    const tieredSources = sources.slice(0, 8).map(s => ({
-        title: String(s.title || 'Source').slice(0, 100),
-        url: s.url,
-        tier: s.tier || getSourceTier(s.url)
-    }));
+    const tieredSources = sources.slice(0, 8).map(s => {
+        const tier = s.tier || getSourceTier(s.url);
+        const meta = getSourceMeta(s.url);
+        const typeIcon = meta?.type && sourceRegistry?.typeIcons?.[meta.type];
+        return {
+            title: String(s.title || meta?.label || 'Source').slice(0, 100),
+            url: s.url,
+            tier,
+            icon: typeIcon?.icon || '',
+            sourceType: typeIcon?.label || ''
+        };
+    });
 
     const tier1Count = tieredSources.filter(s => s.tier === 1).length;
     const tier2Count = tieredSources.filter(s => s.tier === 2).length;
@@ -469,7 +476,10 @@ function validateVerification(data, claimType = 'factual') {
         // Evidence Chain data from judge
         quote: data._quote || '',
         primary_source: data._primarySource || '',
-        confidence_basis: data._confidenceBasis || ''
+        confidence_basis: data._confidenceBasis || '',
+        // Structured evidence from extractFacts
+        evidence: Array.isArray(data._evidence) ? data._evidence.slice(0, 10) : [],
+        is_debated: !!data._isDebated
     };
 }
 
@@ -851,44 +861,67 @@ RULES:
     }
 }
 
-// ─── STAGE 2: EXTRACT FACTS (No grounding — structured evidence extraction) ──
+// ─── STAGE 2: EXTRACT FACTS (Structured Fact Triplets with sentiment) ──
 async function extractFacts(claimText, snippets, apiKey) {
-    console.log('[FAKTCHECK BG] ── STEP 2: extractFacts (structured extraction) ──');
-    if (snippets.length === 0) return { facts: [], raw: snippets };
+    console.log('[FAKTCHECK BG] ── STEP 2: extractFacts (structured triplets) ──');
+    if (snippets.length === 0) return { facts: [], evidence: [], raw: snippets };
 
     const sanitized = sanitize(claimText, 1000);
     const snippetBlock = snippets.map((s, i) => `SNIPPET_${i + 1}: ${s}`).join('\n');
 
-    const prompt = `You are a fact extraction engine. Extract ONLY verifiable data points from the search snippets below.
+    const prompt = `You are a fact extraction engine. Extract atomic fact triplets from the search snippets.
 
 CLAIM: "${sanitized}"
 
 SNIPPETS:
 ${snippetBlock}
 
-TASK: Extract specific numbers, dates, names, and entities from the snippets that CONFIRM or DENY the claim.
+TASK: For each verifiable data point in the snippets, extract a fact triplet and classify its relationship to the claim.
 
 RULES:
 - Extract ONLY what is explicitly stated in the snippets
-- Do NOT infer, calculate, or add context from your own knowledge
-- Include the source snippet number for each fact
-- If a numerical value is mentioned, include the exact figure
+- Do NOT infer or add context from your own knowledge
+- Each fact must map to a specific snippet number
+- Classify each fact as: "supporting" (confirms claim), "contradicting" (denies claim), or "nuanced" (partial/contextual)
 
-OUTPUT FORMAT (one fact per line, start DIRECTLY):
-FACT: [extracted data point] (Snippet X)
-FACT: [extracted data point] (Snippet X)
-...`;
+OUTPUT FORMAT (respond with a JSON array ONLY, no introduction):
+[
+  {"subject": "entity", "relation": "verb/relationship", "object": "value/entity", "snippet": 1, "sentiment": "supporting"},
+  {"subject": "entity", "relation": "verb/relationship", "object": "value/entity", "snippet": 2, "sentiment": "contradicting"}
+]`;
 
     try {
         const result = await callGemini(apiKey, prompt);
         const text = String(result || '');
+
+        // Try to parse structured JSON response
+        const parsed = extractJSON(text);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+            const evidence = parsed
+                .filter(f => f.subject && f.relation && f.object)
+                .map(f => ({
+                    subject: String(f.subject).slice(0, 200),
+                    relation: String(f.relation).slice(0, 100),
+                    object: String(f.object).slice(0, 200),
+                    snippet: Number(f.snippet) || 0,
+                    sentiment: ['supporting', 'contradicting', 'nuanced'].includes(f.sentiment) ? f.sentiment : 'nuanced'
+                }));
+            // Also produce flat facts for backward compat with judgeEvidence
+            const facts = evidence.map(e => `${e.subject} ${e.relation} ${e.object} [${e.sentiment}] (Snippet ${e.snippet})`);
+            console.log('[FAKTCHECK BG] extractFacts:', evidence.length, 'triplets (' +
+                evidence.filter(e => e.sentiment === 'supporting').length + ' supporting, ' +
+                evidence.filter(e => e.sentiment === 'contradicting').length + ' contradicting)');
+            return { facts, evidence, raw: snippets };
+        }
+
+        // Fallback: parse as flat FACT: lines
         const factLines = text.match(/FACT:\s*(.+)/gi) || [];
         const facts = factLines.map(line => line.replace(/^FACT:\s*/i, '').trim()).filter(f => f.length > 5);
-        console.log('[FAKTCHECK BG] extractFacts found', facts.length, 'evidence points');
-        return { facts, raw: snippets };
+        console.log('[FAKTCHECK BG] extractFacts fallback:', facts.length, 'flat facts');
+        return { facts, evidence: [], raw: snippets };
     } catch (error) {
         console.warn('[FAKTCHECK BG] extractFacts failed, falling back to raw snippets:', error.message);
-        return { facts: [], raw: snippets };
+        return { facts: [], evidence: [], raw: snippets };
     }
 }
 
@@ -1048,6 +1081,13 @@ async function verifyClaim(claimText, apiKey, lang = 'de', claimType = 'factual'
             if (confidenceBasis) parsed._confidenceBasis = confidenceBasis;
             if (primarySourceMatch) parsed._primarySource = primarySourceMatch[1];
             if (quoteMatch) parsed._quote = quoteMatch[1].trim();
+            // Attach structured evidence from Stage 2
+            if (extracted.evidence.length > 0) {
+                parsed._evidence = extracted.evidence;
+                const hasSup = extracted.evidence.some(e => e.sentiment === 'supporting');
+                const hasCon = extracted.evidence.some(e => e.sentiment === 'contradicting');
+                parsed._isDebated = hasSup && hasCon;
+            }
         }
 
         // Merge grounding sources from Step 1 into parsed result

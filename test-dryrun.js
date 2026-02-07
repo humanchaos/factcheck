@@ -131,34 +131,56 @@ RULES:
 }
 
 async function extractFacts(claim, snippets) {
-    if (snippets.length === 0) return { facts: [], raw: snippets };
+    if (snippets.length === 0) return { facts: [], evidence: [], raw: snippets };
     const snippetBlock = snippets.map((s, i) => `SNIPPET_${i + 1}: ${s}`).join('\n');
-    const prompt = `You are a fact extraction engine. Extract ONLY verifiable data points from the search snippets below.
+    const prompt = `You are a fact extraction engine. Extract atomic fact triplets from the search snippets.
 
 CLAIM: "${claim}"
 
 SNIPPETS:
 ${snippetBlock}
 
-TASK: Extract specific numbers, dates, names, and entities from the snippets that CONFIRM or DENY the claim.
+TASK: For each verifiable data point in the snippets, extract a fact triplet and classify its relationship to the claim.
 
 RULES:
 - Extract ONLY what is explicitly stated in the snippets
-- Do NOT infer, calculate, or add context from your own knowledge
-- Include the source snippet number for each fact
-- If a numerical value is mentioned, include the exact figure
+- Do NOT infer or add context from your own knowledge
+- Each fact must map to a specific snippet number
+- Classify each fact as: "supporting" (confirms claim), "contradicting" (denies claim), or "nuanced" (partial/contextual)
 
-OUTPUT FORMAT (one fact per line, start DIRECTLY):
-FACT: [extracted data point] (Snippet X)
-FACT: [extracted data point] (Snippet X)
-...`;
+OUTPUT FORMAT (respond with a JSON array ONLY, no introduction):
+[
+  {"subject": "entity", "relation": "verb/relationship", "object": "value/entity", "snippet": 1, "sentiment": "supporting"},
+  {"subject": "entity", "relation": "verb/relationship", "object": "value/entity", "snippet": 2, "sentiment": "contradicting"}
+]`;
     try {
         const text = await callGemini(prompt);
+        // Try JSON parse first
+        const jsonMatch = text.match(/\[[\s\S]*\]/);
+        if (jsonMatch) {
+            try {
+                const parsed = JSON.parse(jsonMatch[0]);
+                if (Array.isArray(parsed) && parsed.length > 0) {
+                    const evidence = parsed
+                        .filter(f => f.subject && f.relation && f.object)
+                        .map(f => ({
+                            subject: String(f.subject).slice(0, 200),
+                            relation: String(f.relation).slice(0, 100),
+                            object: String(f.object).slice(0, 200),
+                            snippet: Number(f.snippet) || 0,
+                            sentiment: ['supporting', 'contradicting', 'nuanced'].includes(f.sentiment) ? f.sentiment : 'nuanced'
+                        }));
+                    const facts = evidence.map(e => `${e.subject} ${e.relation} ${e.object} [${e.sentiment}] (Snippet ${e.snippet})`);
+                    return { facts, evidence, raw: snippets };
+                }
+            } catch { /* fall through to flat parsing */ }
+        }
+        // Fallback: flat FACT: lines
         const factLines = text.match(/FACT:\s*(.+)/gi) || [];
         const facts = factLines.map(l => l.replace(/^FACT:\s*/i, '').trim()).filter(f => f.length > 5);
-        return { facts, raw: snippets };
+        return { facts, evidence: [], raw: snippets };
     } catch {
-        return { facts: [], raw: snippets };
+        return { facts: [], evidence: [], raw: snippets };
     }
 }
 
