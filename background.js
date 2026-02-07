@@ -453,6 +453,48 @@ function validateVerification(data, claimType = 'factual') {
         }
     }
 
+    // V5.1: Code-level Mathematical Guardrail (safety net on top of prompt rule)
+    // Extracts numbers from claim vs evidence — if claim number > 10× evidence max, override to FALSE
+    let mathOutlier = false;
+    if (data._claimText && Array.isArray(data._evidenceQuotes) && data._evidenceQuotes.length > 0) {
+        // Extract significant numbers (>100, supports "18 trillion", "$27T", "1.5 billion" etc.)
+        const extractNumbers = (text) => {
+            const matches = [];
+            // Match numbers with optional multiplier words/suffixes
+            const numRegex = /(\d[\d,.]*)[\s-]*(trillion|billion|million|thousand|Billionen|Milliarden|Millionen|Tausend|[TBMK](?:\b|$))?/gi;
+            let m;
+            while ((m = numRegex.exec(text)) !== null) {
+                let val = parseFloat(m[1].replace(/,/g, ''));
+                if (isNaN(val)) continue;
+                const mult = (m[2] || '').toLowerCase();
+                if (mult === 'trillion' || mult === 'billionen' || mult === 't') val *= 1e12;
+                else if (mult === 'billion' || mult === 'milliarden' || mult === 'b') val *= 1e9;
+                else if (mult === 'million' || mult === 'millionen' || mult === 'm') val *= 1e6;
+                else if (mult === 'thousand' || mult === 'tausend' || mult === 'k') val *= 1e3;
+                if (val > 100) matches.push(val);  // Only flag significant numbers
+            }
+            return matches;
+        };
+
+        const claimNumbers = extractNumbers(data._claimText);
+        const evidenceText = data._evidenceQuotes.map(eq => eq.quote).join(' ');
+        const evidenceNumbers = extractNumbers(evidenceText);
+
+        if (claimNumbers.length > 0 && evidenceNumbers.length > 0) {
+            const maxClaim = Math.max(...claimNumbers);
+            const maxEvidence = Math.max(...evidenceNumbers);
+            const ratio = maxClaim / maxEvidence;
+
+            if (ratio >= 10) {
+                console.log(`[FAKTCHECK BG] 🧮 MATH OUTLIER: claim=${maxClaim}, evidence=${maxEvidence}, ratio=${ratio.toFixed(1)}x`);
+                mathOutlier = true;
+                verdict = 'false';
+                confidence = 0.95;
+                explanation = `Mathematical Outlier: Claim states ${maxClaim.toLocaleString()}, but evidence shows ${maxEvidence.toLocaleString()} (${ratio.toFixed(0)}× divergence).`;
+            }
+        }
+    }
+
     // V3.0: Display mapping with deceptive → orange
     const displayMap = {
         'true': 'true', 'mostly_true': 'true',
@@ -480,7 +522,8 @@ function validateVerification(data, claimType = 'factual') {
         // Attributed evidence quotes from mapEvidence (local, hallucination-proof)
         evidence_quotes: Array.isArray(data._evidenceQuotes) ? data._evidenceQuotes.slice(0, 10) : [],
         is_debated: (Array.isArray(data._evidenceQuotes) && data._evidenceQuotes.length > 1 &&
-            new Set(data._evidenceQuotes.map(eq => eq.url)).size > 1)
+            new Set(data._evidenceQuotes.map(eq => eq.url)).size > 1),
+        math_outlier: mathOutlier
     };
 }
 
@@ -1107,6 +1150,8 @@ async function verifyClaim(claimText, apiKey, lang = 'de', claimType = 'factual'
             if (evidenceQuotes.length > 0) {
                 parsed._evidenceQuotes = evidenceQuotes;
             }
+            // Pass claim text for math guardrail
+            parsed._claimText = claimText;
         }
 
         // Merge grounding sources from Step 1 into parsed result

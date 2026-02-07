@@ -100,11 +100,35 @@
             "region": "US",
             "label": "US Government"
         },
+        "congress.gov": {
+            "tier": 1,
+            "type": "gov",
+            "region": "US",
+            "label": "US Congress"
+        },
         "europa.eu": {
             "tier": 1,
             "type": "gov",
             "region": "EU",
             "label": "European Union"
+        },
+        "ecb.europa.eu": {
+            "tier": 1,
+            "type": "data",
+            "region": "EU",
+            "label": "European Central Bank"
+        },
+        "destatis.de": {
+            "tier": 1,
+            "type": "data",
+            "region": "DE",
+            "label": "Statistisches Bundesamt"
+        },
+        "oenb.at": {
+            "tier": 1,
+            "type": "data",
+            "region": "AT",
+            "label": "Austrian National Bank"
         },
         "who.int": {
             "tier": 1,
@@ -117,6 +141,24 @@
             "type": "gov",
             "region": "INT",
             "label": "United Nations"
+        },
+        "worldbank.org": {
+            "tier": 1,
+            "type": "data",
+            "region": "INT",
+            "label": "World Bank"
+        },
+        "imf.org": {
+            "tier": 1,
+            "type": "data",
+            "region": "INT",
+            "label": "IMF"
+        },
+        "ipcc.ch": {
+            "tier": 1,
+            "type": "science",
+            "region": "INT",
+            "label": "IPCC"
         },
         "reuters.com": {
             "tier": 1,
@@ -166,11 +208,53 @@
             "region": "US",
             "label": "NY Times"
         },
+        "wsj.com": {
+            "tier": 2,
+            "type": "news",
+            "region": "US",
+            "label": "Wall Street Journal"
+        },
+        "washingtonpost.com": {
+            "tier": 2,
+            "type": "news",
+            "region": "US",
+            "label": "Washington Post"
+        },
+        "theguardian.com": {
+            "tier": 2,
+            "type": "news",
+            "region": "UK",
+            "label": "The Guardian"
+        },
         "tagesschau.de": {
             "tier": 2,
             "type": "psb",
             "region": "DE",
             "label": "Tagesschau"
+        },
+        "zeit.de": {
+            "tier": 2,
+            "type": "news",
+            "region": "DE",
+            "label": "Die Zeit"
+        },
+        "spiegel.de": {
+            "tier": 2,
+            "type": "news",
+            "region": "DE",
+            "label": "Der Spiegel"
+        },
+        "sueddeutsche.de": {
+            "tier": 2,
+            "type": "news",
+            "region": "DE",
+            "label": "Süddeutsche Zeitung"
+        },
+        "lemonde.fr": {
+            "tier": 2,
+            "type": "news",
+            "region": "FR",
+            "label": "Le Monde"
         },
         "derstandard.at": {
             "tier": 2,
@@ -213,6 +297,18 @@
             "type": "news",
             "region": "AT",
             "label": "Kleine Zeitung"
+        },
+        "iv.at": {
+            "tier": 2,
+            "type": "news",
+            "region": "AT",
+            "label": "Industriellenvereinigung"
+        },
+        "wifo.ac.at": {
+            "tier": 2,
+            "type": "data",
+            "region": "AT",
+            "label": "WIFO"
         },
         "news.at": {
             "tier": 2,
@@ -307,6 +403,10 @@
         "*.ac.uk": {
             "tier": 2,
             "label": "UK Academic"
+        },
+        "*.bund.de": {
+            "tier": 1,
+            "label": "German Federal"
         }
     }
 }
