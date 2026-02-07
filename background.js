@@ -708,6 +708,7 @@ async function extractClaims(text, apiKey, metadata = null) {
 
     // Build grounding context from metadata
     let groundingContext = '';
+    let knownNames = [];  // Names extracted from metadata for cross-check
     if (metadata && (metadata.title || metadata.channel || metadata.detectedCountry !== 'unknown')) {
         const parts = [];
         if (metadata.title) parts.push(`Video: "${metadata.title}"`);
@@ -716,13 +717,25 @@ async function extractClaims(text, apiKey, metadata = null) {
             parts.push(`Country context: ${metadata.detectedCountry}`);
         }
 
+        // Extract person names from title + description for name-fidelity check
+        const nameSource = [metadata.title || '', metadata.description || '', metadata.channel || ''].join(' ');
+        // Match capitalized multi-word names (e.g. "Christian Stocker", "Herbert Kickl")
+        const nameMatches = nameSource.match(/\b([A-ZÄÖÜ][a-zäöüß]+(?:\s+[A-ZÄÖÜ][a-zäöüß]+)+)\b/g) || [];
+        // Deduplicate
+        knownNames = [...new Set(nameMatches.map(n => n.trim()))];
+        console.log('[FAKTCHECK BG] Known names from metadata:', knownNames);
+
+        const nameContext = knownNames.length > 0
+            ? `\nERKANNTE PERSONEN aus Titel/Beschreibung: ${knownNames.join(', ')}`
+            : '';
+
         groundingContext = lang === 'de'
-            ? `\n\nKONTEXT (Phase 0 Grounding):\n${parts.join('\n')}\n\nWICHTIG für Grounding:\n- Erkenne Satire/Ironie (z.B. "Witzekanzler" statt "Vizekanzler" = Satire)\n- Erkenne politische Kampfbegriffe (z.B. "Staatsfunk" = kritischer Begriff für ORF)\n- Verifiziere Titel/Funktionen (z.B. ist "Professor Babler" korrekt?)\n- Wenn Personen mit falschen Titeln genannt werden, markiere als SATIRE oder prüfe den Titel\n`
-            : `\n\nCONTEXT (Phase 0 Grounding):\n${parts.join('\n')}\n\nGROUNDING RULES:\n- Detect satire/irony (e.g., mocking titles, exaggerated claims)\n- Recognize politically charged terms vs neutral descriptions\n- Verify titles/positions match reality\n- If persons are given incorrect titles, flag as SATIRE or verify\n`;
+            ? `\n\nKONTEXT (Phase 0 Grounding):\n${parts.join('\n')}${nameContext}\n\nWICHTIG für Grounding:\n- NAMEN-TREUE: Verwende EXAKT die Schreibweise der Namen aus dem Transkript und dem Kontext. NIEMALS Namen abändern, raten oder "korrigieren" (z.B. NICHT "Christopher" statt "Christian", NICHT "Kurtz" statt "Kurz").\n- Wenn ein Name in den ERKANNTEN PERSONEN steht, verwende DIESE Schreibweise.\n- Erkenne Satire/Ironie (z.B. "Witzekanzler" statt "Vizekanzler" = Satire)\n- Erkenne politische Kampfbegriffe (z.B. "Staatsfunk" = kritischer Begriff für ORF)\n- Verifiziere Titel/Funktionen (z.B. ist "Professor Babler" korrekt?)\n- Wenn Personen mit falschen Titeln genannt werden, markiere als SATIRE oder prüfe den Titel\n`
+            : `\n\nCONTEXT (Phase 0 Grounding):\n${parts.join('\n')}${nameContext}\n\nGROUNDING RULES:\n- NAME FIDELITY: Use the EXACT spelling of names from the transcript and context. NEVER alter, guess, or "correct" names.\n- If a name appears in the RECOGNIZED PERSONS list, use THAT spelling.\n- Detect satire/irony (e.g., mocking titles, exaggerated claims)\n- Recognize politically charged terms vs neutral descriptions\n- Verify titles/positions match reality\n- If persons are given incorrect titles, flag as SATIRE or verify\n`;
     }
 
     const prompt = lang === 'de' ?
-        `# FAKTCHECK v3.0 — Extraktions-Engine
+        `# FAKTCHECK v3.1 — Extraktions-Engine
 ${groundingContext}
 
 ## AUFGABE
@@ -732,6 +745,7 @@ Extrahiere Claims nach dem Anker-Prinzip mit QUERY DECOMPOSITION:
 Jeder Claim MUSS die "Wer-Was-Wo-Regel" erfüllen:
 - Ersetze ALLE Pronomen durch konkrete Namen
 - Ergänze Kontext aus Video-Titel/Gremium
+- ⚠️ NAMEN-TREUE: Verwende NUR Namen EXAKT wie im Transkript geschrieben. NIEMALS raten oder abändern!
 
 ### 2. QUERY DECOMPOSITION (NEU!)
 Für jeden Claim generiere 2-3 kurze Such-Queries (3-6 Wörter):
@@ -815,6 +829,31 @@ No verifiable facts with sufficient context? Respond: []`;
         }
 
         const validated = validateClaims(parsed);
+
+        // Post-extraction name correction: fix hallucinated names using metadata
+        if (knownNames.length > 0) {
+            for (const claim of validated) {
+                let text = claim.claim;
+                for (const knownName of knownNames) {
+                    const knownParts = knownName.split(/\s+/);
+                    const surname = knownParts[knownParts.length - 1];
+                    // Find any occurrence of the same surname with a wrong first name
+                    // e.g. "Christopher Stocker" → "Christian Stocker"
+                    const surnameRegex = new RegExp(`\\b([A-ZÄÖÜ][a-zäöüß]+)\\s+${surname.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'g');
+                    let match;
+                    while ((match = surnameRegex.exec(text)) !== null) {
+                        const foundFirstName = match[1];
+                        const expectedFirstName = knownParts.slice(0, -1).join(' ');
+                        if (foundFirstName !== expectedFirstName && foundFirstName.length > 2) {
+                            console.log(`[FAKTCHECK BG] 🔧 Name correction: "${match[0]}" → "${knownName}" (metadata-driven)`);
+                            text = text.replace(match[0], knownName);
+                        }
+                    }
+                }
+                claim.claim = text;
+            }
+        }
+
         console.log('[FAKTCHECK BG] ========== RESULT ==========');
         console.log('[FAKTCHECK BG] Extracted', validated.length, 'claims');
         validated.forEach((c, i) => console.log(`[FAKTCHECK BG]   ${i + 1}. ${c.claim.slice(0, 60)}...`));
