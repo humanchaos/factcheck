@@ -535,7 +535,7 @@
         if (hasEvidence) {
             // Toggle button
             const toggleBtn = S.createElement('button', { class: 'evidence-toggle' });
-            toggleBtn.appendChild(S.createText('Show Proof '));
+            toggleBtn.appendChild(S.createText(t('showProof') || 'Show Proof '));
             toggleBtn.appendChild(S.createElement('span', { class: 'chevron' }, '▼'));
 
             // Evidence chain container (hidden by default)
@@ -546,7 +546,19 @@
                 chain.appendChild(S.createElement('div', { class: 'evidence-reasoning' }, safe.explanation));
             }
 
-            // 1b. PROFESSIONAL FACT-CHECKS — Stage 0 pre-check results (highest priority)
+            // 1b. MATH OUTLIER WARNING — code-level guardrail alert
+            if (safe.math_outlier) {
+                const warning = S.createElement('div', { class: 'math-outlier-warning' });
+                warning.appendChild(S.createElement('span', { class: 'math-outlier-icon' }, '⚠️'));
+                const warningText = S.createElement('div', { class: 'math-outlier-text' });
+                warningText.appendChild(S.createElement('strong', {}, t('mathWarningTitle') || 'Mathematisch unplausibel'));
+                warningText.appendChild(S.createElement('div', { class: 'math-outlier-detail' },
+                    safe.explanation || 'Numerische Divergenz erkannt — Claim-Wert weicht erheblich von der Evidenz ab.'));
+                warning.appendChild(warningText);
+                chain.appendChild(warning);
+            }
+
+            // 1c. PROFESSIONAL FACT-CHECKS — Stage 0 pre-check results (highest priority)
             if (safe.fact_checks?.length > 0) {
                 for (const fc of safe.fact_checks) {
                     for (const review of (fc.reviews || [])) {
@@ -574,65 +586,61 @@
 
             // 2. ATTRIBUTED EVIDENCE QUOTES — per-source quote cards from mapEvidence
             if (safe.evidence_quotes?.length > 0) {
-                const quotesDiv = S.createElement('div', { class: 'debate-container' });
+                // ─── DEBATE MODE: Split evidence into Supporting / Contradicting ───
+                if (safe.is_debated && safe.evidence_quotes.length >= 2) {
+                    const debateSection = S.createElement('div', { class: 'debate-section' });
 
-                for (const eq of safe.evidence_quotes) {
-                    const sourceItem = S.createElement('div', { class: 'evidence-source-item' });
+                    // Classify quotes: supporting vs contradicting
+                    const supporting = [];
+                    const contradicting = [];
+                    const verdictIsNeg = ['false', 'mostly_false', 'deceptive'].includes(verdict);
 
-                    // Tier badge with domain icon
-                    const tierLabels = { 1: 'Tier 1: Authority', 2: 'Tier 2: Public Interest', 3: 'Tier 3: Fact-Check', 4: 'Tier 4: General', 5: 'Tier 5: Unreliable' };
-                    const tierTag = S.createElement('span', {
-                        class: `tier-tag tier-${eq.tier || 4}`
-                    }, (eq.icon ? eq.icon + ' ' : '') + (tierLabels[eq.tier] || 'Unknown'));
-                    sourceItem.appendChild(tierTag);
+                    for (const eq of safe.evidence_quotes) {
+                        const qLower = (eq.quote || '').toLowerCase();
+                        // Heuristic: negation words near claim keywords = contradicting
+                        const hasNegation = /\b(not|no|never|false|incorrect|wrong|nicht|kein|falsch|widerspricht|jedoch|allerdings)\b/i.test(qLower);
+                        const hasConfirmation = /\b(confirms?|bestätigt|shows?|zeigt|according to|laut|indeed|tatsächlich|correct|richtig)\b/i.test(qLower);
 
-                    // Source type badge
-                    if (eq.sourceType) {
-                        sourceItem.appendChild(S.createElement('span', { class: 'source-type-badge' }, eq.sourceType));
-                    }
-
-                    // Attributed quote (from groundingSupports — hallucination-proof)
-                    if (eq.quote) {
-                        sourceItem.appendChild(S.createElement('div', { class: 'evidence-quote' }, eq.quote));
-                    }
-
-                    // Source name
-                    if (eq.source && eq.source !== 'Unknown') {
-                        sourceItem.appendChild(S.createElement('div', { class: 'evidence-source-name' }, `— ${eq.source}`));
-                    }
-
-                    // Verification link with click tracking
-                    if (eq.url) {
-                        const link = S.createElement('a', {
-                            href: eq.url,
-                            target: '_blank',
-                            rel: 'noopener noreferrer',
-                            class: 'evidence-verify-link'
-                        });
-                        try {
-                            const host = new URL(eq.url).hostname;
-                            link.textContent = `Verify at ${host} ↗`;
-                        } catch {
-                            link.textContent = 'See source ↗';
+                        if (hasNegation && !hasConfirmation) {
+                            contradicting.push(eq);
+                        } else if (hasConfirmation && !hasNegation) {
+                            supporting.push(eq);
+                        } else {
+                            // When unclear, use verdict to classify
+                            if (verdictIsNeg) contradicting.push(eq);
+                            else supporting.push(eq);
                         }
-                        // R6.4: Click tracking
-                        link.addEventListener('click', () => {
-                            try {
-                                const domain = new URL(eq.url).hostname;
-                                chrome.storage.local.get({ sourceClicks: {} }, (data) => {
-                                    const clicks = data.sourceClicks || {};
-                                    clicks[domain] = (clicks[domain] || 0) + 1;
-                                    chrome.storage.local.set({ sourceClicks: clicks });
-                                });
-                            } catch { /* ignore */ }
-                        });
-                        sourceItem.appendChild(link);
                     }
 
-                    quotesDiv.appendChild(sourceItem);
-                }
+                    // Supporting column
+                    if (supporting.length > 0) {
+                        debateSection.appendChild(S.createElement('div', { class: 'debate-label debate-label-for' },
+                            `🟢 ${t('supporting') || 'Bestätigend'} (${supporting.length})`));
+                        for (const eq of supporting) {
+                            const item = buildEvidenceQuoteItem(eq, 'evidence-for');
+                            debateSection.appendChild(item);
+                        }
+                    }
 
-                chain.appendChild(quotesDiv);
+                    // Contradicting column
+                    if (contradicting.length > 0) {
+                        debateSection.appendChild(S.createElement('div', { class: 'debate-label debate-label-against' },
+                            `🔴 ${t('contradicting') || 'Widersprechend'} (${contradicting.length})`));
+                        for (const eq of contradicting) {
+                            const item = buildEvidenceQuoteItem(eq, 'evidence-against');
+                            debateSection.appendChild(item);
+                        }
+                    }
+
+                    chain.appendChild(debateSection);
+                } else {
+                    // Standard (non-debate) evidence list
+                    const quotesDiv = S.createElement('div', { class: 'debate-container' });
+                    for (const eq of safe.evidence_quotes) {
+                        quotesDiv.appendChild(buildEvidenceQuoteItem(eq));
+                    }
+                    chain.appendChild(quotesDiv);
+                }
 
             } else if (safe.quote || safe.primary_source || safe.sources?.length > 0) {
                 // Fallback: single source item (when mapEvidence produced nothing)
@@ -718,6 +726,31 @@
                 }, basisLabels[safe.confidence_basis] || safe.confidence_basis));
             }
 
+            // 5. FEEDBACK BAR — 👍/👎 + Source Report
+            const feedbackBar = S.createElement('div', { class: 'feedback-bar' });
+            const thumbsUp = S.createElement('button', { class: 'feedback-btn feedback-up', title: t('helpful') || 'Helpful' }, '👍');
+            const thumbsDown = S.createElement('button', { class: 'feedback-btn feedback-down', title: t('notHelpful') || 'Not helpful' }, '👎');
+            const feedbackLabel = S.createElement('span', { class: 'feedback-label' }, t('wasHelpful') || 'Was this helpful?');
+
+            const storeFeedback = (rating) => {
+                chrome.storage.local.get({ feedbackLog: [] }, (data) => {
+                    const log = data.feedbackLog || [];
+                    log.push({ claimId: safe.id, rating, timestamp: Date.now() });
+                    chrome.storage.local.set({ feedbackLog: log });
+                });
+                feedbackBar.classList.add('feedback-submitted');
+                feedbackLabel.textContent = rating === 'up' ? '✅ Thanks!' : '📝 Noted';
+                thumbsUp.disabled = true;
+                thumbsDown.disabled = true;
+            };
+
+            thumbsUp.addEventListener('click', () => storeFeedback('up'));
+            thumbsDown.addEventListener('click', () => storeFeedback('down'));
+            feedbackBar.appendChild(feedbackLabel);
+            feedbackBar.appendChild(thumbsUp);
+            feedbackBar.appendChild(thumbsDown);
+            chain.appendChild(feedbackBar);
+
             // Toggle behavior
             toggleBtn.addEventListener('click', () => {
                 const isExpanded = chain.classList.contains('visible');
@@ -725,7 +758,9 @@
                 toggleBtn.classList.toggle('expanded');
                 const chevron = toggleBtn.querySelector('.chevron');
                 if (chevron) {
-                    toggleBtn.firstChild.textContent = isExpanded ? 'Show Proof ' : 'Hide Proof ';
+                    toggleBtn.firstChild.textContent = isExpanded
+                        ? (t('showProof') || 'Show Proof ')
+                        : (t('hideProof') || 'Hide Proof ');
                 }
             });
 
@@ -735,6 +770,88 @@
 
         if (safe.confidence > 0) card.appendChild(S.createElement('div', { class: 'claim-confidence' }, `${Math.round(safe.confidence * 100)}% confident`));
         return card;
+    }
+
+    // Build an evidence quote item (used by both debate and standard mode)
+    function buildEvidenceQuoteItem(eq, extraClass) {
+        const sourceItem = S.createElement('div', { class: 'evidence-source-item' + (extraClass ? ' ' + extraClass : '') });
+
+        // Tier badge with domain icon + tooltip
+        const tierLabels = { 1: 'Tier 1: Authority', 2: 'Tier 2: Public Interest', 3: 'Tier 3: Fact-Check', 4: 'Tier 4: General', 5: 'Tier 5: Unreliable' };
+        const tierTag = S.createElement('span', {
+            class: `tier-tag tier-${eq.tier || 4}`,
+            title: eq.sourceType ? `${eq.sourceType} source` : (tierLabels[eq.tier] || '')
+        }, (eq.icon ? eq.icon + ' ' : '') + (tierLabels[eq.tier] || 'Unknown'));
+        sourceItem.appendChild(tierTag);
+
+        // Source type badge
+        if (eq.sourceType) {
+            sourceItem.appendChild(S.createElement('span', { class: 'source-type-badge' }, eq.sourceType));
+        }
+
+        // Attributed quote (from groundingSupports — hallucination-proof)
+        if (eq.quote) {
+            sourceItem.appendChild(S.createElement('div', { class: 'evidence-quote' }, eq.quote));
+        }
+
+        // Source name
+        if (eq.source && eq.source !== 'Unknown') {
+            sourceItem.appendChild(S.createElement('div', { class: 'evidence-source-name' }, `— ${eq.source}`));
+        }
+
+        // Verification link + click tracking + source report
+        if (eq.url) {
+            const linkRow = S.createElement('div', { class: 'evidence-link-row' });
+            const link = S.createElement('a', {
+                href: eq.url,
+                target: '_blank',
+                rel: 'noopener noreferrer',
+                class: 'evidence-verify-link'
+            });
+            try {
+                const host = new URL(eq.url).hostname;
+                link.textContent = `Verify at ${host} ↗`;
+            } catch {
+                link.textContent = 'See source ↗';
+            }
+            // R6.4: Click tracking
+            link.addEventListener('click', () => {
+                try {
+                    const domain = new URL(eq.url).hostname;
+                    chrome.storage.local.get({ sourceClicks: {} }, (data) => {
+                        const clicks = data.sourceClicks || {};
+                        clicks[domain] = (clicks[domain] || 0) + 1;
+                        chrome.storage.local.set({ sourceClicks: clicks });
+                    });
+                } catch { /* ignore */ }
+            });
+            linkRow.appendChild(link);
+
+            // 🚩 Report source button
+            const reportBtn = S.createElement('button', {
+                class: 'report-source-btn',
+                title: t('reportSource') || 'Report unreliable source'
+            }, '🚩');
+            reportBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                try {
+                    const domain = new URL(eq.url).hostname;
+                    chrome.storage.local.get({ sourceReports: {} }, (data) => {
+                        const reports = data.sourceReports || {};
+                        reports[domain] = (reports[domain] || 0) + 1;
+                        chrome.storage.local.set({ sourceReports: reports });
+                    });
+                    reportBtn.textContent = '✓';
+                    reportBtn.disabled = true;
+                    reportBtn.title = t('reported') || 'Reported';
+                } catch { /* ignore */ }
+            });
+            linkRow.appendChild(reportBtn);
+
+            sourceItem.appendChild(linkRow);
+        }
+
+        return sourceItem;
     }
 
     // Build quick signal text for collapsed state

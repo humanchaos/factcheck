@@ -942,3 +942,168 @@
     color: #888899;
     margin-left: 6px;
 }
+
+/* ─── Math Outlier Warning ─── */
+.math-outlier-warning {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    background: linear-gradient(135deg, rgba(255, 100, 0, 0.12), rgba(255, 50, 50, 0.08));
+    border: 1px solid rgba(255, 120, 0, 0.35);
+    border-left: 4px solid #ff6600;
+    border-radius: 6px;
+    padding: 10px 12px;
+    margin-bottom: 10px;
+    animation: warningPulse 2s ease-in-out 1;
+}
+
+@keyframes warningPulse {
+    0% {
+        opacity: 0;
+        transform: translateY(-4px);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.math-outlier-icon {
+    font-size: 18px;
+    flex-shrink: 0;
+    margin-top: 1px;
+}
+
+.math-outlier-text {
+    flex: 1;
+}
+
+.math-outlier-text strong {
+    display: block;
+    color: #ff8833;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 3px;
+}
+
+.math-outlier-detail {
+    color: #ccbbaa;
+    font-size: 11px;
+    line-height: 1.5;
+}
+
+/* ─── Debate Section (Debate Mode) ─── */
+.debate-section {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin: 8px 0;
+}
+
+.debate-section .debate-label {
+    margin-top: 6px;
+}
+
+.debate-section .evidence-source-item.evidence-for {
+    border-left: 3px solid #00ff88;
+    background: rgba(0, 255, 136, 0.04);
+}
+
+.debate-section .evidence-source-item.evidence-against {
+    border-left: 3px solid #ff4466;
+    background: rgba(255, 68, 102, 0.04);
+}
+
+/* ─── Evidence Link Row (verify + report) ─── */
+.evidence-link-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-top: 6px;
+}
+
+.evidence-link-row .evidence-verify-link {
+    flex: 1;
+}
+
+/* 🚩 Report Source Button */
+.report-source-btn {
+    background: transparent;
+    border: 1px solid transparent;
+    color: #555566;
+    font-size: 12px;
+    cursor: pointer;
+    padding: 2px 6px;
+    border-radius: 4px;
+    transition: all 0.2s;
+    flex-shrink: 0;
+    opacity: 0.5;
+}
+
+.report-source-btn:hover {
+    opacity: 1;
+    background: rgba(255, 68, 68, 0.1);
+    border-color: rgba(255, 68, 68, 0.3);
+    color: #ff4444;
+}
+
+.report-source-btn:disabled {
+    opacity: 0.6;
+    cursor: default;
+    color: #00ff88;
+}
+
+/* ─── Feedback Bar ─── */
+.feedback-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 12px;
+    padding-top: 10px;
+    border-top: 1px solid #2a2a38;
+}
+
+.feedback-label {
+    font-size: 10px;
+    color: #666677;
+    flex: 1;
+}
+
+.feedback-btn {
+    background: transparent;
+    border: 1px solid #3a3a45;
+    color: #888899;
+    font-size: 14px;
+    padding: 4px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+    line-height: 1;
+}
+
+.feedback-btn.feedback-up:hover {
+    background: rgba(0, 255, 136, 0.1);
+    border-color: rgba(0, 255, 136, 0.4);
+    transform: scale(1.15);
+}
+
+.feedback-btn.feedback-down:hover {
+    background: rgba(255, 68, 68, 0.1);
+    border-color: rgba(255, 68, 68, 0.4);
+    transform: scale(1.15);
+}
+
+.feedback-btn:disabled {
+    opacity: 0.4;
+    cursor: default;
+    transform: none;
+}
+
+.feedback-submitted .feedback-label {
+    color: #00ff88;
+    font-weight: 600;
+}
