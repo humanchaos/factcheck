@@ -11,7 +11,9 @@
     "host_permissions": [
         "https://www.youtube.com/*",
         "https://youtube.com/*",
-        "https://generativelanguage.googleapis.com/*",
+        "https://generativelanguage.googleapis.com/*"
+    ],
+    "optional_host_permissions": [
         "https://www.wikidata.org/*",
         "https://ec.europa.eu/*"
     ],
