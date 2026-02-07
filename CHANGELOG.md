@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.0] - 2026-02-07
+
+### Added
+- **Tier 1A — Wikidata Entity Hydration:** `queryWikidata()` resolves entity names to Wikidata QIDs, fetches official position (P39) and start date (P580). Prevents name/title hallucinations.
+- **Tier 1B — Eurostat Statistical API:** `queryEurostat()` fetches GDP growth, inflation, population, and unemployment directly from the EU statistics bureau. Hard numbers feed the Math Guardrail.
+- **4-Tier Verification Pipeline:** `verifyClaim()` now cascades Tier 0 → Tier 1A → Tier 1B → Tier 2 → Judge. All Tier 1 calls are fallback-safe.
+- **Structured JSON Judge:** `callGeminiJSON()` with `response_mime_type: application/json` and `response_schema`. Judge returns `{ verdict, confidence, math_outlier, reasoning, evidence_chain }` directly — eliminates regex parsing.
+- **Math Outlier Warning Box:** Orange/red gradient alert in Evidence Chain when `math_outlier: true`.
+- **Debate Mode UI:** 🟢 Bestätigend / 🔴 Widersprechend split view with keyword heuristics.
+- **Feedback System:** 👍/👎 per claim + 🚩 Source Report per evidence quote, stored in `chrome.storage.local`.
+
+### Changed
+- **`judgeEvidence()`:** Now uses JSON mode primary with text fallback. Schema enforces structured output.
+- **`verifyClaim()`:** Dual-path parsing — `typeof === 'object'` for JSON, regex chain for text fallback.
+- **`manifest.json`:** Added `wikidata.org` and `ec.europa.eu` host permissions for Tier 1 APIs.
+
 ## [0.2.0] - 2026-02-07
 
 ### Added
