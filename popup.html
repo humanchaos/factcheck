@@ -194,6 +194,60 @@
             color: #00ccff;
         }
 
+        .support-section {
+            margin-top: 16px;
+            padding: 14px;
+            background: #22222f;
+            border-radius: 6px;
+            text-align: center;
+        }
+
+        .support-text {
+            color: #888899;
+            font-size: 11px;
+            margin-bottom: 10px;
+            line-height: 1.4;
+        }
+
+        .support-buttons {
+            display: flex;
+            gap: 8px;
+        }
+
+        .support-buttons a {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            padding: 8px 6px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 11px;
+            transition: all 0.2s;
+        }
+
+        .btn-bmc {
+            background: linear-gradient(135deg, #FFDD00 0%, #FFB800 100%);
+            color: #1a1a25;
+        }
+
+        .btn-bmc:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(255, 221, 0, 0.3);
+        }
+
+        .btn-gh {
+            background: linear-gradient(135deg, #ea4aaa 0%, #c9379d 100%);
+            color: #fff;
+        }
+
+        .btn-gh:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(234, 74, 170, 0.3);
+        }
+
         select {
             width: 100%;
             padding: 10px 12px;
@@ -209,56 +263,75 @@
 <body>
     <div class="header">
         <span class="logo">FAKTCHECK</span>
-        <span class="live">v4.8</span>
+        <span class="live">v0.1</span>
     </div>
 
     <div class="content">
         <div class="status">
             <span class="status-dot" id="statusDot"></span>
-            <span class="status-text" id="statusText">Not configured</span>
+            <span class="status-text" id="statusText" data-i18n="popupStatusNotConfigured">Not configured</span>
         </div>
 
         <div class="form-group">
-            <label>Gemini API Key</label>
+            <label data-i18n="popupLabelApiKey">Gemini API Key</label>
             <input type="password" id="apiKey" placeholder="AIza...">
         </div>
 
         <div class="form-group">
-            <label>Language</label>
+            <label data-i18n="popupLabelLanguage">Language</label>
             <select id="langSelect">
-                <option value="auto">Auto-detect</option>
+                <option value="auto" data-i18n="popupLangAuto">Auto-detect</option>
                 <option value="de">Deutsch</option>
                 <option value="en">English</option>
+                <option value="fr">Français</option>
+                <option value="es">Español</option>
+                <option value="it">Italiano</option>
+                <option value="pt">Português</option>
             </select>
         </div>
 
         <div class="form-group">
             <div class="checkbox-group">
                 <input type="checkbox" id="autoStart" checked>
-                <label style="margin: 0; text-transform: none; color: #e8e8f0;">Auto-start on YouTube videos</label>
+                <label style="margin: 0; text-transform: none; color: #e8e8f0;"
+                    data-i18n="popupLabelAutoStart">Auto-start on YouTube videos</label>
             </div>
         </div>
 
-        <button class="btn" id="saveBtn">Save Settings</button>
+        <button class="btn" id="saveBtn" data-i18n="popupBtnSave">Save Settings</button>
 
-        <div class="saved-msg" id="savedMsg">✓ Settings saved!</div>
+        <div class="saved-msg" id="savedMsg" data-i18n="popupSaved">✓ Settings saved!</div>
 
         <div class="stats" id="stats">
             <div class="stats-row">
-                <span>Cache size:</span>
+                <span data-i18n="popupCacheSize">Cache size:</span>
                 <span class="stats-value" id="cacheSize">0</span>
             </div>
             <div class="stats-row">
-                <span>Rate limit remaining:</span>
+                <span data-i18n="popupRateLimit">Rate limit remaining:</span>
                 <span class="stats-value" id="rateLimit">--</span>
             </div>
         </div>
 
-        <a href="https://aistudio.google.com/app/apikey" target="_blank" class="help-link">
+        <a href="https://aistudio.google.com/app/apikey" target="_blank" class="help-link" data-i18n="popupHelpLink">
             Get a free Gemini API key →
         </a>
+
+        <div class="support-section">
+            <p class="support-text" data-i18n="popupSupportText">Every coffee fuels another fact-check. Help keep this
+                tool free &amp; open source.</p>
+            <div class="support-buttons">
+                <a href="https://www.buymeacoffee.com/humanchaos" target="_blank" class="btn-bmc">
+                    ☕ <span data-i18n="popupBtnCoffee">Buy me a coffee</span>
+                </a>
+                <a href="https://github.com/sponsors/humanchaos" target="_blank" class="btn-gh">
+                    💖 <span data-i18n="popupBtnSponsor">Sponsor</span>
+                </a>
+            </div>
+        </div>
     </div>
 
+    <script src="i18n.js"></script>
     <script src="popup.js"></script>
 </body>
 

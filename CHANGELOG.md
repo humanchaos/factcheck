@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.0] - 2026-02-07
+
+### Added
+- **Multilingual i18n**: Full UI support for 6 languages (DE, EN, FR, ES, IT, PT) with browser auto-detection and live language switching via popup.
+- **Sponsor/Support Links**: "Buy me a coffee" and "GitHub Sponsors" buttons in extension popup, `.github/FUNDING.yml` for repo Sponsor button.
+- **Community Roadmap**: 3-phase roadmap (Foundation → Performance → Trust Engine) in README.
+- **Social Preview**: Generated branded social preview image for GitHub link previews.
+- **Good First Issue Template**: Reusable issue template for onboarding new contributors.
+
+### Changed
+- **Version aligned**: Manifest, popup, and CHANGELOG now all use `0.1.0`.
+- **Expanded language detection**: `background.js` `detectLang()` now detects DE, FR, ES, IT, PT (was DE-only).
+
 ## [0.1.0-alpha] - 2026-02-06
 
 ### Added

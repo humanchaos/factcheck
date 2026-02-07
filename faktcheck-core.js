@@ -136,7 +136,7 @@ function parseVerdictFromText(text) {
         .filter(l => l.length > 30 && !/^[\[{#*]/.test(l))
         .slice(0, 3)
         .join(' ')
-        .slice(0, 500) || 'Aus Suchresultaten abgeleitet.';
+        .slice(0, 500) || (window.TruthLensI18n ? window.TruthLensI18n.tSync('errorDerived') : 'Derived from search results.');
 
     return { verdict, confidence, explanation, key_facts: [] };
 }
@@ -161,7 +161,7 @@ function parseStructuredText(text) {
     let sources = [];
     if (sourcesMatch) {
         sources = sourcesMatch[1].split(/[;,]/).map(s => s.trim()).filter(s => s.startsWith('http'))
-            .map(url => ({ title: 'Source', url, tier: getSourceTier(url) }));
+            .map(url => ({ title: (window.TruthLensI18n ? window.TruthLensI18n.tSync('coreSourceLabel') : 'Source'), url, tier: getSourceTier(url) }));
     }
 
     let keyFacts = [];
@@ -314,13 +314,13 @@ async function verifyClaim(claim, videoTitle = '') {
     if (claim.type === 'opinion') {
         return {
             verdict: 'opinion', displayVerdict: 'opinion', confidence: 0.80,
-            explanation: 'Meinungsäußerung.', key_facts: [], sources: [], is_causal: false
+            explanation: (window.TruthLensI18n ? window.TruthLensI18n.tSync('coreOpinion') : 'Opinion statement.'), key_facts: [], sources: [], is_causal: false
         };
     }
     if (claim.type === 'procedural') {
         return {
             verdict: 'unverifiable', displayVerdict: 'unverifiable', confidence: 0.50,
-            explanation: 'Ankündigung, nicht überprüfbar.', key_facts: [], sources: [], is_causal: false
+            explanation: (window.TruthLensI18n ? window.TruthLensI18n.tSync('coreProcedural') : 'Announcement, not verifiable.'), key_facts: [], sources: [], is_causal: false
         };
     }
 
@@ -368,8 +368,8 @@ SOURCES: [URL1; URL2]`;
                 displayVerdict: groundingSources.length > 0 ? 'partially_true' : 'unverifiable',
                 confidence: groundingSources.length > 0 ? 0.50 : 0.30,
                 explanation: groundingSources.length > 0
-                    ? `Quellen gefunden, aber keine explizite Analyse von Gemini.`
-                    : 'Keine Antwort von Gemini erhalten.',
+                    ? (window.TruthLensI18n ? window.TruthLensI18n.tSync('errorSourcesOnly') : 'Sources found, but no explicit analysis from Gemini.')
+                    : (window.TruthLensI18n ? window.TruthLensI18n.tSync('errorNoResponse') : 'No response from Gemini received.'),
                 key_facts: [],
                 sources: groundingSources || [],
                 is_causal: false,
@@ -392,7 +392,7 @@ SOURCES: [URL1; URL2]`;
         console.error('[FAKTCHECK v3.2] Verification error:', error.message);
         return {
             verdict: 'unverifiable', displayVerdict: 'unverifiable', confidence: 0.3,
-            explanation: `Fehler: ${error.message}`,
+            explanation: `${(window.TruthLensI18n ? window.TruthLensI18n.tSync('errorFetch') : 'Error')}: ${error.message}`,
             key_facts: [], sources: [], is_causal: false, _error: error.message
         };
     }
@@ -443,13 +443,28 @@ function normalizeVerdict(data, claim = {}) {
 
 // ─── DISPLAY CONFIG ─────────────────────────────────────────
 
+// Dynamic labels via TruthLensI18n
+function getDisplayConfig() {
+    const I18n = window.TruthLensI18n;
+    const t = I18n ? (k) => I18n.tSync(k) : (k) => k;
+    return {
+        true: { label: t('displayTrue'), color: '#22c55e', icon: '✅' },
+        false: { label: t('displayFalse'), color: '#ef4444', icon: '❌' },
+        deceptive: { label: t('displayDeceptive'), color: '#f97316', icon: '⚠️' },
+        partially_true: { label: t('displayPartial'), color: '#eab308', icon: '⚡' },
+        unverifiable: { label: t('displayUnverifiable'), color: '#6b7280', icon: '❓' },
+        opinion: { label: t('displayOpinion'), color: '#8b5cf6', icon: '💬' }
+    };
+}
+
+// Static fallback for code that reads DISPLAY_CONFIG directly
 const DISPLAY_CONFIG = {
-    true: { label: 'Bestätigt', color: '#22c55e', icon: '✅' },
-    false: { label: 'Falsch', color: '#ef4444', icon: '❌' },
-    deceptive: { label: 'Irreführend', color: '#f97316', icon: '⚠️' },
-    partially_true: { label: 'Teilweise wahr', color: '#eab308', icon: '⚡' },
-    unverifiable: { label: 'Nicht überprüfbar', color: '#6b7280', icon: '❓' },
-    opinion: { label: 'Meinung', color: '#8b5cf6', icon: '💬' }
+    true: { label: 'Confirmed', color: '#22c55e', icon: '✅' },
+    false: { label: 'False', color: '#ef4444', icon: '❌' },
+    deceptive: { label: 'Deceptive', color: '#f97316', icon: '⚠️' },
+    partially_true: { label: 'Partially true', color: '#eab308', icon: '⚡' },
+    unverifiable: { label: 'Unverifiable', color: '#6b7280', icon: '❓' },
+    opinion: { label: 'Opinion', color: '#8b5cf6', icon: '💬' }
 };
 
 // ─── EXPORTS ────────────────────────────────────────────────

@@ -384,12 +384,32 @@ function validateVerification(data, claimType = 'factual') {
     };
 }
 
-// Language Detection
+// Language Detection — expanded for multilingual support
 function detectLang(text) {
-    const deWords = ['und', 'der', 'die', 'das', 'ist', 'nicht', 'mit', 'für', 'von', 'wir', 'haben', 'dass', 'werden', 'wurde', 'sind'];
     const words = text.toLowerCase().split(/\s+/);
-    const deCount = words.filter(w => deWords.includes(w)).length;
-    return deCount > words.length * 0.03 ? 'de' : 'en';
+    const total = words.length;
+    if (total === 0) return 'en';
+
+    const langWordLists = {
+        de: ['und', 'der', 'die', 'das', 'ist', 'nicht', 'mit', 'für', 'von', 'wir', 'haben', 'dass', 'werden', 'wurde', 'sind'],
+        fr: ['les', 'des', 'est', 'une', 'que', 'dans', 'pour', 'pas', 'qui', 'sur', 'avec', 'sont', 'ont', 'cette', 'mais'],
+        es: ['los', 'las', 'una', 'que', 'por', 'con', 'para', 'como', 'más', 'pero', 'sus', 'está', 'son', 'tiene', 'entre'],
+        it: ['che', 'per', 'una', 'con', 'sono', 'della', 'questo', 'anche', 'come', 'più', 'suo', 'stati', 'tutto', 'dal', 'nella'],
+        pt: ['que', 'para', 'com', 'uma', 'por', 'mais', 'como', 'mas', 'são', 'foi', 'tem', 'seus', 'pela', 'isso', 'esta']
+    };
+
+    let bestLang = 'en';
+    let bestScore = 0;
+
+    for (const [lang, langWords] of Object.entries(langWordLists)) {
+        const count = words.filter(w => langWords.includes(w)).length;
+        const score = count / total;
+        if (score > 0.03 && score > bestScore) {
+            bestScore = score;
+            bestLang = lang;
+        }
+    }
+    return bestLang;
 }
 
 // ✅ FIX #2: Gemini API call with proper error handling and NO broken tools
@@ -718,9 +738,9 @@ async function verifyClaim(claimText, apiKey, lang = 'de', claimType = 'factual'
     // 3. Output format comes FIRST, not last
     // 4. Explicit "Beginne direkt mit VERDICT:" instruction
     // ============================================================================
-    
+
     const prompt = lang === 'de' ?
-`Analysiere den folgenden Claim und gib SOFORT das Ergebnis aus.
+        `Analysiere den folgenden Claim und gib SOFORT das Ergebnis aus.
 
 CLAIM: "${sanitized}"
 
@@ -741,7 +761,7 @@ BEWERTUNGS-KRITERIEN:
 
 WICHTIG: Antworte SOFORT mit "VERDICT:" - keine Einleitung wie "Okay" oder "Ich werde"!` :
 
-`Analyze the following claim and output the result IMMEDIATELY.
+        `Analyze the following claim and output the result IMMEDIATELY.
 
 CLAIM: "${sanitized}"
 
@@ -803,7 +823,7 @@ IMPORTANT: Respond IMMEDIATELY with "VERDICT:" - no introduction like "Okay" or 
                 verdict: groundingSources.length > 0 ? 'partially_true' : 'unverifiable',
                 confidence: groundingSources.length > 0 ? 0.50 : 0.30,
                 explanation: groundingSources.length > 0
-                    ? 'Quellen gefunden, aber keine explizite Analyse von Gemini.'
+                    ? 'Sources found, but no explicit analysis from Gemini.'
                     : 'Could not parse response',
                 sources: []
             };
@@ -824,7 +844,7 @@ IMPORTANT: Respond IMMEDIATELY with "VERDICT:" - no introduction like "Okay" or 
             verdict: 'unverifiable',
             displayVerdict: 'unverifiable',
             confidence: 0,
-            explanation: 'Fehler: ' + error.message,
+            explanation: 'Error: ' + error.message,
             sources: [],
             error: error.message
         };

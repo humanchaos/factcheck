@@ -1,5 +1,8 @@
-// FAKTCHECK Popup Script
+// FAKTCHECK Popup Script — Multilingual
 document.addEventListener('DOMContentLoaded', async () => {
+    const I18n = window.TruthLensI18n;
+    if (!I18n) { console.error('[Popup] TruthLensI18n not loaded!'); return; }
+
     const apiKeyInput = document.getElementById('apiKey');
     const langSelect = document.getElementById('langSelect');
     const autoStartCheckbox = document.getElementById('autoStart');
@@ -10,30 +13,49 @@ document.addEventListener('DOMContentLoaded', async () => {
     const cacheSize = document.getElementById('cacheSize');
     const rateLimit = document.getElementById('rateLimit');
 
-    // Load existing settings
+    // Helper: translate using current locale
+    const t = (key) => I18n.tSync(key);
+
+    /**
+     * Apply translations to all data-i18n elements in the popup.
+     */
+    function translatePopup(locale) {
+        I18n.applyTranslations(document, locale);
+    }
+
+    // ── Load existing settings ──────────────────────────────────
     try {
         const result = await chrome.storage.local.get([
             'geminiApiKey',
-            'language',
+            'preferredLanguage',
             'autoStart',
             'analysisCache'
         ]);
 
+        // Resolve locale: storage override → browser → 'en'
+        const storedLang = result.preferredLanguage || 'auto';
+        langSelect.value = storedLang;
+
+        // Set cached locale so t() works immediately
+        if (storedLang !== 'auto') {
+            I18n.updateCachedLocale(storedLang);
+        } else {
+            I18n.updateCachedLocale(navigator.language);
+        }
+
+        // Translate the popup UI
+        translatePopup(I18n.getLocaleSync());
+
         if (result.geminiApiKey) {
             apiKeyInput.value = result.geminiApiKey;
             statusDot.classList.add('active');
-            statusText.textContent = 'Ready';
-        }
-
-        if (result.language) {
-            langSelect.value = result.language;
+            statusText.textContent = t('popupStatusReady');
         }
 
         if (result.autoStart !== undefined) {
             autoStartCheckbox.checked = result.autoStart;
         }
 
-        // Update cache size
         if (result.analysisCache) {
             cacheSize.textContent = Object.keys(result.analysisCache).length;
         }
@@ -41,33 +63,43 @@ document.addEventListener('DOMContentLoaded', async () => {
         console.error('Error loading settings:', error);
     }
 
-    // Save settings
+    // ── Re-translate when language selector changes ──────────────
+    langSelect.addEventListener('change', () => {
+        const selected = langSelect.value;
+        if (selected !== 'auto') {
+            I18n.updateCachedLocale(selected);
+        } else {
+            I18n.updateCachedLocale(navigator.language);
+        }
+        translatePopup(I18n.getLocaleSync());
+    });
+
+    // ── Save settings ───────────────────────────────────────────
     saveBtn.addEventListener('click', async () => {
         const apiKey = apiKeyInput.value.trim();
         const language = langSelect.value;
         const autoStart = autoStartCheckbox.checked;
 
         if (!apiKey) {
-            alert('Please enter a Gemini API key');
+            alert(t('popupAlertNoKey'));
             return;
         }
 
-        // Basic validation for Gemini API key format
         if (!apiKey.startsWith('AIza')) {
-            alert('Invalid API key format. Gemini API keys start with "AIza"');
+            alert(t('popupAlertInvalidKey'));
             return;
         }
 
         try {
             await chrome.storage.local.set({
                 geminiApiKey: apiKey,
-                language: language,
+                preferredLanguage: language,
                 autoStart: autoStart
             });
 
             // Update status
             statusDot.classList.add('active');
-            statusText.textContent = 'Ready';
+            statusText.textContent = t('popupStatusReady');
 
             // Show saved message
             savedMsg.classList.add('show');
@@ -75,15 +107,21 @@ document.addEventListener('DOMContentLoaded', async () => {
                 savedMsg.classList.remove('show');
             }, 2000);
 
-            // Settings saved to storage (background reads directly)
+            // Notify content script about API key change
+            try {
+                const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+                if (tab?.id) {
+                    chrome.tabs.sendMessage(tab.id, { type: 'API_KEY_UPDATED' });
+                }
+            } catch (e) { /* tab may not be available */ }
 
         } catch (error) {
             console.error('Error saving settings:', error);
-            alert('Failed to save settings: ' + error.message);
+            alert(t('errorFetch') + ': ' + error.message);
         }
     });
 
-    // Check rate limit status periodically
+    // ── Rate limit status ───────────────────────────────────────
     async function updateRateLimitStatus() {
         try {
             const result = await chrome.storage.local.get(['rateLimitInfo']);

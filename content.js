@@ -35,28 +35,14 @@
         unverifiable: 0, opinion: 0
     };
 
-    // Translations
-    const i18n = {
-        de: {
-            title: 'FAKTCHECK', live: 'LIVE', waiting: 'Warte auf Untertitel...',
-            analyzing: 'Analysiere...', ready: 'Bereit', paused: 'Pausiert',
-            noClaims: 'Keine Behauptungen gefunden', loadTranscript: 'Transkript laden',
-            loading: 'Lade...', loaded: 'Geladen', noTranscript: 'Kein Transkript verfügbar',
-            claims: 'Behauptungen', error: 'Fehler', noApiKey: 'API-Key fehlt!',
-            verdicts: { true: 'WAHR', false: 'FALSCH', partially_true: 'TEILWEISE', unverifiable: 'UNKLAR', opinion: 'MEINUNG', pending: 'PRÜFE...' }
-        },
-        en: {
-            title: 'FAKTCHECK', live: 'LIVE', waiting: 'Waiting for captions...',
-            analyzing: 'Analyzing...', ready: 'Ready', paused: 'Paused',
-            noClaims: 'No claims found', loadTranscript: 'Load Transcript',
-            loading: 'Loading...', loaded: 'Loaded', noTranscript: 'No transcript available',
-            claims: 'claims', error: 'Error', noApiKey: 'API key missing!',
-            verdicts: { true: 'TRUE', false: 'FALSE', partially_true: 'PARTIAL', unverifiable: 'UNCLEAR', opinion: 'OPINION', pending: 'CHECKING...' }
-        }
-    };
-
-    const t = (key) => i18n[currentLang]?.[key] || i18n.en[key] || key;
-    const tv = (verdict) => i18n[currentLang]?.verdicts?.[verdict] || i18n.en.verdicts[verdict] || verdict;
+    // ─── i18n: Use shared TruthLensI18n module ──────────────────
+    const I18n = window.TruthLensI18n;
+    if (!I18n) {
+        console.error('[FAKTCHECK] TruthLensI18n not loaded!');
+        return;
+    }
+    const t = (key) => I18n.tSync(key);
+    const tv = (verdict) => I18n.tvSync(verdict);
 
     const VERDICT_ICONS = {
         true: '✓', false: '✗', partially_true: '◐',
@@ -80,14 +66,14 @@
             return {
                 icon: '🎭',
                 color: 'amber',
-                label: 'SATIRISCHE HYPERBEL',
-                description: 'Bewusste Übertreibung im satirischen Kontext'
+                label: t('satiricalHyperbole'),
+                description: t('satiricalDesc')
             };
         }
         return {
             icon: VERDICT_ICONS[verdict] || '?',
             color: VERDICT_COLORS[verdict] || 'gray',
-            label: verdict?.toUpperCase() || 'UNKLAR',
+            label: tv(verdict) || verdict?.toUpperCase() || t('verdictUnverifiable'),
             description: null
         };
     }
@@ -434,15 +420,21 @@
         // Status
         const status = S.createElement('div', { class: 'faktcheck-status', id: 'faktcheck-status' });
         status.appendChild(S.createElement('span', { class: 'status-dot' }));
-        status.appendChild(S.createElement('span', { class: 'status-text' }, t('waiting')));
+        const statusText = S.createElement('span', { class: 'status-text' }, t('waiting'));
+        statusText.setAttribute('data-i18n', 'waiting');
+        status.appendChild(statusText);
         sidebar.appendChild(status);
 
         // Truth Meter
         const meter = S.createElement('div', { class: 'faktcheck-truth-meter' });
         const meterLabel = S.createElement('div', { class: 'truth-meter-label' });
-        meterLabel.appendChild(S.createElement('span', { class: 'meter-label-false' }, '✗ ' + tv('false')));
+        const falseLabel = S.createElement('span', { class: 'meter-label-false' }, '✗ ' + tv('false'));
+        falseLabel.setAttribute('data-i18n-verdict', 'false');
+        meterLabel.appendChild(falseLabel);
         meterLabel.appendChild(S.createElement('span', { class: 'meter-label-score', id: 'truth-meter-score' }, '—'));
-        meterLabel.appendChild(S.createElement('span', { class: 'meter-label-true' }, tv('true') + ' ✓'));
+        const trueLabel = S.createElement('span', { class: 'meter-label-true' }, tv('true') + ' ✓');
+        trueLabel.setAttribute('data-i18n-verdict', 'true');
+        meterLabel.appendChild(trueLabel);
         meter.appendChild(meterLabel);
         const meterBar = S.createElement('div', { class: 'truth-meter-bar' });
         meterBar.appendChild(S.createElement('div', { class: 'truth-meter-gradient' }));
@@ -461,15 +453,17 @@
         actions.appendChild(S.createElement('button', { id: 'faktcheck-load-transcript', class: 'faktcheck-load-btn' }, '📄 ' + t('loadTranscript')));
         sidebar.appendChild(actions);
 
-        // Claims
         const claims = S.createElement('div', { class: 'faktcheck-claims', id: 'faktcheck-claims' });
-        claims.appendChild(S.createElement('div', { class: 'faktcheck-empty' }, t('noClaims')));
+        const emptyMsg = S.createElement('div', { class: 'faktcheck-empty' }, t('noClaims'));
+        emptyMsg.setAttribute('data-i18n', 'noClaims');
+        claims.appendChild(emptyMsg);
         sidebar.appendChild(claims);
 
-        // Footer
         const footer = S.createElement('div', { class: 'faktcheck-footer' });
-        footer.appendChild(S.createElement('span', { class: 'faktcheck-count', id: 'faktcheck-count' }, '0 ' + t('claims')));
-        footer.appendChild(S.createElement('button', { id: 'faktcheck-export', class: 'faktcheck-export-btn', title: 'Export chunks for analysis' }, '📥 Export'));
+        const countEl = S.createElement('span', { class: 'faktcheck-count', id: 'faktcheck-count' }, '0 ' + t('claims'));
+        countEl.setAttribute('data-i18n-suffix', 'claims');
+        footer.appendChild(countEl);
+        footer.appendChild(S.createElement('button', { id: 'faktcheck-export', class: 'faktcheck-export-btn', title: 'Export' }, '📥 Export'));
         sidebar.appendChild(footer);
 
         document.body.appendChild(sidebar);
@@ -667,10 +661,11 @@
 
         // Host identification (first chunk or if still default)
         if (isFirstChunk || identifiedHost === 'Moderator') {
-            const hostMatch = text.match(/(?:Der|Name ist|Ich bin|Willkommen bei|mit)\s+([A-Z][a-zäöü]+\s+[A-Z][a-zäöü]+)/i);
+            // Multi-language host detection patterns
+            const hostMatch = text.match(/(?:Der|Name ist|Ich bin|Willkommen bei|mit|My name is|I'm|I am|Welcome to|hosted by|Je suis|Soy|Sono|Eu sou)\s+([A-Z][a-zäöüéèêàâîïôùûçñ]+\s+[A-Z][a-zäöüéèêàâîïôùûçñ]+)/i);
             if (hostMatch) {
                 identifiedHost = hostMatch[1];
-                console.log(`[FAKTCHECK] 🎙️ Host identifiziert: ${identifiedHost}`);
+                console.log(`[FAKTCHECK] 🎙️ Host identified: ${identifiedHost}`);
             }
             isFirstChunk = false;
         }
@@ -961,6 +956,13 @@
     // ==================== Init ====================
     async function init() {
         console.log('[FAKTCHECK] ========== INIT ==========');
+
+        // Resolve locale from storage / browser
+        const locale = await I18n.getLocale();
+        currentLang = locale;
+        I18n.updateCachedLocale(locale);
+        console.log('[FAKTCHECK] Locale resolved:', locale);
+
         const response = await sendMessageSafe({ type: 'CHECK_API_KEY' });
         if (!response.hasKey) console.warn('[FAKTCHECK] ⚠️ No API key configured!');
         else console.log('[FAKTCHECK] ✓ API key present');
@@ -970,19 +972,61 @@
         currentVideoId = getCurrentVideoId();
         console.log('[FAKTCHECK] Video:', currentVideoId);
 
-        const htmlLang = document.documentElement.lang;
-        if (htmlLang?.startsWith('de')) currentLang = 'de';
-
         createSidebar();
+
+        // Apply translations to sidebar data-i18n elements
+        const sidebar = document.getElementById('faktcheck-sidebar');
+        if (sidebar) {
+            I18n.applyTranslations(sidebar, locale);
+            sidebar.classList.add(`lang-${locale}`);
+        }
+
         setTimeout(showSidebar, 1500);
-        console.log('[FAKTCHECK] ========== READY ==========');
+        console.log(`[FAKTCHECK] ========== READY (${locale.toUpperCase()}) ==========`);
     }
 
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
     else init();
 
+    // Listen for API key updates
     chrome.runtime.onMessage.addListener((message) => {
         if (message.type === 'API_KEY_UPDATED') { console.log('[FAKTCHECK] API key updated'); init(); }
+    });
+
+    // Listen for language changes in storage → retranslate sidebar live
+    chrome.storage.onChanged.addListener((changes, area) => {
+        if (area === 'local' && changes.preferredLanguage) {
+            const newLang = changes.preferredLanguage.newValue || 'en';
+            console.log('[FAKTCHECK] Language changed to:', newLang);
+            I18n.updateCachedLocale(newLang);
+            currentLang = newLang;
+
+            const sidebar = document.getElementById('faktcheck-sidebar');
+            if (sidebar) {
+                // Update data-i18n elements
+                I18n.applyTranslations(sidebar, newLang);
+
+                // Update verdict labels on meter (data-i18n-verdict)
+                sidebar.querySelectorAll('[data-i18n-verdict]').forEach(el => {
+                    const key = el.getAttribute('data-i18n-verdict');
+                    if (key === 'false') el.textContent = '✗ ' + tv('false');
+                    if (key === 'true') el.textContent = tv('true') + ' ✓';
+                });
+
+                // Update footer claim count
+                const countEl = sidebar.querySelector('[data-i18n-suffix]');
+                if (countEl) {
+                    const num = parseInt(countEl.textContent) || 0;
+                    countEl.textContent = num + ' ' + t('claims');
+                }
+
+                // Update lang class
+                sidebar.className = sidebar.className.replace(/lang-\w+/, '');
+                sidebar.classList.add(`lang-${newLang}`);
+
+                console.log('[FAKTCHECK] Sidebar retranslated to', newLang);
+            }
+        }
     });
 
 })();

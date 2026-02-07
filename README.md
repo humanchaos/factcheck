@@ -3,6 +3,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://github.com/humanchaos/factcheck/graphs/commit-activity)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](http://makeapullrequest.com)
+[![Buy Me A Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-ffdd00?style=for-the-badge&logo=buy-me-a-coffee&logoColor=black)](https://www.buymeacoffee.com/humanchaos)
 
 **Protecting the truth in the digital age.**
 
@@ -95,17 +96,28 @@ graph TD
 
 ---
 
-## 🗺️ Roadmap: How You Can Help
+## 🗺️ Community Roadmap
 
-We are looking for contributors to help us reach "Version 1.0". Check out our [Open Issues](https://github.com/humanchaos/factcheck/issues).
+This project is in its early **Alpha** stage. The goal is to move from "Messy Prototype" to a "Robust Public Utility." Every [☕ coffee](https://www.buymeacoffee.com/humanchaos) or [💖 sponsorship](https://github.com/sponsors/humanchaos) directly accelerates these milestones.
 
-| Feature | Status | Help Needed |
-|---------|--------|-------------|
-| Multi-Language Support | 🏗️ In Progress | Native speakers for additional languages |
-| Twitter/X Integration | 📅 Planned | API implementation experts |
-| Confidence Scoring | ✅ Done | Feedback on weights/biases |
-| Chrome Web Store Release | 💡 Idea | UX feedback and testing |
-| Additional Platforms | 💡 Idea | Twitch, TikTok, news sites |
+### 🟢 Phase 1: The Foundation (Current Focus)
+
+- **Infrastructure Audit** — Standardize code structure and fix security gaps identified during launch
+- **API Resilience** — Better error handling for Gemini rate limits to prevent extension crashes
+- **Multi-Language Support** — ✅ Done! UI now supports 6 languages (DE, EN, FR, ES, IT, PT) with auto-detection
+- **Manual Onboarding** — Clearer docs for developers to set up local dev environments
+
+### 🟡 Phase 2: User Friction & Performance (Next)
+
+- **The "API Key" Solution** — Explore [Transformers.js](https://huggingface.co/docs/transformers.js) for local, on-device processing to remove the API key requirement
+- **Real-time Optimization** — Reduce CPU usage when parsing YouTube transcripts so the extension doesn't lag the video
+- **UI/UX Overhaul** — Move from a developer's UI to a clean, accessible interface that anyone can understand
+
+### 🔵 Phase 3: The Trust Engine (Future)
+
+- **Weighted Consensus** — Develop an algorithmic model to weight sources based on international standards ([IFCN](https://www.ifcncodeofprinciples.poynter.org/))
+- **Cross-Platform Support** — Expand beyond YouTube to verify claims on Twitter (X), Reddit, and news sites
+- **Community Verification** — Allow trusted human contributors to flag AI hallucinations and improve accuracy over time
 
 ---
 
@@ -130,6 +142,19 @@ We love Pull Requests!
 
 ---
 
+## ☕ Support the Mission
+
+If **factcheck** helps you navigate online information, consider supporting its development. Every coffee fuels the "Trust Engine" and helps us keep the project open-source and ad-free.
+
+[![Buy Me A Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-ffdd00?style=for-the-badge&logo=buy-me-a-coffee&logoColor=black)](https://www.buymeacoffee.com/humanchaos)
+
+You can also [💖 sponsor on GitHub](https://github.com/sponsors/humanchaos) for recurring support.
+
+<!-- sponsors -->
+<!-- sponsors -->
+
+*Early sponsors will be featured here. Thank you for fueling the fight against misinformation.*
+
 ## ⚖️ License
 
 Distributed under the MIT License. See [LICENSE](LICENSE) for more information.
@@ -137,3 +162,4 @@ Distributed under the MIT License. See [LICENSE](LICENSE) for more information.
 ---
 
 Made for democratic transparency 🇦🇹
+
