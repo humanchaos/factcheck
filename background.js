@@ -429,6 +429,22 @@ function validateVerification(data, claimType = 'factual') {
         confidence = Math.min(confidence, 0.60);
     }
 
+    // V5.3: REALITY-FIRST — Self-referential source malus
+    // If the ONLY sources are YouTube/video-origin (the claim's own video), apply heavy penalty
+    const selfRefPatterns = /youtube\.com|youtu\.be|fpoe\.at|fpö|fpoetv|tv\.at\/fpoe/i;
+    const externalSources = tieredSources.filter(s => !selfRefPatterns.test(s.url || '') && s.tier <= 3);
+    const onlySelfRef = totalSources > 0 && externalSources.length === 0;
+
+    if (onlySelfRef && llmPositive) {
+        console.log('[FAKTCHECK BG] ⚠️ REALITY-FIRST: Only self-referential sources — applying confidence malus');
+        confidence = Math.min(confidence - 0.5, 0.25);
+        if (confidence <= 0.25) {
+            verdict = 'unverifiable';
+            confidence = 0.25;
+            explanation = (explanation || '') + ' [Reality-First: Keine unabhängigen externen Quellen gefunden. Die einzige Quelle ist das Video selbst.]';
+        }
+    }
+
     // V3.0: Causal analysis - ONLY for explicit causal claims
     const isCausalClaim = claimType === 'causal';
     const timeline = data.timeline || {};
@@ -861,33 +877,45 @@ async function extractClaims(text, apiKey, metadata = null) {
     }
 
     const prompt = lang === 'de' ?
-        `# FAKTCHECK v3.1 — Extraktions-Engine
+        `# FAKTCHECK v5.3 — Extraktions-Engine (Reality-First)
 ${groundingContext}
 
 ## AUFGABE
 Extrahiere Claims nach dem Anker-Prinzip mit QUERY DECOMPOSITION:
 
-### 1. CLAIM HYDRATION
+### 1. SEMANTIC CLAIM STRIPPING (KRITISCH!)
+Extrahiere ausschließlich den harten Fakten-Kern. Entferne ALLE Verweise auf den Sprecher oder die Quelle.
+Wandle "Sprecher A behauptet X ist Y" um in die atomare Behauptung "X ist Y".
+Nur so kann die REALITÄT geprüft werden, nicht die Existenz der Aussage.
+
+BEISPIELE FÜR STRIPPING:
+- "Laut FPÖ TV liegt Österreich auf Platz 185" → "Österreich liegt beim Wirtschaftswachstum auf Platz 185 von 191 Ländern"
+- "Kickl sagt, die Inflation beträgt 10%" → "Die Inflation in Österreich beträgt 10%"
+- "Laut dem Video ist das BIP um 5% gewachsen" → "Österreichs BIP ist um 5% gewachsen"
+- "Der Kanzler behauptet, die Arbeitslosigkeit sinkt" → "Die Arbeitslosigkeit in Österreich sinkt"
+
+### 2. CLAIM HYDRATION
 Jeder Claim MUSS die "Wer-Was-Wo-Regel" erfüllen:
 - Ersetze ALLE Pronomen durch konkrete Namen
 - Ergänze Kontext aus Video-Titel/Gremium
 - ⚠️ NAMEN-TREUE: Verwende NUR Namen EXAKT wie im Transkript geschrieben. NIEMALS raten oder abändern!
 
-### 2. QUERY DECOMPOSITION (NEU!)
+### 3. QUERY DECOMPOSITION
 Für jeden Claim generiere 2-3 kurze Such-Queries (3-6 Wörter):
 - Kombiniere Schlüssel-Entitäten für Google-Suche
 - NICHT den ganzen hydratisierten Satz verwenden
+- PRIORISIERE offizielle Quellen: Statistik Austria, WIFO, IMF, Eurostat, Weltbank
 
 BEISPIEL:
-Claim: "Im Pilnacek-U-Ausschuss wird behauptet, dass es Vorbereitungskurse gab"
-search_queries: ["Hafenecker Vorbereitungskurse Zeugen U-Ausschuss", "ÖVP Anwälte Auskunftspersonen Pilnacek"]
+Claim: "Österreich liegt beim Wirtschaftswachstum auf Platz 185 von 191 Ländern"
+search_queries: ["IMF World Economic Outlook GDP growth ranking 2026", "WIFO Österreich BIP Wachstum Prognose 2026", "Statistik Austria Wirtschaftswachstum"]
 
-### 3. TYPE DETECTION
+### 4. TYPE DETECTION
 - "factual": Reine Faktenbehauptung
 - "causal": Enthält "weil/aufgrund/verursacht/führte zu"
 - "opinion": Werturteil/Meinung einer Person (z.B. "X kritisiert", "Y fordert")
 
-### 4. VETO
+### 5. VETO
 LÖSCHE NUR: Reine Befindlichkeiten ("Er ist glücklich")
 BEHALTE: Alles mit Entitäten → hydratisieren!
 
@@ -896,7 +924,7 @@ BEHALTE: Alles mit Entitäten → hydratisieren!
 
 ## Output (NUR JSON-Array):
 [{
-  "claim": "Hydratisierter Satz mit Namen/Kontext",
+  "claim": "Atomare Fakten-Behauptung OHNE Sprecher-Attribution",
   "search_queries": ["Query1 3-6 Wörter", "Query2 3-6 Wörter"],
   "anchors": ["Person", "Institution", "Ereignis"],
   "type": "factual|causal|opinion",
@@ -1091,19 +1119,21 @@ async function judgeEvidence(claimText, snippets, sources, apiKey, lang = 'de', 
         ? `Du bist ein strikt gebundener Verifikationsrichter. Antworte NUR mit dem vorgegebenen JSON-Schema.
 
 KRITISCHE REGELN:
-1. NULL externes Wissen — nur die gegebenen Snippets nutzen.
-2. Direkter Widerspruch → verdict: "false".
-3. Direkte Bestätigung durch Tier 1/2 Quelle → verdict: "true".
-4. Teilweise Übereinstimmung → verdict: "partially_true".
-5. Meinung ohne prüfbaren Inhalt → verdict: "opinion".${mathGuardrail}${causalRule}`
+1. REALITY-FIRST: Die Tatsache, dass jemand etwas in einem Video sagt, ist KEIN Beweis für dessen Richtigkeit. Das Video-Transkript ist KEINE Evidenzquelle. Prüfe die Behauptung gegen unabhängige, externe Daten.
+2. STATISTIK-PRÄZEDENZ: Offizielle Statistiken (Eurostat, IMF, WIFO, Statistik Austria, Weltbank) haben immer Vorrang vor medialer Verbreitung oder Wiederholung einer Behauptung. Wenn offizielle Daten der Behauptung widersprechen → verdict: "false".
+3. Direkter Widerspruch durch Tier 1/2 Quelle → verdict: "false".
+4. Direkte Bestätigung durch Tier 1/2 Quelle → verdict: "true".
+5. Teilweise Übereinstimmung → verdict: "partially_true".
+6. Meinung ohne prüfbaren Inhalt → verdict: "opinion".${mathGuardrail}${causalRule}`
         : `You are a strictly grounded Verification Judge. Respond ONLY with the required JSON schema.
 
 CRITICAL RULES:
-1. Zero External Knowledge — use only the provided snippets.
-2. Direct Contradiction → verdict: "false".
-3. Direct Support by Tier 1/2 source → verdict: "true".
-4. Partial Match → verdict: "partially_true".
-5. Opinion with no verifiable assertion → verdict: "opinion".${mathGuardrail}${causalRule}`;
+1. REALITY-FIRST: The fact that someone says something in a video is NOT evidence of its truth. The video transcript is NOT an evidence source. Verify the claim against independent, external data.
+2. STATISTICS PRECEDENCE: Official statistics (Eurostat, IMF, World Bank, national statistics offices) always override media repetition of a claim. If official data contradicts the claim → verdict: "false".
+3. Direct Contradiction by Tier 1/2 source → verdict: "false".
+4. Direct Support by Tier 1/2 source → verdict: "true".
+5. Partial Match → verdict: "partially_true".
+6. Opinion with no verifiable assertion → verdict: "opinion".${mathGuardrail}${causalRule}`;
 
     const prompt = `${systemInstruction}
 
