@@ -668,6 +668,13 @@
     border: 1px solid #2a2a38;
 }
 
+.evidence-source-name {
+    font-size: 11px;
+    color: #8888aa;
+    margin-top: 4px;
+    font-style: italic;
+}
+
 /* Tier badge */
 .tier-tag {
     display: inline-flex;

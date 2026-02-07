@@ -49,25 +49,25 @@ async function hashClaim(claim) {
     }
 }
 
-async function getCached(claim) {
+async function getCached(claim, videoId = '') {
     try {
-        const hash = await hashClaim(claim);
+        const hash = (videoId ? videoId + ':' : '') + await hashClaim(claim);
         const cached = claimCache.get(hash);
-        if (cached && Date.now() - cached.ts < 3600000) {
-            console.log('[FAKTCHECK BG] Cache HIT');
+        if (cached && Date.now() - cached.ts < 86400000) {
+            console.log('[FAKTCHECK BG] Cache HIT (24h TTL)');
             return { ...cached.data, fromCache: true };
         }
     } catch (e) { }
     return null;
 }
 
-async function setCache(claim, data) {
+async function setCache(claim, data, videoId = '') {
     try {
         if (claimCache.size >= 500) {
             const first = claimCache.keys().next().value;
             if (first) claimCache.delete(first);
         }
-        const hash = await hashClaim(claim);
+        const hash = (videoId ? videoId + ':' : '') + await hashClaim(claim);
         claimCache.set(hash, { data, ts: Date.now() });
     } catch (e) { }
 }
@@ -477,9 +477,10 @@ function validateVerification(data, claimType = 'factual') {
         quote: data._quote || '',
         primary_source: data._primarySource || '',
         confidence_basis: data._confidenceBasis || '',
-        // Structured evidence from extractFacts
-        evidence: Array.isArray(data._evidence) ? data._evidence.slice(0, 10) : [],
-        is_debated: !!data._isDebated
+        // Attributed evidence quotes from mapEvidence (local, hallucination-proof)
+        evidence_quotes: Array.isArray(data._evidenceQuotes) ? data._evidenceQuotes.slice(0, 10) : [],
+        is_debated: (Array.isArray(data._evidenceQuotes) && data._evidenceQuotes.length > 1 &&
+            new Set(data._evidenceQuotes.map(eq => eq.url)).size > 1)
     };
 }
 
@@ -643,6 +644,7 @@ async function callGeminiWithSearch(apiKey, prompt, retryAttempt = 0) {
         // V3.1: Extract grounding metadata
         const groundingMeta = data.candidates?.[0]?.groundingMetadata;
         let groundingSources = [];
+        let groundingSupports = [];
 
         if (groundingMeta?.webSearchQueries) {
             console.log('[FAKTCHECK BG] 🔍 Google Search used:', groundingMeta.webSearchQueries);
@@ -660,6 +662,18 @@ async function callGeminiWithSearch(apiKey, prompt, retryAttempt = 0) {
             console.log('[FAKTCHECK BG] 📚 Grounding sources found:', groundingSources.length);
         }
 
+        // V5.1: Extract groundingSupports — maps text segments → chunk indices
+        if (groundingMeta?.groundingSupports) {
+            groundingSupports = groundingMeta.groundingSupports.map(s => ({
+                text: s.segment?.text || '',
+                startIndex: s.segment?.startIndex || 0,
+                endIndex: s.segment?.endIndex || 0,
+                chunkIndices: s.groundingChunkIndices || [],
+                confidences: s.confidenceScores || []
+            })).filter(s => s.text.length > 0);
+            console.log('[FAKTCHECK BG] 📎 Grounding supports found:', groundingSupports.length);
+        }
+
         if (!text) {
             console.error('[FAKTCHECK BG] Empty search response');
             return callGemini(apiKey, prompt);
@@ -667,9 +681,8 @@ async function callGeminiWithSearch(apiKey, prompt, retryAttempt = 0) {
 
         console.log('[FAKTCHECK BG] Search response received, length:', text.length);
 
-        // V3.1: Return text with grounding sources attached
-        // This allows extractJSON to handle it, and we'll merge sources later
-        return { _rawText: text, _groundingSources: groundingSources };
+        // V5.1: Return text with grounding sources AND supports attached
+        return { _rawText: text, _groundingSources: groundingSources, _groundingSupports: groundingSupports };
     } catch (error) {
         console.error('[FAKTCHECK BG] Search fetch error:', error.message);
         // Fallback to regular call
@@ -819,110 +832,73 @@ No verifiable facts with sufficient context? Respond: []`;
 // If Step 1 fails, Step 2 never runs (prevents hallucinated verdicts)
 
 async function searchOnly(claimText, apiKey) {
-    console.log('[FAKTCHECK BG] ── STEP 1: searchOnly ──');
+    console.log('[FAKTCHECK BG] ── STEP 1: researchAndSummarize ──');
     const sanitized = sanitize(claimText, 1000);
-    const prompt = `Find factual sources for the following claim. Return ONLY the evidence you find.
+    const prompt = `Research this claim thoroughly using Google Search. Write a 3-sentence summary of your findings. Focus on specific numbers, dates, and official names.
 
 CLAIM: "${sanitized}"
 
-RESPONSE FORMAT (start DIRECTLY, no introduction):
-SNIPPET_1: [Quote or key fact from source]
-SNIPPET_2: [Quote or key fact from source]
-SNIPPET_3: [Quote or key fact from source]
-SOURCES: [URL1; URL2; URL3]
-
 RULES:
 - Search for this claim using Google
-- Return only factual snippets and source URLs
+- Write a concise 3-sentence summary of what you found
+- Focus on specific numbers, dates, and official names
 - Do NOT render a verdict or opinion
-- If no sources found, respond with: SNIPPET_1: No sources found\nSOURCES: none`;
+- If no sources found, respond with: No relevant sources found.`;
 
     try {
         const result = await callGeminiWithSearch(apiKey, prompt);
         let rawText = '';
         let groundingSources = [];
+        let groundingSupports = [];
 
         if (result && typeof result === 'object' && result._rawText) {
             rawText = result._rawText;
             groundingSources = result._groundingSources || [];
+            groundingSupports = result._groundingSupports || [];
         } else {
             rawText = String(result || '');
         }
 
-        // Extract snippets from response
-        const snippetMatches = rawText.match(/SNIPPET_\d+:\s*(.+)/gi) || [];
-        const snippets = snippetMatches.map(s => s.replace(/SNIPPET_\d+:\s*/i, '').trim()).filter(s => s && s !== 'No sources found');
-
-        console.log('[FAKTCHECK BG] searchOnly found', snippets.length, 'snippets,', groundingSources.length, 'grounding sources');
-        return { snippets, sources: groundingSources, rawText };
+        console.log('[FAKTCHECK BG] researchAndSummarize found', groundingSources.length, 'grounding sources,', groundingSupports.length, 'grounding supports');
+        return { rawText, sources: groundingSources, groundingSupports, error: null };
     } catch (error) {
-        console.error('[FAKTCHECK BG] searchOnly failed:', error.message);
-        return { snippets: [], sources: [], rawText: '', error: error.message };
+        console.error('[FAKTCHECK BG] researchAndSummarize failed:', error.message);
+        return { rawText: '', sources: [], groundingSupports: [], error: error.message };
     }
 }
 
-// ─── STAGE 2: EXTRACT FACTS (Structured Fact Triplets with sentiment) ──
-async function extractFacts(claimText, snippets, apiKey) {
-    console.log('[FAKTCHECK BG] ── STEP 2: extractFacts (structured triplets) ──');
-    if (snippets.length === 0) return { facts: [], evidence: [], raw: snippets };
-
-    const sanitized = sanitize(claimText, 1000);
-    const snippetBlock = snippets.map((s, i) => `SNIPPET_${i + 1}: ${s}`).join('\n');
-
-    const prompt = `You are a fact extraction engine. Extract atomic fact triplets from the search snippets.
-
-CLAIM: "${sanitized}"
-
-SNIPPETS:
-${snippetBlock}
-
-TASK: For each verifiable data point in the snippets, extract a fact triplet and classify its relationship to the claim.
-
-RULES:
-- Extract ONLY what is explicitly stated in the snippets
-- Do NOT infer or add context from your own knowledge
-- Each fact must map to a specific snippet number
-- Classify each fact as: "supporting" (confirms claim), "contradicting" (denies claim), or "nuanced" (partial/contextual)
-
-OUTPUT FORMAT (respond with a JSON array ONLY, no introduction):
-[
-  {"subject": "entity", "relation": "verb/relationship", "object": "value/entity", "snippet": 1, "sentiment": "supporting"},
-  {"subject": "entity", "relation": "verb/relationship", "object": "value/entity", "snippet": 2, "sentiment": "contradicting"}
-]`;
-
-    try {
-        const result = await callGemini(apiKey, prompt);
-        const text = String(result || '');
-
-        // Try to parse structured JSON response
-        const parsed = extractJSON(text);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-            const evidence = parsed
-                .filter(f => f.subject && f.relation && f.object)
-                .map(f => ({
-                    subject: String(f.subject).slice(0, 200),
-                    relation: String(f.relation).slice(0, 100),
-                    object: String(f.object).slice(0, 200),
-                    snippet: Number(f.snippet) || 0,
-                    sentiment: ['supporting', 'contradicting', 'nuanced'].includes(f.sentiment) ? f.sentiment : 'nuanced'
-                }));
-            // Also produce flat facts for backward compat with judgeEvidence
-            const facts = evidence.map(e => `${e.subject} ${e.relation} ${e.object} [${e.sentiment}] (Snippet ${e.snippet})`);
-            console.log('[FAKTCHECK BG] extractFacts:', evidence.length, 'triplets (' +
-                evidence.filter(e => e.sentiment === 'supporting').length + ' supporting, ' +
-                evidence.filter(e => e.sentiment === 'contradicting').length + ' contradicting)');
-            return { facts, evidence, raw: snippets };
-        }
-
-        // Fallback: parse as flat FACT: lines
-        const factLines = text.match(/FACT:\s*(.+)/gi) || [];
-        const facts = factLines.map(line => line.replace(/^FACT:\s*/i, '').trim()).filter(f => f.length > 5);
-        console.log('[FAKTCHECK BG] extractFacts fallback:', facts.length, 'flat facts');
-        return { facts, evidence: [], raw: snippets };
-    } catch (error) {
-        console.warn('[FAKTCHECK BG] extractFacts failed, falling back to raw snippets:', error.message);
-        return { facts: [], evidence: [], raw: snippets };
+// ─── STAGE 2: MAP EVIDENCE (Local — zero API calls) ──
+function mapEvidence(groundingSupports, groundingSources) {
+    console.log('[FAKTCHECK BG] ── STEP 2: mapEvidence (LOCAL, zero API calls) ──');
+    if (!groundingSupports || groundingSupports.length === 0) {
+        console.log('[FAKTCHECK BG] mapEvidence: No grounding supports available');
+        return [];
     }
+
+    const evidenceQuotes = groundingSupports
+        .map(support => {
+            // Map chunk indices to actual source objects
+            const sourceRefs = (support.chunkIndices || [])
+                .map(idx => groundingSources[idx])
+                .filter(Boolean);
+            const bestSource = sourceRefs[0];
+            const meta = bestSource ? getSourceMeta(bestSource.url) : null;
+            const typeIcon = meta?.type && sourceRegistry?.typeIcons?.[meta.type];
+
+            return {
+                quote: String(support.text || '').slice(0, 500),
+                source: bestSource?.title || meta?.label || 'Unknown',
+                url: bestSource?.url || '',
+                tier: bestSource?.tier || 4,
+                confidence: support.confidences?.[0] || 0,
+                icon: typeIcon?.icon || '',
+                sourceType: typeIcon?.label || ''
+            };
+        })
+        .filter(e => e.quote.length > 10 && e.url);
+
+    console.log('[FAKTCHECK BG] mapEvidence:', evidenceQuotes.length, 'attributed quotes from', new Set(evidenceQuotes.map(e => e.url)).size, 'unique sources');
+    return evidenceQuotes;
 }
 
 async function judgeEvidence(claimText, snippets, sources, apiKey, lang = 'de', claimType = 'factual', facts = []) {
@@ -998,27 +974,27 @@ CONFIDENCE_BASIS: [direct_match | paraphrase | insufficient_data]`;
 }
 
 // ============================================================================
-// ✅ FIX v5.0: THREE-STAGE VERIFICATION (Separation of Powers)
-// Step 1: searchOnly()    — finds evidence with Google Search
-// Step 2: extractFacts()  — structures evidence into data points
-// Step 3: judgeEvidence() — renders verdict from facts only
+// ✅ FIX v5.1: TWO-STAGE + LOCAL VERIFICATION (Separation of Powers)
+// Step 1: researchAndSummarize() — finds evidence with Google Search (API call)
+// Step 2: mapEvidence()           — maps groundingSupports to URLs (LOCAL, zero cost)
+// Step 3: judgeEvidence()         — renders verdict from attributed evidence (API call)
 // ============================================================================
 
-async function verifyClaim(claimText, apiKey, lang = 'de', claimType = 'factual') {
-    console.log('[FAKTCHECK BG] ========== VERIFY CLAIM v5.0 (3-Stage) ==========');
+async function verifyClaim(claimText, apiKey, lang = 'de', claimType = 'factual', videoId = '') {
+    console.log('[FAKTCHECK BG] ========== VERIFY CLAIM v5.1 (2-Stage + Local) ==========');
     console.log('[FAKTCHECK BG] Claim:', claimText.slice(0, 80) + '...');
-    console.log('[FAKTCHECK BG] Type:', claimType);
+    console.log('[FAKTCHECK BG] Type:', claimType, '| VideoID:', videoId || 'none');
 
-    const cached = await getCached(claimText);
+    const cached = await getCached(claimText, videoId);
     if (cached) return cached;
 
     try {
-        // ─── STEP 1: Search for evidence (grounding only, no verdict) ───
+        // ─── STEP 1: Research and summarize (grounding only, no verdict) ───
         const evidence = await searchOnly(claimText, apiKey);
 
         // Safety net: if search failed entirely, return unverifiable
-        if (evidence.error && evidence.snippets.length === 0 && evidence.sources.length === 0) {
-            console.warn('[FAKTCHECK BG v5.0] searchOnly failed — aborting');
+        if (evidence.error && evidence.sources.length === 0) {
+            console.warn('[FAKTCHECK BG v5.1] researchAndSummarize failed — aborting');
             return {
                 verdict: 'unverifiable',
                 displayVerdict: 'unverifiable',
@@ -1029,21 +1005,28 @@ async function verifyClaim(claimText, apiKey, lang = 'de', claimType = 'factual'
             };
         }
 
-        // ─── STEP 2: Extract structured facts from snippets ───
-        const extracted = await extractFacts(claimText, evidence.snippets, apiKey);
-        const factsForJudge = extracted.facts.length > 0 ? extracted.facts : [];
+        // ─── STEP 2: Map evidence locally (zero API calls) ───
+        const evidenceQuotes = mapEvidence(evidence.groundingSupports, evidence.sources);
+
+        // Build attribution list for judge: "The model said [X] based on [URL]"
+        const attributionList = evidenceQuotes.length > 0
+            ? evidenceQuotes.map((eq, i) => `EVIDENCE_${i + 1}: "${eq.quote}" (Source: ${eq.source}, URL: ${eq.url}, Tier: ${eq.tier})`).join('\n')
+            : 'NO ATTRIBUTED EVIDENCE AVAILABLE';
+
+        // Also pass raw summary text as context
+        const snippetsForJudge = evidence.rawText ? [evidence.rawText] : [];
 
         // ─── STEP 3: Judge evidence (no search, verdict only) ───
-        const judgeResponse = await judgeEvidence(claimText, evidence.snippets, evidence.sources, apiKey, lang, claimType, factsForJudge);
+        const judgeResponse = await judgeEvidence(claimText, snippetsForJudge, evidence.sources, apiKey, lang, claimType, [attributionList]);
 
-        console.log('[FAKTCHECK BG v4.0] Judge response:', judgeResponse.slice(0, 300));
+        console.log('[FAKTCHECK BG v5.1] Judge response:', judgeResponse.slice(0, 300));
 
         // Parse the judge's response
         let textToParse = judgeResponse;
 
         // Detect "Okay, ich werde..." preamble and skip to VERDICT:
         if (textToParse.match(/^(Okay|OK|Ich werde|I will|Let me|Lass mich)/i)) {
-            console.error('[FAKTCHECK BG v4.0] ⚠️ Judge started with acknowledgment — extracting VERDICT');
+            console.error('[FAKTCHECK BG v5.1] ⚠️ Judge started with acknowledgment — extracting VERDICT');
             const verdictIdx = textToParse.indexOf('VERDICT:');
             if (verdictIdx > 0) textToParse = textToParse.substring(verdictIdx);
         }
@@ -1052,20 +1035,20 @@ async function verifyClaim(claimText, apiKey, lang = 'de', claimType = 'factual'
         const basisMatch = textToParse.match(/CONFIDENCE_BASIS:\s*(direct_match|paraphrase|insufficient_data)/i);
         const confidenceBasis = basisMatch ? basisMatch[1].toLowerCase() : null;
         if (confidenceBasis) {
-            console.log('[FAKTCHECK BG v4.0] Judge CONFIDENCE_BASIS:', confidenceBasis);
+            console.log('[FAKTCHECK BG v5.1] Judge CONFIDENCE_BASIS:', confidenceBasis);
         }
 
         // Extract PRIMARY_SOURCE and QUOTE for logging
         const primarySourceMatch = textToParse.match(/PRIMARY_SOURCE:\s*(https?:\/\/\S+)/i);
         const quoteMatch = textToParse.match(/QUOTE:\s*(.+)/i);
-        if (primarySourceMatch) console.log('[FAKTCHECK BG v4.0] Primary source:', primarySourceMatch[1]);
-        if (quoteMatch) console.log('[FAKTCHECK BG v4.0] Quote:', quoteMatch[1].slice(0, 150));
+        if (primarySourceMatch) console.log('[FAKTCHECK BG v5.1] Primary source:', primarySourceMatch[1]);
+        if (quoteMatch) console.log('[FAKTCHECK BG v5.1] Quote:', quoteMatch[1].slice(0, 150));
 
         // Try structured text parsing first, then JSON, then free text
         let parsed = parseStructuredText(textToParse) || extractJSON(textToParse) || parseVerdictFromText(textToParse);
 
         if (!parsed) {
-            console.warn('[FAKTCHECK BG v4.0] All parsing failed');
+            console.warn('[FAKTCHECK BG v5.1] All parsing failed');
             parsed = {
                 verdict: evidence.sources.length > 0 ? 'partially_true' : 'unverifiable',
                 confidence: evidence.sources.length > 0 ? 0.50 : 0.30,
@@ -1081,12 +1064,9 @@ async function verifyClaim(claimText, apiKey, lang = 'de', claimType = 'factual'
             if (confidenceBasis) parsed._confidenceBasis = confidenceBasis;
             if (primarySourceMatch) parsed._primarySource = primarySourceMatch[1];
             if (quoteMatch) parsed._quote = quoteMatch[1].trim();
-            // Attach structured evidence from Stage 2
-            if (extracted.evidence.length > 0) {
-                parsed._evidence = extracted.evidence;
-                const hasSup = extracted.evidence.some(e => e.sentiment === 'supporting');
-                const hasCon = extracted.evidence.some(e => e.sentiment === 'contradicting');
-                parsed._isDebated = hasSup && hasCon;
+            // Attach attributed evidence_quotes from mapEvidence (Stage 2)
+            if (evidenceQuotes.length > 0) {
+                parsed._evidenceQuotes = evidenceQuotes;
             }
         }
 
@@ -1096,7 +1076,7 @@ async function verifyClaim(claimText, apiKey, lang = 'de', claimType = 'factual'
         }
 
         const validated = validateVerification(parsed, claimType);
-        await setCache(claimText, validated);
+        await setCache(claimText, validated, videoId);
         console.log('[FAKTCHECK BG v4.0] ✅ Verdict:', validated.verdict, '| Confidence:', validated.confidence, '| Quality:', validated.source_quality);
         return validated;
     } catch (error) {
@@ -1157,7 +1137,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
                     sendResponse({ error: 'No API key', verification: null });
                     return;
                 }
-                const verification = await verifyClaim(message.claim, geminiApiKey, message.lang || 'de', message.claimType || 'factual');
+                const verification = await verifyClaim(message.claim, geminiApiKey, message.lang || 'de', message.claimType || 'factual', message.videoId || '');
                 sendResponse({ verification });
             } catch (e) {
                 console.error('[FAKTCHECK BG] Verify handler error:', e);

@@ -113,15 +113,17 @@ const SecurityUtils = {
             confidence_basis: ['direct_match', 'paraphrase', 'insufficient_data'].includes(claim.confidence_basis) ? claim.confidence_basis : '',
             source_quality: ['high', 'medium', 'low'].includes(claim.source_quality) ? claim.source_quality : 'low',
             is_satire_context: !!claim.is_satire_context,
-            // Structured evidence from extractFacts
-            evidence: Array.isArray(claim.evidence)
-                ? claim.evidence.slice(0, 10).map(e => ({
-                    subject: String(e.subject || '').slice(0, 200),
-                    relation: String(e.relation || '').slice(0, 100),
-                    object: String(e.object || '').slice(0, 200),
-                    snippet: typeof e.snippet === 'number' ? e.snippet : 0,
-                    sentiment: ['supporting', 'contradicting', 'nuanced'].includes(e.sentiment) ? e.sentiment : 'nuanced'
-                }))
+            // Attributed evidence quotes from mapEvidence (hallucination-proof)
+            evidence_quotes: Array.isArray(claim.evidence_quotes)
+                ? claim.evidence_quotes.slice(0, 10).map(e => ({
+                    quote: String(e.quote || '').slice(0, 500),
+                    source: String(e.source || 'Unknown').slice(0, 200),
+                    url: this.sanitizeUrl(String(e.url || '')),
+                    tier: typeof e.tier === 'number' ? Math.max(1, Math.min(5, e.tier)) : 4,
+                    confidence: typeof e.confidence === 'number' ? Math.max(0, Math.min(1, e.confidence)) : 0,
+                    icon: e.icon ? String(e.icon).slice(0, 4) : '',
+                    sourceType: e.sourceType ? String(e.sourceType).slice(0, 30) : ''
+                })).filter(e => e.url)
                 : [],
             is_debated: !!claim.is_debated
         };

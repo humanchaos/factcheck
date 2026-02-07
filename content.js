@@ -531,7 +531,7 @@
         }
 
         // ─── EVIDENCE CHAIN (expandable) ───
-        const hasEvidence = safe.explanation || safe.quote || safe.sources?.length > 0 || safe.evidence?.length > 0;
+        const hasEvidence = safe.explanation || safe.quote || safe.sources?.length > 0 || safe.evidence_quotes?.length > 0;
         if (hasEvidence) {
             // Toggle button
             const toggleBtn = S.createElement('button', { class: 'evidence-toggle' });
@@ -546,106 +546,98 @@
                 chain.appendChild(S.createElement('div', { class: 'evidence-reasoning' }, safe.explanation));
             }
 
-            // 2. DEBATE MODE: Supporting vs Contradicting evidence
-            if (safe.is_debated && safe.evidence?.length > 0) {
-                const debateDiv = S.createElement('div', { class: 'debate-container' });
+            // 2. ATTRIBUTED EVIDENCE QUOTES — per-source quote cards from mapEvidence
+            if (safe.evidence_quotes?.length > 0) {
+                const quotesDiv = S.createElement('div', { class: 'debate-container' });
 
-                const supporting = safe.evidence.filter(e => e.sentiment === 'supporting');
-                const contradicting = safe.evidence.filter(e => e.sentiment === 'contradicting');
-                const nuanced = safe.evidence.filter(e => e.sentiment === 'nuanced');
+                for (const eq of safe.evidence_quotes) {
+                    const sourceItem = S.createElement('div', { class: 'evidence-source-item' });
 
-                if (supporting.length > 0) {
-                    debateDiv.appendChild(S.createElement('div', { class: 'debate-label debate-label-for' }, '🟢 Evidence For'));
-                    for (const ev of supporting) {
-                        const item = S.createElement('div', { class: 'evidence-for' });
-                        item.appendChild(S.createText(`${ev.subject} `));
-                        item.appendChild(S.createElement('span', { class: 'evidence-triplet-relation' }, ev.relation));
-                        item.appendChild(S.createText(` ${ev.object}`));
-                        debateDiv.appendChild(item);
+                    // Tier badge with domain icon
+                    const tierLabels = { 1: 'Tier 1: Authority', 2: 'Tier 2: Public Interest', 3: 'Tier 3: Fact-Check', 4: 'Tier 4: General', 5: 'Tier 5: Unreliable' };
+                    const tierTag = S.createElement('span', {
+                        class: `tier-tag tier-${eq.tier || 4}`
+                    }, (eq.icon ? eq.icon + ' ' : '') + (tierLabels[eq.tier] || 'Unknown'));
+                    sourceItem.appendChild(tierTag);
+
+                    // Source type badge
+                    if (eq.sourceType) {
+                        sourceItem.appendChild(S.createElement('span', { class: 'source-type-badge' }, eq.sourceType));
                     }
-                }
 
-                if (contradicting.length > 0) {
-                    debateDiv.appendChild(S.createElement('div', { class: 'debate-label debate-label-against' }, '🔴 Evidence Against'));
-                    for (const ev of contradicting) {
-                        const item = S.createElement('div', { class: 'evidence-against' });
-                        item.appendChild(S.createText(`${ev.subject} `));
-                        item.appendChild(S.createElement('span', { class: 'evidence-triplet-relation' }, ev.relation));
-                        item.appendChild(S.createText(` ${ev.object}`));
-                        debateDiv.appendChild(item);
+                    // Attributed quote (from groundingSupports — hallucination-proof)
+                    if (eq.quote) {
+                        sourceItem.appendChild(S.createElement('div', { class: 'evidence-quote' }, eq.quote));
                     }
-                }
 
-                if (nuanced.length > 0) {
-                    for (const ev of nuanced) {
-                        const item = S.createElement('div', { class: 'evidence-nuanced' });
-                        item.appendChild(S.createText(`${ev.subject} `));
-                        item.appendChild(S.createElement('span', { class: 'evidence-triplet-relation' }, ev.relation));
-                        item.appendChild(S.createText(` ${ev.object}`));
-                        debateDiv.appendChild(item);
+                    // Source name
+                    if (eq.source && eq.source !== 'Unknown') {
+                        sourceItem.appendChild(S.createElement('div', { class: 'evidence-source-name' }, `— ${eq.source}`));
                     }
+
+                    // Verification link with click tracking
+                    if (eq.url) {
+                        const link = S.createElement('a', {
+                            href: eq.url,
+                            target: '_blank',
+                            rel: 'noopener noreferrer',
+                            class: 'evidence-verify-link'
+                        });
+                        try {
+                            const host = new URL(eq.url).hostname;
+                            link.textContent = `Verify at ${host} ↗`;
+                        } catch {
+                            link.textContent = 'See source ↗';
+                        }
+                        // R6.4: Click tracking
+                        link.addEventListener('click', () => {
+                            try {
+                                const domain = new URL(eq.url).hostname;
+                                chrome.storage.local.get({ sourceClicks: {} }, (data) => {
+                                    const clicks = data.sourceClicks || {};
+                                    clicks[domain] = (clicks[domain] || 0) + 1;
+                                    chrome.storage.local.set({ sourceClicks: clicks });
+                                });
+                            } catch { /* ignore */ }
+                        });
+                        sourceItem.appendChild(link);
+                    }
+
+                    quotesDiv.appendChild(sourceItem);
                 }
 
-                chain.appendChild(debateDiv);
+                chain.appendChild(quotesDiv);
 
-            } else if (safe.evidence?.length > 0) {
-                // Non-debated: show triplets as flat list
-                const tripletDiv = S.createElement('div', { class: 'debate-container' });
-                for (const ev of safe.evidence) {
-                    const cls = ev.sentiment === 'supporting' ? 'evidence-for'
-                        : ev.sentiment === 'contradicting' ? 'evidence-against' : 'evidence-nuanced';
-                    const item = S.createElement('div', { class: cls });
-                    item.appendChild(S.createText(`${ev.subject} `));
-                    item.appendChild(S.createElement('span', { class: 'evidence-triplet-relation' }, ev.relation));
-                    item.appendChild(S.createText(` ${ev.object}`));
-                    tripletDiv.appendChild(item);
-                }
-                chain.appendChild(tripletDiv);
-            }
-
-            // 3. Primary source item with tier badge + domain icon + quote + verification link
-            if (safe.quote || safe.primary_source || safe.sources?.length > 0) {
+            } else if (safe.quote || safe.primary_source || safe.sources?.length > 0) {
+                // Fallback: single source item (when mapEvidence produced nothing)
                 const sourceItem = S.createElement('div', { class: 'evidence-source-item' });
 
-                // Tier badge with domain icon for best source
                 const bestSource = safe.sources?.[0];
                 const bestTier = safe.sources?.length > 0
                     ? Math.min(...safe.sources.map(s => s.tier || 4))
                     : 4;
                 const tierLabels = { 1: 'Tier 1: Authority', 2: 'Tier 2: Public Interest', 3: 'Tier 3: Fact-Check', 4: 'Tier 4: General', 5: 'Tier 5: Unreliable' };
-                const tierTag = S.createElement('span', {
+                sourceItem.appendChild(S.createElement('span', {
                     class: `tier-tag tier-${bestTier}`
-                }, (bestSource?.icon ? bestSource.icon + ' ' : '') + (tierLabels[bestTier] || 'Unknown'));
-                sourceItem.appendChild(tierTag);
+                }, (bestSource?.icon ? bestSource.icon + ' ' : '') + (tierLabels[bestTier] || 'Unknown')));
 
-                // Source type badge
-                if (bestSource?.sourceType) {
-                    sourceItem.appendChild(S.createElement('span', { class: 'source-type-badge' }, bestSource.sourceType));
-                }
-
-                // Smoking gun quote or fallback
                 if (safe.quote) {
                     sourceItem.appendChild(S.createElement('div', { class: 'evidence-quote' }, safe.quote));
-                } else if (safe.evidence?.length === 0) {
+                } else {
                     sourceItem.appendChild(S.createElement('div', { class: 'no-direct-evidence' }, 'No direct evidence found in top-tier sources'));
                 }
 
-                // Primary verification link with click tracking
                 const primaryUrl = safe.primary_source || (safe.sources?.length > 0 ? safe.sources[0].url : null);
                 if (primaryUrl) {
                     const link = S.createElement('a', {
-                        href: primaryUrl,
-                        target: '_blank',
-                        rel: 'noopener noreferrer',
+                        href: primaryUrl, target: '_blank', rel: 'noopener noreferrer',
                         class: 'evidence-verify-link'
                     });
                     try {
-                        const host = new URL(primaryUrl).hostname;
-                        link.textContent = `Verify at ${host} ↗`;
+                        link.textContent = `Verify at ${new URL(primaryUrl).hostname} ↗`;
                     } catch {
                         link.textContent = 'See source ↗';
                     }
-                    // R6.4: Click tracking
                     link.addEventListener('click', () => {
                         try {
                             const domain = new URL(primaryUrl).hostname;
@@ -658,11 +650,10 @@
                     });
                     sourceItem.appendChild(link);
                 }
-
                 chain.appendChild(sourceItem);
             }
 
-            // 4. Additional sources (compact list with icons)
+            // 3. Additional sources (compact list with icons)
             const extraSources = safe.sources?.slice(1) || [];
             if (extraSources.length > 0) {
                 const sourcesDiv = S.createElement('div', { class: 'claim-sources' });
@@ -938,7 +929,7 @@
                     container.insertBefore(card, container.firstChild);
                     updateCount(container.querySelectorAll('.faktcheck-card').length);
                 }
-                const verifyResponse = await sendMessageSafe({ type: 'VERIFY_CLAIM', claim: claim.claim, lang: currentLang });
+                const verifyResponse = await sendMessageSafe({ type: 'VERIFY_CLAIM', claim: claim.claim, lang: currentLang, videoId: getCurrentVideoId() || '' });
 
                 // Store full claim with verification for export
                 const claimEntry = {
