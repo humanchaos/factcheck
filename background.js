@@ -628,6 +628,87 @@ async function callGemini(apiKey, prompt, retryAttempt = 0) {
     }
 }
 
+// ─── Gemini JSON Mode (for structured judge output) ───
+// Same as callGemini but with response_mime_type: application/json
+// Falls back to callGemini on failure for resilience.
+async function callGeminiJSON(apiKey, prompt, responseSchema, retryAttempt = 0) {
+    const url = `${GEMINI_API_BASE}/${DEFAULT_MODEL}:generateContent?key=${apiKey}`;
+
+    console.log('[FAKTCHECK BG] ----------------------------------------');
+    console.log('[FAKTCHECK BG] Calling Gemini API (JSON mode)');
+    console.log('[FAKTCHECK BG] Prompt length:', prompt.length);
+
+    const generationConfig = {
+        temperature: 0.1,
+        maxOutputTokens: 4096,
+        response_mime_type: 'application/json'
+    };
+    if (responseSchema) {
+        generationConfig.response_schema = responseSchema;
+    }
+
+    const body = {
+        contents: [{ parts: [{ text: prompt }] }],
+        generationConfig
+    };
+
+    try {
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body)
+        });
+
+        // Retry on 503/429
+        if (response.status === 503 || response.status === 429) {
+            const retryCount = retryAttempt + 1;
+            if (retryCount <= 3) {
+                const delay = Math.pow(2, retryCount) * 1000;
+                console.log(`[FAKTCHECK BG] JSON mode retry ${retryCount}/3 in ${delay}ms...`);
+                await new Promise(r => setTimeout(r, delay));
+                return callGeminiJSON(apiKey, prompt, responseSchema, retryCount);
+            }
+        }
+
+        if (!response.ok) {
+            await response.text(); // consume body
+            console.warn('[FAKTCHECK BG] JSON mode HTTP', response.status, '— falling back to text mode');
+            // Fallback to regular callGemini
+            return { _fallback: true, _text: await callGemini(apiKey, prompt) };
+        }
+
+        const data = await response.json();
+        if (data.error) {
+            console.warn('[FAKTCHECK BG] JSON mode API error — falling back to text mode');
+            return { _fallback: true, _text: await callGemini(apiKey, prompt) };
+        }
+
+        const text = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+        if (!text) {
+            console.warn('[FAKTCHECK BG] JSON mode empty response — falling back');
+            return { _fallback: true, _text: await callGemini(apiKey, prompt) };
+        }
+
+        // Parse JSON response
+        const cleaned = text.replace(/```json\s*/gi, '').replace(/```\s*/g, '').trim();
+        console.log('[FAKTCHECK BG] JSON mode response:', cleaned.slice(0, 200));
+
+        try {
+            return JSON.parse(cleaned);
+        } catch {
+            console.warn('[FAKTCHECK BG] JSON parse failed — falling back to text mode');
+            return { _fallback: true, _text: cleaned };
+        }
+    } catch (error) {
+        console.error('[FAKTCHECK BG] JSON mode fetch error:', error.message, '— falling back');
+        try {
+            return { _fallback: true, _text: await callGemini(apiKey, prompt) };
+        } catch {
+            return { _fallback: true, _text: '' };
+        }
+    }
+}
+
 // Call Gemini WITH Google Search (for verification)
 async function callGeminiWithSearch(apiKey, prompt, retryAttempt = 0) {
     const url = `${GEMINI_API_BASE}/${DEFAULT_MODEL}:generateContent?key=${apiKey}`;
@@ -986,7 +1067,7 @@ function mapEvidence(groundingSupports, groundingSources) {
 }
 
 async function judgeEvidence(claimText, snippets, sources, apiKey, lang = 'de', claimType = 'factual', facts = []) {
-    console.log('[FAKTCHECK BG] ── STEP 3: judgeEvidence (hallucination-proof) ──');
+    console.log('[FAKTCHECK BG] ── STAGE 3: judgeEvidence (JSON mode) ──');
     const sanitized = sanitize(claimText, 1000);
     const isCausal = claimType === 'causal';
     const evidenceBlock = snippets.length > 0
@@ -999,39 +1080,30 @@ async function judgeEvidence(claimText, snippets, sources, apiKey, lang = 'de', 
         ? sources.map(s => s.url || s).join('; ')
         : 'none';
 
-    // Hallucination-proof system instruction with mathematical outlier guardrail
-    const mathGuardrailDE = '\n\n6. Mathematischer Ausreißer: Wenn der Claim einen numerischen Wert enthält, der >10x höher ist als der höchste bestätigte Wert in den Beweisen, antworte \'FALSE\' mit dem Grund \'Mathematischer Ausreißer: Claim behauptet X, Beweis zeigt Y.\'.';
-    const mathGuardrailEN = '\n\n6. Mathematical Outlier: If the claim contains a numerical value >10x higher than the highest confirmed figure in the evidence, return \'FALSE\' with reason \'Mathematical Outlier: claim states X, evidence shows Y.\'.';
-    const causalRuleDE = '\n\n7. Kausalität: Prüfe ob die zeitliche Abfolge den kausalen Zusammenhang stützt.';
-    const causalRuleEN = '\n\n7. Causality: Check whether the timeline supports the causal relationship.';
+    const mathGuardrail = lang === 'de'
+        ? '\n6. Mathematischer Ausreißer: Wenn der Claim einen numerischen Wert enthält, der >10x höher ist als der höchste bestätigte Wert in den Beweisen, setze verdict auf "false" und math_outlier auf true.'
+        : '\n6. Mathematical Outlier: If the claim contains a numerical value >10x higher than the highest confirmed figure in the evidence, set verdict to "false" and math_outlier to true.';
+    const causalRule = isCausal
+        ? (lang === 'de' ? '\n7. Kausalität: Prüfe ob die zeitliche Abfolge den kausalen Zusammenhang stützt.' : '\n7. Causality: Check whether the timeline supports the causal relationship.')
+        : '';
 
     const systemInstruction = lang === 'de'
-        ? `Du bist ein strikt gebundener Verifikationsrichter. Dir werden ein CLAIM und SEARCH_SNIPPETS gegeben.
+        ? `Du bist ein strikt gebundener Verifikationsrichter. Antworte NUR mit dem vorgegebenen JSON-Schema.
 
 KRITISCHE REGELN:
-
-1. NULL externes Wissen: Dir ist VERBOTEN, dein internes Trainingswissen zu nutzen. Wenn die Snippets den Claim nicht erwähnen, MUSS die Antwort 'UNVERIFIED' sein.
-
-2. Direkter Widerspruch: Wenn die Snippets den Claim explizit widerlegen, antworte 'FALSE'.
-
-3. Direkte Bestätigung: Antworte nur 'TRUE' wenn eine offizielle oder seriöse Quelle die spezifischen Zahlen, Daten oder Namen im Claim explizit bestätigt.
-
-4. Teilweise Übereinstimmung: Wenn die Snippets Teile des Claims stützen aber ein Schlüsseldetail fehlt, antworte 'MISLEADING'.
-
-5. Meinung: Wenn der Claim ein Werturteil oder eine persönliche Meinung ist und KEINE prüfbare Faktenaussage enthält, antworte 'OPINION'.${mathGuardrailDE}${isCausal ? causalRuleDE : ''}`
-        : `You are a strictly grounded Verification Judge. You will be given a CLAIM and a set of SEARCH_SNIPPETS.
+1. NULL externes Wissen — nur die gegebenen Snippets nutzen.
+2. Direkter Widerspruch → verdict: "false".
+3. Direkte Bestätigung durch Tier 1/2 Quelle → verdict: "true".
+4. Teilweise Übereinstimmung → verdict: "partially_true".
+5. Meinung ohne prüfbaren Inhalt → verdict: "opinion".${mathGuardrail}${causalRule}`
+        : `You are a strictly grounded Verification Judge. Respond ONLY with the required JSON schema.
 
 CRITICAL RULES:
-
-1. Zero External Knowledge: You are forbidden from using your internal training data. If the snippets don't mention the claim, you MUST return 'UNVERIFIED'.
-
-2. Direct Contradiction: If the snippets explicitly deny the claim, return 'FALSE'.
-
-3. Direct Support: Only return 'TRUE' if a Tier 1 or Tier 2 source explicitly confirms the specific numbers, dates, or names in the claim.
-
-4. Partial Match: If the snippets support part of the claim but omit a key detail, return 'MISLEADING'.
-
-5. Opinion: If the claim is a value judgment or personal opinion and contains NO verifiable factual assertion, return 'OPINION'.${mathGuardrailEN}${isCausal ? causalRuleEN : ''}`;
+1. Zero External Knowledge — use only the provided snippets.
+2. Direct Contradiction → verdict: "false".
+3. Direct Support by Tier 1/2 source → verdict: "true".
+4. Partial Match → verdict: "partially_true".
+5. Opinion with no verifiable assertion → verdict: "opinion".${mathGuardrail}${causalRule}`;
 
     const prompt = `${systemInstruction}
 
@@ -1041,16 +1113,49 @@ SEARCH_SNIPPETS:
 ${evidenceBlock}${factsBlock}
 SOURCE_URLS: ${sourceList}
 
-MANDATORY OUTPUT FORMAT (start DIRECTLY, no introduction):
-VERDICT: [true | false | misleading | opinion | unverified]
-PRIMARY_SOURCE: [URL of the most relevant source]
-QUOTE: [The exact sentence from the snippet that justifies your verdict]
-CONFIDENCE_BASIS: [direct_match | paraphrase | insufficient_data]`;
+Respond with JSON matching this schema exactly.`;
+
+    // JSON schema for structured output
+    const responseSchema = {
+        type: 'object',
+        properties: {
+            verdict: { type: 'string', enum: ['true', 'false', 'partially_true', 'opinion', 'unverifiable'] },
+            confidence: { type: 'number' },
+            math_outlier: { type: 'boolean' },
+            reasoning: { type: 'string' },
+            primary_source: { type: 'string' },
+            quote: { type: 'string' },
+            confidence_basis: { type: 'string', enum: ['direct_match', 'paraphrase', 'insufficient_data'] },
+            evidence_chain: {
+                type: 'array',
+                items: {
+                    type: 'object',
+                    properties: {
+                        source_name: { type: 'string' },
+                        url: { type: 'string' },
+                        quote: { type: 'string' },
+                        tier: { type: 'integer' },
+                        sentiment: { type: 'string', enum: ['supporting', 'contradicting'] }
+                    },
+                    required: ['source_name', 'quote', 'sentiment']
+                }
+            }
+        },
+        required: ['verdict', 'confidence', 'math_outlier', 'reasoning']
+    };
 
     try {
-        // Use callGemini WITHOUT search grounding — judge only
-        const result = await callGemini(apiKey, prompt);
-        return String(result || '');
+        const result = await callGeminiJSON(apiKey, prompt, responseSchema);
+
+        // If JSON mode worked, return structured object directly
+        if (result && !result._fallback) {
+            console.log('[FAKTCHECK BG] ✅ Judge returned structured JSON:', result.verdict);
+            return result;
+        }
+
+        // Fallback: return text for legacy regex parsing
+        console.log('[FAKTCHECK BG] Judge fell back to text mode');
+        return result._text || '';
     } catch (error) {
         console.error('[FAKTCHECK BG] judgeEvidence failed:', error.message);
         return '';
@@ -1354,65 +1459,68 @@ async function verifyClaim(claimText, apiKey, lang = 'de', claimType = 'factual'
         // Also pass raw summary text as context
         const snippetsForJudge = evidence.rawText ? [evidence.rawText] : [];
 
-        // ─── STAGE 3: Judge evidence (no search, verdict only) ───
+        // ─── STAGE 3: Judge evidence (JSON mode, no search) ───
         const judgeResponse = await judgeEvidence(claimText, snippetsForJudge, evidence.sources, apiKey, lang, claimType, [attributionList + structuredDataBlock + factCheckContext]);
 
-        console.log('[FAKTCHECK BG v2.0] Judge response:', judgeResponse.slice(0, 300));
+        // ─── Parse judge response (JSON mode primary, text fallback) ───
+        let parsed = null;
+        let confidenceBasis = null;
 
-        // Parse the judge's response
-        let textToParse = judgeResponse;
-
-        // Detect "Okay, ich werde..." preamble and skip to VERDICT:
-        if (textToParse.match(/^(Okay|OK|Ich werde|I will|Let me|Lass mich)/i)) {
-            console.error('[FAKTCHECK BG v2.0] ⚠️ Judge started with acknowledgment — extracting VERDICT');
-            const verdictIdx = textToParse.indexOf('VERDICT:');
-            if (verdictIdx > 0) textToParse = textToParse.substring(verdictIdx);
-        }
-
-        // Extract CONFIDENCE_BASIS from judge response
-        const basisMatch = textToParse.match(/CONFIDENCE_BASIS:\s*(direct_match|paraphrase|insufficient_data)/i);
-        const confidenceBasis = basisMatch ? basisMatch[1].toLowerCase() : null;
-        if (confidenceBasis) {
-            console.log('[FAKTCHECK BG v2.0] Judge CONFIDENCE_BASIS:', confidenceBasis);
-        }
-
-        // Extract PRIMARY_SOURCE and QUOTE for logging
-        const primarySourceMatch = textToParse.match(/PRIMARY_SOURCE:\s*(https?:\/\/\S+)/i);
-        const quoteMatch = textToParse.match(/QUOTE:\s*(.+)/i);
-        if (primarySourceMatch) console.log('[FAKTCHECK BG v2.0] Primary source:', primarySourceMatch[1]);
-        if (quoteMatch) console.log('[FAKTCHECK BG v2.0] Quote:', quoteMatch[1].slice(0, 150));
-
-        // Try structured text parsing first, then JSON, then free text
-        let parsed = parseStructuredText(textToParse) || extractJSON(textToParse) || parseVerdictFromText(textToParse);
-
-        if (!parsed) {
-            console.warn('[FAKTCHECK BG v2.0] All parsing failed');
+        if (typeof judgeResponse === 'object' && judgeResponse.verdict) {
+            // JSON mode succeeded — direct structured response
+            console.log('[FAKTCHECK BG v2.0] ✅ JSON mode verdict:', judgeResponse.verdict);
             parsed = {
-                verdict: evidence.sources.length > 0 ? 'partially_true' : 'unverifiable',
-                confidence: evidence.sources.length > 0 ? 0.50 : 0.30,
-                explanation: evidence.sources.length > 0
-                    ? 'Sources found, but analysis could not be parsed.'
-                    : 'Could not parse response',
-                sources: []
+                verdict: judgeResponse.verdict,
+                confidence: judgeResponse.confidence || 0.5,
+                explanation: judgeResponse.reasoning || '',
+                sources: [],
+                math_outlier: judgeResponse.math_outlier || false
             };
-        }
+            confidenceBasis = judgeResponse.confidence_basis || null;
+            if (judgeResponse.primary_source) parsed._primarySource = judgeResponse.primary_source;
+            if (judgeResponse.quote) parsed._quote = judgeResponse.quote;
+            if (judgeResponse.math_outlier) parsed._mathOutlierFromJudge = true;
+        } else {
+            // Text fallback — legacy regex parsing
+            let textToParse = String(judgeResponse || '');
+            console.log('[FAKTCHECK BG v2.0] Text fallback, parsing:', textToParse.slice(0, 300));
 
-        // Attach judge evidence chain data for UI rendering
-        if (parsed) {
-            if (confidenceBasis) parsed._confidenceBasis = confidenceBasis;
+            // Detect preamble and skip
+            if (textToParse.match(/^(Okay|OK|Ich werde|I will|Let me|Lass mich)/i)) {
+                console.error('[FAKTCHECK BG v2.0] ⚠️ Judge preamble detected');
+                const verdictIdx = textToParse.indexOf('VERDICT:');
+                if (verdictIdx > 0) textToParse = textToParse.substring(verdictIdx);
+            }
+
+            // Extract fields via regex
+            const basisMatch = textToParse.match(/CONFIDENCE_BASIS:\s*(direct_match|paraphrase|insufficient_data)/i);
+            confidenceBasis = basisMatch ? basisMatch[1].toLowerCase() : null;
+            const primarySourceMatch = textToParse.match(/PRIMARY_SOURCE:\s*(https?:\/\/\S+)/i);
+            const quoteMatch = textToParse.match(/QUOTE:\s*(.+)/i);
+
+            parsed = parseStructuredText(textToParse) || extractJSON(textToParse) || parseVerdictFromText(textToParse);
+
+            if (!parsed) {
+                console.warn('[FAKTCHECK BG v2.0] All parsing failed');
+                parsed = {
+                    verdict: evidence.sources.length > 0 ? 'partially_true' : 'unverifiable',
+                    confidence: evidence.sources.length > 0 ? 0.50 : 0.30,
+                    explanation: evidence.sources.length > 0
+                        ? 'Sources found, but analysis could not be parsed.'
+                        : 'Could not parse response',
+                    sources: []
+                };
+            }
+
             if (primarySourceMatch) parsed._primarySource = primarySourceMatch[1];
             if (quoteMatch) parsed._quote = quoteMatch[1].trim();
-            // Attach attributed evidence_quotes from mapEvidence (Stage 2)
-            if (evidenceQuotes.length > 0) {
-                parsed._evidenceQuotes = evidenceQuotes;
-            }
-            // Pass claim text for math guardrail
-            parsed._claimText = claimText;
-            // Attach Stage 0 fact-check results for UI
-            if (existingFactChecks.length > 0) {
-                parsed._factChecks = existingFactChecks;
-            }
         }
+
+        // Attach common data regardless of parse path
+        if (confidenceBasis) parsed._confidenceBasis = confidenceBasis;
+        if (evidenceQuotes.length > 0) parsed._evidenceQuotes = evidenceQuotes;
+        parsed._claimText = claimText;
+        if (existingFactChecks.length > 0) parsed._factChecks = existingFactChecks;
 
         // Attach Tier 1 structured data for UI
         if (tier1Data.length > 0) {
