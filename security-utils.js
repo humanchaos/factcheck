@@ -125,7 +125,26 @@ const SecurityUtils = {
                     sourceType: e.sourceType ? String(e.sourceType).slice(0, 30) : ''
                 })).filter(e => e.url)
                 : [],
-            is_debated: !!claim.is_debated
+            is_debated: !!claim.is_debated,
+            math_outlier: !!claim.math_outlier,
+            // Stage 0: Professional fact-check results
+            fact_checks: Array.isArray(claim.fact_checks)
+                ? claim.fact_checks.slice(0, 5).map(fc => ({
+                    claimText: String(fc.claimText || '').slice(0, 500),
+                    claimant: String(fc.claimant || '').slice(0, 200),
+                    reviews: Array.isArray(fc.reviews)
+                        ? fc.reviews.slice(0, 3).map(r => ({
+                            publisher: String(r.publisher || 'Unknown').slice(0, 100),
+                            site: String(r.site || '').slice(0, 100),
+                            url: this.sanitizeUrl(String(r.url || '')),
+                            title: String(r.title || '').slice(0, 300),
+                            rating: String(r.rating || '').slice(0, 100),
+                            lang: String(r.lang || '').slice(0, 10),
+                            date: String(r.date || '').slice(0, 30)
+                        })).filter(r => r.url)
+                        : []
+                }))
+                : []
         };
     }
 };

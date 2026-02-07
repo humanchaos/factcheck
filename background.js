@@ -523,7 +523,9 @@ function validateVerification(data, claimType = 'factual') {
         evidence_quotes: Array.isArray(data._evidenceQuotes) ? data._evidenceQuotes.slice(0, 10) : [],
         is_debated: (Array.isArray(data._evidenceQuotes) && data._evidenceQuotes.length > 1 &&
             new Set(data._evidenceQuotes.map(eq => eq.url)).size > 1),
-        math_outlier: mathOutlier
+        math_outlier: mathOutlier,
+        // Stage 0: Professional fact-check results
+        fact_checks: Array.isArray(data._factChecks) ? data._factChecks : []
     };
 }
 
@@ -1055,15 +1057,67 @@ CONFIDENCE_BASIS: [direct_match | paraphrase | insufficient_data]`;
     }
 }
 
+// ─── STAGE 0: FACT CHECK PRE-CHECK (Google Fact Check Tools API) ──
+// Checks if professional fact-checkers have already reviewed this claim.
+// Free, ~100ms, uses same API key as Gemini.
+async function searchFactChecks(claimText, apiKey, lang = 'de') {
+    try {
+        const url = new URL('https://factchecktools.googleapis.com/v1alpha1/claims:search');
+        url.searchParams.set('query', claimText.slice(0, 200));
+        url.searchParams.set('key', apiKey);
+        url.searchParams.set('languageCode', lang === 'de' ? 'de' : 'en');
+        url.searchParams.set('maxAgeDays', '365');
+        url.searchParams.set('pageSize', '3');
+
+        console.log('[FAKTCHECK BG] ── STAGE 0: Fact Check API ──');
+        const resp = await fetch(url.toString());
+        if (!resp.ok) {
+            console.log('[FAKTCHECK BG] Fact Check API returned', resp.status);
+            return [];
+        }
+
+        const data = await resp.json();
+        const results = (data.claims || []).map(c => ({
+            claimText: c.text || '',
+            claimant: c.claimant || '',
+            reviews: (c.claimReview || []).map(r => ({
+                publisher: r.publisher?.name || r.publisher?.site || 'Unknown',
+                site: r.publisher?.site || '',
+                url: r.url || '',
+                title: r.title || '',
+                rating: r.textualRating || '',
+                lang: r.languageCode || '',
+                date: r.reviewDate || ''
+            }))
+        }));
+
+        if (results.length > 0) {
+            console.log(`[FAKTCHECK BG] 🏆 Found ${results.length} existing fact-check(s):`);
+            results.forEach((r, i) => {
+                const review = r.reviews[0];
+                if (review) console.log(`[FAKTCHECK BG]   ${i + 1}. "${review.rating}" — ${review.publisher} (${review.url})`);
+            });
+        } else {
+            console.log('[FAKTCHECK BG] No existing fact-checks found (proceeding to full pipeline)');
+        }
+
+        return results;
+    } catch (error) {
+        console.log('[FAKTCHECK BG] Fact Check API error (non-fatal):', error.message);
+        return [];
+    }
+}
+
 // ============================================================================
-// ✅ FIX v5.1: TWO-STAGE + LOCAL VERIFICATION (Separation of Powers)
-// Step 1: researchAndSummarize() — finds evidence with Google Search (API call)
-// Step 2: mapEvidence()           — maps groundingSupports to URLs (LOCAL, zero cost)
-// Step 3: judgeEvidence()         — renders verdict from attributed evidence (API call)
+// ✅ FIX v5.2: THREE-STAGE + LOCAL + PRE-CHECK VERIFICATION
+// Stage 0: searchFactChecks()     — checks existing professional fact-checks (free API)
+// Stage 1: researchAndSummarize() — finds evidence with Google Search (API call)
+// Stage 2: mapEvidence()          — maps groundingSupports to URLs (LOCAL, zero cost)
+// Stage 3: judgeEvidence()        — renders verdict from attributed evidence (API call)
 // ============================================================================
 
 async function verifyClaim(claimText, apiKey, lang = 'de', claimType = 'factual', videoId = '') {
-    console.log('[FAKTCHECK BG] ========== VERIFY CLAIM v5.1 (2-Stage + Local) ==========');
+    console.log('[FAKTCHECK BG] ========== VERIFY CLAIM v5.2 (Stage 0 + 2-Stage + Local) ==========');
     console.log('[FAKTCHECK BG] Claim:', claimText.slice(0, 80) + '...');
     console.log('[FAKTCHECK BG] Type:', claimType, '| VideoID:', videoId || 'none');
 
@@ -1071,12 +1125,15 @@ async function verifyClaim(claimText, apiKey, lang = 'de', claimType = 'factual'
     if (cached) return cached;
 
     try {
+        // ─── STAGE 0: Check professional fact-checkers (free, ~100ms) ───
+        const existingFactChecks = await searchFactChecks(claimText, apiKey, lang);
+
         // ─── STEP 1: Research and summarize (grounding only, no verdict) ───
         const evidence = await searchOnly(claimText, apiKey);
 
         // Safety net: if search failed entirely, return unverifiable
         if (evidence.error && evidence.sources.length === 0) {
-            console.warn('[FAKTCHECK BG v5.1] researchAndSummarize failed — aborting');
+            console.warn('[FAKTCHECK BG v5.2] researchAndSummarize failed — aborting');
             return {
                 verdict: 'unverifiable',
                 displayVerdict: 'unverifiable',
@@ -1095,11 +1152,20 @@ async function verifyClaim(claimText, apiKey, lang = 'de', claimType = 'factual'
             ? evidenceQuotes.map((eq, i) => `EVIDENCE_${i + 1}: "${eq.quote}" (Source: ${eq.source}, URL: ${eq.url}, Tier: ${eq.tier})`).join('\n')
             : 'NO ATTRIBUTED EVIDENCE AVAILABLE';
 
+        // Build fact-check context for judge (if Stage 0 found results)
+        let factCheckContext = '';
+        if (existingFactChecks.length > 0) {
+            const fcLines = existingFactChecks.flatMap(fc =>
+                fc.reviews.map(r => `PROFESSIONAL FACT-CHECK: "${r.rating}" by ${r.publisher} (${r.url})`)
+            );
+            factCheckContext = '\n\n' + fcLines.join('\n') + '\nNote: Professional fact-checkers have already reviewed this or a similar claim. Consider their ratings as strong evidence.';
+        }
+
         // Also pass raw summary text as context
         const snippetsForJudge = evidence.rawText ? [evidence.rawText] : [];
 
         // ─── STEP 3: Judge evidence (no search, verdict only) ───
-        const judgeResponse = await judgeEvidence(claimText, snippetsForJudge, evidence.sources, apiKey, lang, claimType, [attributionList]);
+        const judgeResponse = await judgeEvidence(claimText, snippetsForJudge, evidence.sources, apiKey, lang, claimType, [attributionList + factCheckContext]);
 
         console.log('[FAKTCHECK BG v5.1] Judge response:', judgeResponse.slice(0, 300));
 
@@ -1152,6 +1218,10 @@ async function verifyClaim(claimText, apiKey, lang = 'de', claimType = 'factual'
             }
             // Pass claim text for math guardrail
             parsed._claimText = claimText;
+            // Attach Stage 0 fact-check results for UI
+            if (existingFactChecks.length > 0) {
+                parsed._factChecks = existingFactChecks;
+            }
         }
 
         // Merge grounding sources from Step 1 into parsed result
@@ -1161,10 +1231,10 @@ async function verifyClaim(claimText, apiKey, lang = 'de', claimType = 'factual'
 
         const validated = validateVerification(parsed, claimType);
         await setCache(claimText, validated, videoId);
-        console.log('[FAKTCHECK BG v4.0] ✅ Verdict:', validated.verdict, '| Confidence:', validated.confidence, '| Quality:', validated.source_quality);
+        console.log('[FAKTCHECK BG v5.2] ✅ Verdict:', validated.verdict, '| Confidence:', validated.confidence, '| Quality:', validated.source_quality);
         return validated;
     } catch (error) {
-        console.error('[FAKTCHECK BG v4.0] Verify failed:', error.message);
+        console.error('[FAKTCHECK BG v5.2] Verify failed:', error.message);
         return {
             verdict: 'unverifiable',
             displayVerdict: 'unverifiable',

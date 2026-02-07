@@ -37,6 +37,10 @@
         "disinfo": {
             "icon": "⚠️",
             "label": "Unreliable"
+        },
+        "factcheck_pre": {
+            "icon": "🏆",
+            "label": "Professional Fact-Check"
         }
     },
     "domains": {

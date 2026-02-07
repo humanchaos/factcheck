@@ -546,6 +546,32 @@
                 chain.appendChild(S.createElement('div', { class: 'evidence-reasoning' }, safe.explanation));
             }
 
+            // 1b. PROFESSIONAL FACT-CHECKS — Stage 0 pre-check results (highest priority)
+            if (safe.fact_checks?.length > 0) {
+                for (const fc of safe.fact_checks) {
+                    for (const review of (fc.reviews || [])) {
+                        const fcCard = S.createElement('div', { class: 'evidence-source-item fact-check-highlight' });
+                        fcCard.appendChild(S.createElement('span', {
+                            class: 'tier-tag tier-0'
+                        }, '🏆 Professional Fact-Check'));
+                        fcCard.appendChild(S.createElement('div', { class: 'evidence-quote' },
+                            `Rating: "${S.text(review.rating)}"`));
+                        fcCard.appendChild(S.createElement('div', { class: 'evidence-source-name' },
+                            `— ${S.text(review.publisher)}`));
+                        if (review.url) {
+                            const fcLink = S.createElement('a', {
+                                href: review.url,
+                                target: '_blank',
+                                rel: 'noopener noreferrer',
+                                class: 'evidence-verify-link'
+                            }, `Read full fact-check ↗`);
+                            fcCard.appendChild(fcLink);
+                        }
+                        chain.appendChild(fcCard);
+                    }
+                }
+            }
+
             // 2. ATTRIBUTED EVIDENCE QUOTES — per-source quote cards from mapEvidence
             if (safe.evidence_quotes?.length > 0) {
                 const quotesDiv = S.createElement('div', { class: 'debate-container' });
