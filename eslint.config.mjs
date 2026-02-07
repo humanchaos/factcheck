@@ -20,5 +20,13 @@ export default [
             "no-constant-condition": "warn",
             "no-debugger": "error"
         }
+    },
+    {
+        files: ["test-dryrun.js"],
+        languageOptions: {
+            globals: {
+                ...globals.node
+            }
+        }
     }
 ];

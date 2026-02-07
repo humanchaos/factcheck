@@ -18,22 +18,40 @@ if (!API_KEY) {
 const GEMINI_API_BASE = 'https://generativelanguage.googleapis.com/v1beta/models';
 const DEFAULT_MODEL = 'gemini-2.0-flash';
 
-// ─── Source Tier Logic (mirrors background.js) ──────────────
-const SOURCE_TIERS = {
-    tier1: ['parlament.gv.at', 'ris.bka.gv.at', 'orf.at', 'bundeskanzleramt.gv.at',
-        'bmj.gv.at', 'bmi.gv.at', 'rechnungshof.gv.at', 'bka.gv.at'],
-    tier2: ['derstandard.at', 'diepresse.com', 'wienerzeitung.at', 'profil.at',
-        'falter.at', 'kurier.at', 'kleinezeitung.at', 'news.at', 'apa.at']
-};
+// ─── Source Tier Logic (registry-backed, mirrors background.js) ────
+const fs = require('fs');
+const path = require('path');
+let sourceRegistry = null;
+try {
+    const registryPath = path.join(__dirname, 'assets', 'registry', 'sources-global.json');
+    sourceRegistry = JSON.parse(fs.readFileSync(registryPath, 'utf8'));
+    console.log(`Source registry loaded: v${sourceRegistry.version}, ${Object.keys(sourceRegistry.domains).length} domains`);
+} catch (err) {
+    console.warn('Failed to load registry, using defaults:', err.message);
+    sourceRegistry = {
+        domains: { 'parlament.gv.at': { tier: 1 }, 'orf.at': { tier: 2 }, 'reuters.com': { tier: 1 } },
+        wildcards: { '*.gv.at': { tier: 1 }, '*.gov': { tier: 1 }, '*.edu': { tier: 2 } }
+    };
+}
 
 function getSourceTier(url) {
-    if (!url) return 3;
+    if (!url) return 4;
     try {
         const hostname = new URL(url).hostname.replace(/^www\./, '');
-        if (SOURCE_TIERS.tier1.some(d => hostname.endsWith(d))) return 1;
-        if (SOURCE_TIERS.tier2.some(d => hostname.endsWith(d))) return 2;
-        return 3;
-    } catch { return 3; }
+        if (sourceRegistry?.domains?.[hostname]) return sourceRegistry.domains[hostname].tier;
+        const parts = hostname.split('.');
+        for (let i = 1; i < parts.length; i++) {
+            const parent = parts.slice(i).join('.');
+            if (sourceRegistry?.domains?.[parent]) return sourceRegistry.domains[parent].tier;
+        }
+        if (sourceRegistry?.wildcards) {
+            for (const [pattern, meta] of Object.entries(sourceRegistry.wildcards)) {
+                const suffix = pattern.replace('*.', '.');
+                if (hostname.endsWith(suffix)) return meta.tier;
+            }
+        }
+    } catch { return 4; }
+    return 4;
 }
 
 // ─── R2.3: Reproducible Confidence Scoring ──────────────────
@@ -112,10 +130,45 @@ RULES:
     return { snippets, sources: result.sources };
 }
 
-async function judgeEvidence(claim, snippets, sources) {
+async function extractFacts(claim, snippets) {
+    if (snippets.length === 0) return { facts: [], raw: snippets };
+    const snippetBlock = snippets.map((s, i) => `SNIPPET_${i + 1}: ${s}`).join('\n');
+    const prompt = `You are a fact extraction engine. Extract ONLY verifiable data points from the search snippets below.
+
+CLAIM: "${claim}"
+
+SNIPPETS:
+${snippetBlock}
+
+TASK: Extract specific numbers, dates, names, and entities from the snippets that CONFIRM or DENY the claim.
+
+RULES:
+- Extract ONLY what is explicitly stated in the snippets
+- Do NOT infer, calculate, or add context from your own knowledge
+- Include the source snippet number for each fact
+- If a numerical value is mentioned, include the exact figure
+
+OUTPUT FORMAT (one fact per line, start DIRECTLY):
+FACT: [extracted data point] (Snippet X)
+FACT: [extracted data point] (Snippet X)
+...`;
+    try {
+        const text = await callGemini(prompt);
+        const factLines = text.match(/FACT:\s*(.+)/gi) || [];
+        const facts = factLines.map(l => l.replace(/^FACT:\s*/i, '').trim()).filter(f => f.length > 5);
+        return { facts, raw: snippets };
+    } catch {
+        return { facts: [], raw: snippets };
+    }
+}
+
+async function judgeEvidence(claim, snippets, sources, facts = []) {
     const evidenceBlock = snippets.length > 0
         ? snippets.map((s, i) => `SEARCH_SNIPPET_${i + 1}: ${s}`).join('\n')
         : 'NO SEARCH SNIPPETS AVAILABLE';
+    const factsBlock = facts.length > 0
+        ? '\nEXTRACTED_FACTS:\n' + facts.map((f, i) => `FACT_${i + 1}: ${f}`).join('\n')
+        : '';
     const sourceList = sources.length > 0
         ? sources.map(s => s.url || s).join('; ')
         : 'none';
@@ -134,10 +187,12 @@ CRITICAL RULES:
 
 5. Opinion: If the claim is a value judgment or personal opinion and contains NO verifiable factual assertion, return 'OPINION'.
 
+6. Mathematical Outlier: If the claim contains a numerical value >10x higher than the highest confirmed figure in the evidence, return 'FALSE' with reason 'Mathematical Outlier: claim states X, evidence shows Y.'
+
 CLAIM: "${claim}"
 
 SEARCH_SNIPPETS:
-${evidenceBlock}
+${evidenceBlock}${factsBlock}
 SOURCE_URLS: ${sourceList}
 
 MANDATORY OUTPUT FORMAT (start DIRECTLY, no introduction):
@@ -167,11 +222,15 @@ function parseVerdict(text) {
     };
 }
 
-// ─── Test Claims ────────────────────────────────────────────
+// ─── Test Claims (Golden Tests first, then regression) ──────
 const TEST_CLAIMS = [
+    // Golden Tests (handover-mandated, must pass without hallucination)
+    { claim: "Christian Stocker is the Chancellor of Austria.", expectedTier: '1', expectedVerdict: 'true', notes: 'GOLDEN: 2026 Chancellor', golden: true },
+    { claim: "U.S. tariff revenue reached $18 trillion.", expectedTier: '1-2', expectedVerdict: 'false', notes: 'GOLDEN: Math outlier', golden: true },
+    { claim: "Novo Nordisk Wegovy price is $199.", expectedTier: '1-2', expectedVerdict: 'true', notes: 'GOLDEN: trumprx.gov program', golden: true },
+    // Regression tests
     { claim: "Austria's population is 20 million.", expectedTier: '1', expectedVerdict: 'false', notes: 'Pop. is ~9.1M' },
     { claim: "The Earth is flat.", expectedTier: '3-5', expectedVerdict: 'false', notes: 'Classic disinfo' },
-    { claim: "Karl Nehammer is Chancellor of Austria.", expectedTier: '1', expectedVerdict: 'false', notes: 'Resigned Dec 2024' },
     { claim: "Water boils at 100°C at sea level.", expectedTier: '3', expectedVerdict: 'true', notes: 'Basic physics' },
     { claim: "COVID vaccines contain microchips.", expectedTier: '3-5', expectedVerdict: 'false', notes: 'Conspiracy theory' },
     { claim: "The EU has 27 member states.", expectedTier: '1-2', expectedVerdict: 'true', notes: 'Post-Brexit fact' },
@@ -183,28 +242,33 @@ const TEST_CLAIMS = [
 
 // ─── Run Tests ──────────────────────────────────────────────
 async function runTest(testCase, index) {
-    const label = `[${index + 1}/10]`;
-    console.log(`\n${label} Testing: "${testCase.claim}"`);
+    const total = TEST_CLAIMS.length;
+    const label = `[${index + 1}/${total}]`;
+    const goldenTag = testCase.golden ? ' 🏆 GOLDEN' : '';
+    console.log(`\n${label}${goldenTag} Testing: "${testCase.claim}"`);
     console.log(`${label} Expected: ${testCase.expectedVerdict.toUpperCase()} (tier ${testCase.expectedTier})`);
 
     try {
         // Step 1: Search
         const evidence = await searchOnly(testCase.claim);
-        console.log(`${label} Step 1: ${evidence.snippets.length} snippets, ${evidence.sources.length} grounding sources`);
+        console.log(`${label} Step 1 (Search): ${evidence.snippets.length} snippets, ${evidence.sources.length} grounding sources`);
 
         const topTier = evidence.sources.length > 0
             ? Math.min(...evidence.sources.map(s => s.tier))
             : 5;
 
-        // Step 2: Judge
-        const judgeResponse = await judgeEvidence(testCase.claim, evidence.snippets, evidence.sources);
+        // Step 2: Extract Facts
+        const extracted = await extractFacts(testCase.claim, evidence.snippets);
+        console.log(`${label} Step 2 (Extract): ${extracted.facts.length} evidence points`);
+
+        // Step 3: Judge
+        const judgeResponse = await judgeEvidence(testCase.claim, evidence.snippets, evidence.sources, extracted.facts);
         const parsed = parseVerdict(judgeResponse);
 
         // Calculate deterministic confidence using judge's CONFIDENCE_BASIS
         const tier1Count = evidence.sources.filter(s => s.tier === 1).length;
         const tier2Count = evidence.sources.filter(s => s.tier === 2).length;
         const totalSources = evidence.sources.length;
-        // Prefer judge's basis, fall back to source-tier inference
         const rawMatchType = parsed.confidenceBasis
             || (tier1Count >= 1 ? 'direct'
                 : (tier2Count >= 1 || totalSources >= 2) ? 'paraphrase'
@@ -213,7 +277,7 @@ async function runTest(testCase, index) {
         const allSourcesAgree = !(['true', 'mostly_true'].includes(parsed.verdict) && totalSources === 0);
         const calibrated = calculateConfidence(matchType, topTier, allSourcesAgree);
 
-        // Verdict match check (accept partially_true for opinion-like claims)
+        // Verdict match check
         const verdictOk = parsed.verdict === testCase.expectedVerdict
             || (testCase.expectedVerdict === 'false' && ['false', 'deceptive'].includes(parsed.verdict))
             || (testCase.expectedVerdict === 'true' && ['true', 'mostly_true'].includes(parsed.verdict));
@@ -222,7 +286,7 @@ async function runTest(testCase, index) {
         console.log(`${label} ${status} → ${parsed.verdict.toUpperCase()} (basis: ${parsed.confidenceBasis || 'inferred'}, calibrated: ${calibrated}, tier: ${topTier})`);
         console.log(`${label} Quote: ${parsed.quote.slice(0, 120) || parsed.explanation.slice(0, 120)}`);
 
-        // Flag hallucinated confidence — judge says direct_match but no quality sources
+        // Flag hallucinated confidence
         if (parsed.confidenceBasis === 'direct_match' && matchType === 'none') {
             console.log(`${label} ⚠️  HALLUCINATED BASIS: Judge says direct_match but no quality sources found`);
         }
@@ -235,18 +299,21 @@ async function runTest(testCase, index) {
 }
 
 async function main() {
+    const total = TEST_CLAIMS.length;
+    const goldenCount = TEST_CLAIMS.filter(t => t.golden).length;
     console.log('═══════════════════════════════════════════════════');
-    console.log('  FAKTCHECK Dry-Run Stability Check');
+    console.log('  FAKTCHECK Dry-Run Stability Check v5.0');
     console.log('  Model:', DEFAULT_MODEL);
-    console.log('  Claims:', TEST_CLAIMS.length);
+    console.log(`  Claims: ${total} (${goldenCount} golden, ${total - goldenCount} regression)`);
+    console.log('  Pipeline: searchOnly → extractFacts → judgeEvidence');
     console.log('═══════════════════════════════════════════════════');
 
     const results = [];
     for (const [i, tc] of TEST_CLAIMS.entries()) {
         const result = await runTest(tc, i);
         results.push(result);
-        // Rate limit: 1.5s between claims (2 API calls each = 20 calls for 10 claims)
-        if (i < TEST_CLAIMS.length - 1) await new Promise(r => setTimeout(r, 1500));
+        // Rate limit: 2s between claims (3 API calls each)
+        if (i < TEST_CLAIMS.length - 1) await new Promise(r => setTimeout(r, 2000));
     }
 
     // Summary
@@ -257,25 +324,31 @@ async function main() {
     const passed = results.filter(r => r.pass).length;
     const failed = results.filter(r => !r.pass).length;
     const hallucinated = results.filter(r => r.basis === 'direct_match' && r.calibrated < 0.3).length;
+    const goldenPassed = results.filter(r => r.golden && r.pass).length;
+    const goldenFailed = results.filter(r => r.golden && !r.pass).length;
 
-    console.log(`\n  Passed:        ${passed}/10`);
-    console.log(`  Failed:        ${failed}/10`);
-    console.log(`  Hallucinated:  ${hallucinated}/10`);
+    console.log(`\n  Total Passed:   ${passed}/${total}`);
+    console.log(`  Total Failed:   ${failed}/${total}`);
+    console.log(`  Hallucinated:   ${hallucinated}/${total}`);
+    console.log(`  🏆 Golden:      ${goldenPassed}/${goldenCount} passed${goldenFailed > 0 ? ' ❌ GOLDEN FAILURE' : ' ✅'}`);
 
-    console.log('\n  ┌─────┬────────────────────────────────────────┬──────────┬──────────┬──────────┬──────┐');
-    console.log('  │  #  │ Claim                                  │ Expected │ Actual   │ Cal.Conf │ Tier │');
-    console.log('  ├─────┼────────────────────────────────────────┼──────────┼──────────┼──────────┼──────┤');
+    console.log(`\n  ┌─────┬────────────────────────────────────────┬──────────┬──────────┬──────────┬──────┐`);
+    console.log(`  │  #  │ Claim                                  │ Expected │ Actual   │ Cal.Conf │ Tier │`);
+    console.log(`  ├─────┼────────────────────────────────────────┼──────────┼──────────┼──────────┼──────┤`);
     for (const [i, r] of results.entries()) {
         const status = r.pass ? '✅' : '❌';
+        const golden = r.golden ? '🏆' : '  ';
         const claim = r.claim.slice(0, 38).padEnd(38);
         const expected = r.expectedVerdict.padEnd(8);
         const actual = r.actual.padEnd(8);
-        console.log(`  │ ${status}${String(i + 1).padStart(2)} │ ${claim} │ ${expected} │ ${actual} │ ${String(r.calibrated).padEnd(8)} │ ${String(r.topTier).padEnd(4)} │`);
+        console.log(`  │ ${status}${golden}${String(i + 1).padStart(2)} │ ${claim} │ ${expected} │ ${actual} │ ${String(r.calibrated).padEnd(8)} │ ${String(r.topTier).padEnd(4)} │`);
     }
     console.log('  └─────┴────────────────────────────────────────┴──────────┴──────────┴──────────┴──────┘');
 
-    console.log(`\n${passed >= 7 ? '✅' : '❌'} ${passed >= 7 ? 'STABILITY CHECK PASSED' : 'STABILITY CHECK FAILED'} (${passed}/10, threshold: 7)`);
-    process.exit(passed >= 7 ? 0 : 1);
+    const threshold = Math.floor(total * 0.7);
+    const overallPass = passed >= threshold && goldenFailed === 0;
+    console.log(`\n${overallPass ? '✅' : '❌'} ${overallPass ? 'STABILITY CHECK PASSED' : 'STABILITY CHECK FAILED'} (${passed}/${total}, golden: ${goldenPassed}/${goldenCount}, threshold: ${threshold})`);
+    process.exit(overallPass ? 0 : 1);
 }
 
 main().catch(e => { console.error('Fatal:', e); process.exit(1); });

@@ -851,18 +851,67 @@ RULES:
     }
 }
 
-async function judgeEvidence(claimText, snippets, sources, apiKey, lang = 'de', claimType = 'factual') {
-    console.log('[FAKTCHECK BG] ── STEP 2: judgeEvidence (hallucination-proof) ──');
+// ─── STAGE 2: EXTRACT FACTS (No grounding — structured evidence extraction) ──
+async function extractFacts(claimText, snippets, apiKey) {
+    console.log('[FAKTCHECK BG] ── STEP 2: extractFacts (structured extraction) ──');
+    if (snippets.length === 0) return { facts: [], raw: snippets };
+
+    const sanitized = sanitize(claimText, 1000);
+    const snippetBlock = snippets.map((s, i) => `SNIPPET_${i + 1}: ${s}`).join('\n');
+
+    const prompt = `You are a fact extraction engine. Extract ONLY verifiable data points from the search snippets below.
+
+CLAIM: "${sanitized}"
+
+SNIPPETS:
+${snippetBlock}
+
+TASK: Extract specific numbers, dates, names, and entities from the snippets that CONFIRM or DENY the claim.
+
+RULES:
+- Extract ONLY what is explicitly stated in the snippets
+- Do NOT infer, calculate, or add context from your own knowledge
+- Include the source snippet number for each fact
+- If a numerical value is mentioned, include the exact figure
+
+OUTPUT FORMAT (one fact per line, start DIRECTLY):
+FACT: [extracted data point] (Snippet X)
+FACT: [extracted data point] (Snippet X)
+...`;
+
+    try {
+        const result = await callGemini(apiKey, prompt);
+        const text = String(result || '');
+        const factLines = text.match(/FACT:\s*(.+)/gi) || [];
+        const facts = factLines.map(line => line.replace(/^FACT:\s*/i, '').trim()).filter(f => f.length > 5);
+        console.log('[FAKTCHECK BG] extractFacts found', facts.length, 'evidence points');
+        return { facts, raw: snippets };
+    } catch (error) {
+        console.warn('[FAKTCHECK BG] extractFacts failed, falling back to raw snippets:', error.message);
+        return { facts: [], raw: snippets };
+    }
+}
+
+async function judgeEvidence(claimText, snippets, sources, apiKey, lang = 'de', claimType = 'factual', facts = []) {
+    console.log('[FAKTCHECK BG] ── STEP 3: judgeEvidence (hallucination-proof) ──');
     const sanitized = sanitize(claimText, 1000);
     const isCausal = claimType === 'causal';
     const evidenceBlock = snippets.length > 0
         ? snippets.map((s, i) => `SEARCH_SNIPPET_${i + 1}: ${s}`).join('\n')
         : 'NO SEARCH SNIPPETS AVAILABLE';
+    const factsBlock = facts.length > 0
+        ? '\nEXTRACTED_FACTS:\n' + facts.map((f, i) => `FACT_${i + 1}: ${f}`).join('\n')
+        : '';
     const sourceList = sources.length > 0
         ? sources.map(s => s.url || s).join('; ')
         : 'none';
 
-    // Hallucination-proof system instruction
+    // Hallucination-proof system instruction with mathematical outlier guardrail
+    const mathGuardrailDE = '\n\n6. Mathematischer Ausreißer: Wenn der Claim einen numerischen Wert enthält, der >10x höher ist als der höchste bestätigte Wert in den Beweisen, antworte \'FALSE\' mit dem Grund \'Mathematischer Ausreißer: Claim behauptet X, Beweis zeigt Y.\'.';
+    const mathGuardrailEN = '\n\n6. Mathematical Outlier: If the claim contains a numerical value >10x higher than the highest confirmed figure in the evidence, return \'FALSE\' with reason \'Mathematical Outlier: claim states X, evidence shows Y.\'.';
+    const causalRuleDE = '\n\n7. Kausalität: Prüfe ob die zeitliche Abfolge den kausalen Zusammenhang stützt.';
+    const causalRuleEN = '\n\n7. Causality: Check whether the timeline supports the causal relationship.';
+
     const systemInstruction = lang === 'de'
         ? `Du bist ein strikt gebundener Verifikationsrichter. Dir werden ein CLAIM und SEARCH_SNIPPETS gegeben.
 
@@ -876,7 +925,7 @@ KRITISCHE REGELN:
 
 4. Teilweise Übereinstimmung: Wenn die Snippets Teile des Claims stützen aber ein Schlüsseldetail fehlt, antworte 'MISLEADING'.
 
-5. Meinung: Wenn der Claim ein Werturteil oder eine persönliche Meinung ist und KEINE prüfbare Faktenaussage enthält, antworte 'OPINION'.${isCausal ? '\n\n6. Kausalität: Prüfe ob die zeitliche Abfolge den kausalen Zusammenhang stützt.' : ''}`
+5. Meinung: Wenn der Claim ein Werturteil oder eine persönliche Meinung ist und KEINE prüfbare Faktenaussage enthält, antworte 'OPINION'.${mathGuardrailDE}${isCausal ? causalRuleDE : ''}`
         : `You are a strictly grounded Verification Judge. You will be given a CLAIM and a set of SEARCH_SNIPPETS.
 
 CRITICAL RULES:
@@ -889,14 +938,14 @@ CRITICAL RULES:
 
 4. Partial Match: If the snippets support part of the claim but omit a key detail, return 'MISLEADING'.
 
-5. Opinion: If the claim is a value judgment or personal opinion and contains NO verifiable factual assertion, return 'OPINION'.${isCausal ? '\n\n6. Causality: Check whether the timeline supports the causal relationship.' : ''}`;
+5. Opinion: If the claim is a value judgment or personal opinion and contains NO verifiable factual assertion, return 'OPINION'.${mathGuardrailEN}${isCausal ? causalRuleEN : ''}`;
 
     const prompt = `${systemInstruction}
 
 CLAIM: "${sanitized}"
 
 SEARCH_SNIPPETS:
-${evidenceBlock}
+${evidenceBlock}${factsBlock}
 SOURCE_URLS: ${sourceList}
 
 MANDATORY OUTPUT FORMAT (start DIRECTLY, no introduction):
@@ -916,20 +965,19 @@ CONFIDENCE_BASIS: [direct_match | paraphrase | insufficient_data]`;
 }
 
 // ============================================================================
-// ✅ FIX v4.0: TWO-STEP VERIFICATION (Separation of Powers)
-// Step 1: searchOnly() — finds evidence with Google Search
-// Step 2: judgeEvidence() — renders verdict from evidence only
+// ✅ FIX v5.0: THREE-STAGE VERIFICATION (Separation of Powers)
+// Step 1: searchOnly()    — finds evidence with Google Search
+// Step 2: extractFacts()  — structures evidence into data points
+// Step 3: judgeEvidence() — renders verdict from facts only
 // ============================================================================
 
 async function verifyClaim(claimText, apiKey, lang = 'de', claimType = 'factual') {
-    console.log('[FAKTCHECK BG] ========== VERIFY CLAIM v4.0 ==========');
+    console.log('[FAKTCHECK BG] ========== VERIFY CLAIM v5.0 (3-Stage) ==========');
     console.log('[FAKTCHECK BG] Claim:', claimText.slice(0, 80) + '...');
     console.log('[FAKTCHECK BG] Type:', claimType);
 
     const cached = await getCached(claimText);
     if (cached) return cached;
-
-
 
     try {
         // ─── STEP 1: Search for evidence (grounding only, no verdict) ───
@@ -937,7 +985,7 @@ async function verifyClaim(claimText, apiKey, lang = 'de', claimType = 'factual'
 
         // Safety net: if search failed entirely, return unverifiable
         if (evidence.error && evidence.snippets.length === 0 && evidence.sources.length === 0) {
-            console.warn('[FAKTCHECK BG v4.0] searchOnly failed — aborting (no judgeEvidence)');
+            console.warn('[FAKTCHECK BG v5.0] searchOnly failed — aborting');
             return {
                 verdict: 'unverifiable',
                 displayVerdict: 'unverifiable',
@@ -948,8 +996,12 @@ async function verifyClaim(claimText, apiKey, lang = 'de', claimType = 'factual'
             };
         }
 
-        // ─── STEP 2: Judge evidence (no search, verdict only) ───
-        const judgeResponse = await judgeEvidence(claimText, evidence.snippets, evidence.sources, apiKey, lang, claimType);
+        // ─── STEP 2: Extract structured facts from snippets ───
+        const extracted = await extractFacts(claimText, evidence.snippets, apiKey);
+        const factsForJudge = extracted.facts.length > 0 ? extracted.facts : [];
+
+        // ─── STEP 3: Judge evidence (no search, verdict only) ───
+        const judgeResponse = await judgeEvidence(claimText, evidence.snippets, evidence.sources, apiKey, lang, claimType, factsForJudge);
 
         console.log('[FAKTCHECK BG v4.0] Judge response:', judgeResponse.slice(0, 300));
 
