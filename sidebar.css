@@ -371,6 +371,18 @@
     background: #4a4a55;
 }
 
+/* V5.5: Multi-timestamp dedup pills */
+.claim-timestamps {
+    display: inline-flex;
+    gap: 3px;
+    flex-wrap: wrap;
+}
+
+.timestamp-pill {
+    font-size: 10px;
+    padding: 1px 6px;
+}
+
 .claim-verdict {
     display: inline-flex;
     align-items: center;

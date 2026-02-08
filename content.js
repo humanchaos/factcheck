@@ -496,12 +496,19 @@
 
         // ─── COLLAPSED STATE: Header row ───
         const header = S.createElement('div', { class: 'claim-header' });
-        const timestamp = S.createElement('span', { class: 'claim-timestamp' }, formatTime(safe.timestamp));
-        timestamp.addEventListener('click', () => {
-            const video = document.querySelector('#movie_player video');
-            if (video) video.currentTime = safe.timestamp;
-        });
-        header.appendChild(timestamp);
+
+        // V5.5: Multi-timestamp pills (deduplication shows multiple occurrences)
+        const timestamps = Array.isArray(safe.timestamps) ? safe.timestamps : [safe.timestamp];
+        const timestampContainer = S.createElement('span', { class: 'claim-timestamps' });
+        for (const ts of timestamps) {
+            const pill = S.createElement('span', { class: 'claim-timestamp timestamp-pill' }, formatTime(ts));
+            pill.addEventListener('click', () => {
+                const video = document.querySelector('#movie_player video');
+                if (video) video.currentTime = ts;
+            });
+            timestampContainer.appendChild(pill);
+        }
+        header.appendChild(timestampContainer);
 
         // Verdict badge with icon
         const isSatireContext = safe.is_satire_context || false;
@@ -1127,8 +1134,30 @@
             for (const claim of claims) {
                 const claimId = `claim-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
                 console.log('[FAKTCHECK] Processing:', claim.claim.slice(0, 50) + '...');
+
+                // V5.5: Client-side dedup — merge timestamps instead of creating duplicate cards
+                const normalizedKey = claim.claim.toLowerCase().replace(/[^a-zäöüß0-9]/g, '').slice(0, 100);
+                const existingCard = container?.querySelector(`[data-claim-normalized="${CSS.escape(normalizedKey)}"]`);
+
+                if (existingCard) {
+                    // Merge: add new timestamp pill to existing card
+                    console.log('[FAKTCHECK] ♻️ DEDUP: Merging timestamp into existing card');
+                    const tsContainer = existingCard.querySelector('.claim-timestamps');
+                    if (tsContainer) {
+                        const pill = S.createElement('span', { class: 'claim-timestamp timestamp-pill' }, formatTime(timestamp));
+                        pill.addEventListener('click', () => {
+                            const video = document.querySelector('#movie_player video');
+                            if (video) video.currentTime = timestamp;
+                        });
+                        tsContainer.appendChild(pill);
+                    }
+                    continue;  // Skip creating a new card
+                }
+
                 const card = createClaimCard({ id: claimId, text: claim.claim, timestamp, verdict: 'pending', speaker: claim.speaker });
                 if (card && container) {
+                    // Add normalized key for dedup matching
+                    card.setAttribute('data-claim-normalized', normalizedKey);
                     container.insertBefore(card, container.firstChild);
                     updateCount(container.querySelectorAll('.faktcheck-card').length);
                 }

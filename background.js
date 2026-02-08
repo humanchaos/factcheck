@@ -1071,6 +1071,24 @@ Korrigiere unvollständige oder falsche Eigennamen basierend auf dem Kontext:
 - Ergänze Kontext aus Video-Titel/Gremium
 - ⚠️ NAMEN-TREUE: Verwende NUR Namen EXAKT wie im Transkript. NIEMALS raten oder abändern!
 
+### 2.5 PHONETISCHE ASR-KORREKTUR (Intelligence-First)
+Du erhältst fehlerhafte ASR-Transkripte (Automatic Speech Recognition). Identifiziere und repariere phonetische Fehlhörungen.
+
+REGELN:
+- Phonetische Ähnlichkeit: Erkenne Wörter, die phonetisch ähnlich zu kontextuell logischen Begriffen sind
+- N-Gramm-Korrektur: Repariere geteilte Komposita (z.B. "Lohn stück kosten" → "Lohnstückkosten")
+- Mehrdeutigkeit: Wenn ein Term mehrdeutig ist, prüfe den Satzkontext. NICHT korrigieren, wenn der Originalbegriff im Kontext gültig ist!
+
+INTERNATIONALE KORREKTUR-TABELLE (NUR anwenden, wenn der Kontext es rechtfertigt):
+| ASR-Fehler | Korrektur | Kontextueller Trigger |
+| "Griech(ang/gang)" | Kriechgang | Wirtschaftswachstum, Tempo, Schneckentempo |
+| "In flation" / "In relation" | Inflation | Geldpolitik, Preisanstieg |
+| "A missionen" / "E mission" | Emissionen | Klimawandel, CO2, Umwelt |
+| "Lohn stück..." | Lohnstückkosten | Arbeitsmarkt, industrieller Wettbewerb |
+| "Statue" | Statut | Gesetzesrahmen, Gesetzgebung |
+
+⚠️ GUARDRAIL: "Griechisch" im Kontext internationaler Politik → NICHT zu "Kriechgang" korrigieren!
+
 ### 3. ATOMISIERUNG
 Erstelle für jede einzelne Fakten-Behauptung einen eigenen Eintrag.
 Vermische KEINE Meinungen mit Fakten. Meinungen erhalten type: "opinion".
@@ -1094,7 +1112,8 @@ search_queries: ["IMF World Economic Outlook GDP growth ranking 2026", "WIFO Ös
 
 ## Output (NUR JSON-Array):
 [{
-  "claim": "Atomare Fakten-Behauptung OHNE Sprecher-Attribution",
+  "claim": "Atomare Fakten-Behauptung OHNE Sprecher-Attribution (phonetisch korrigiert)",
+  "rawTranscriptSnippet": "Originaltext aus dem Transkript VOR Korrektur",
   "search_queries": ["Query1 3-6 Wörter", "Query2 3-6 Wörter"],
   "anchors": ["Person", "Institution", "Ereignis"],
   "type": "factual|causal|opinion",
@@ -1125,6 +1144,23 @@ Fix incomplete or incorrect proper names based on context:
 - Add context from video title/description
 - NAME FIDELITY: Use EXACT spelling from transcript. NEVER guess or alter names!
 
+### 2.5 PHONETIC ASR CORRECTION (Intelligence-First)
+You receive noisy ASR (Automatic Speech Recognition) transcripts. Identify and repair phonetic mis-hearings.
+
+RULES:
+- Phonetic Similarity: Identify words phonetically similar to contextually logical terms
+- N-Gram Repair: Fix split compound nouns (e.g., "unit labor costs" → "unit labor costs")
+- Ambiguity Handling: If a term is ambiguous, check sentence context. Do NOT correct if the original term is valid in context!
+
+INTERNATIONAL CORRECTION GUIDE (apply ONLY when context justifies):
+| ASR Error | Correction | Contextual Trigger |
+| "in flation" / "in relation" | inflation | monetary policy, price increases |
+| "a missions" / "e mission" | emissions | climate, CO2, environment |
+| "statue" | statute | legal frameworks, legislation |
+| "pre-seed-ent" | precedent | legal, judicial context |
+
+⚠️ GUARDRAIL: "Greek" in the context of international politics → Do NOT correct to "creeping"!
+
 ### 3. ATOMIZATION
 Create a separate entry for each individual factual claim.
 NEVER mix opinions with facts. Opinions get type: "opinion".
@@ -1137,7 +1173,7 @@ For each claim, generate 2-3 short search queries (3-6 words):
 Text: "${sanitized.slice(0, 4000)}"
 
 Respond ONLY with JSON array:
-[{"claim": "Atomic factual claim WITHOUT speaker attribution", "search_queries": ["Query1", "Query2"], "speaker": "Name or null", "checkability": 1-5, "importance": 1-5, "category": "STATISTICS|ECONOMY|POLITICS|SCIENCE", "type": "factual|causal|opinion"}]
+[{"claim": "Atomic factual claim WITHOUT speaker attribution (phonetically corrected)", "rawTranscriptSnippet": "Original text from transcript BEFORE correction", "search_queries": ["Query1", "Query2"], "speaker": "Name or null", "checkability": 1-5, "importance": 1-5, "category": "STATISTICS|ECONOMY|POLITICS|SCIENCE", "type": "factual|causal|opinion"}]
 
 No verifiable facts with sufficient context? Respond: []`;
 
