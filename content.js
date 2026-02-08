@@ -716,41 +716,6 @@
                 chain.appendChild(sourcesDiv);
             }
 
-            // 4. Confidence basis label
-            if (safe.confidence_basis) {
-                const basisLabels = { direct_match: '✓ Direct Match', paraphrase: '≈ Paraphrase', insufficient_data: '⚠ Insufficient Data' };
-                const basisClass = safe.confidence_basis === 'direct_match' ? 'basis-direct'
-                    : safe.confidence_basis === 'paraphrase' ? 'basis-paraphrase' : 'basis-insufficient';
-                chain.appendChild(S.createElement('div', {
-                    class: `evidence-basis ${basisClass}`
-                }, basisLabels[safe.confidence_basis] || safe.confidence_basis));
-            }
-
-            // 5. FEEDBACK BAR — 👍/👎 + Source Report
-            const feedbackBar = S.createElement('div', { class: 'feedback-bar' });
-            const thumbsUp = S.createElement('button', { class: 'feedback-btn feedback-up', title: t('helpful') || 'Helpful' }, '👍');
-            const thumbsDown = S.createElement('button', { class: 'feedback-btn feedback-down', title: t('notHelpful') || 'Not helpful' }, '👎');
-            const feedbackLabel = S.createElement('span', { class: 'feedback-label' }, t('wasHelpful') || 'Was this helpful?');
-
-            const storeFeedback = (rating) => {
-                chrome.storage.local.get({ feedbackLog: [] }, (data) => {
-                    const log = data.feedbackLog || [];
-                    log.push({ claimId: safe.id, rating, timestamp: Date.now() });
-                    chrome.storage.local.set({ feedbackLog: log });
-                });
-                feedbackBar.classList.add('feedback-submitted');
-                feedbackLabel.textContent = rating === 'up' ? '✅ Thanks!' : '📝 Noted';
-                thumbsUp.disabled = true;
-                thumbsDown.disabled = true;
-            };
-
-            thumbsUp.addEventListener('click', () => storeFeedback('up'));
-            thumbsDown.addEventListener('click', () => storeFeedback('down'));
-            feedbackBar.appendChild(feedbackLabel);
-            feedbackBar.appendChild(thumbsUp);
-            feedbackBar.appendChild(thumbsDown);
-            chain.appendChild(feedbackBar);
-
             // Toggle behavior
             toggleBtn.addEventListener('click', (e) => {
                 e.stopPropagation(); // prevent card click from double-firing
@@ -778,10 +743,37 @@
                 if (e.target.closest('.claim-timestamp')) return;
                 // Don't fire on the toggle button (it has its own handler)
                 if (e.target.closest('.evidence-toggle')) return;
+                // Don't fire on feedback buttons
+                if (e.target.closest('.feedback-bar')) return;
                 // Delegate to toggle button
                 toggleBtn.click();
             });
         }
+
+        // ─── FEEDBACK BAR — 👍/👎 (always visible on card surface) ───
+        const feedbackBar = S.createElement('div', { class: 'feedback-bar' });
+        const thumbsUp = S.createElement('button', { class: 'feedback-btn feedback-up', title: t('helpful') || 'Helpful' }, '👍');
+        const thumbsDown = S.createElement('button', { class: 'feedback-btn feedback-down', title: t('notHelpful') || 'Not helpful' }, '👎');
+        const feedbackLabel = S.createElement('span', { class: 'feedback-label' }, t('wasHelpful') || 'Was this helpful?');
+
+        const storeFeedback = (rating) => {
+            chrome.storage.local.get({ feedbackLog: [] }, (data) => {
+                const log = data.feedbackLog || [];
+                log.push({ claimId: safe.id, rating, verdict, timestamp: Date.now() });
+                chrome.storage.local.set({ feedbackLog: log });
+            });
+            feedbackBar.classList.add('feedback-submitted');
+            feedbackLabel.textContent = rating === 'up' ? '✅ Thanks!' : '📝 Noted';
+            thumbsUp.disabled = true;
+            thumbsDown.disabled = true;
+        };
+
+        thumbsUp.addEventListener('click', (e) => { e.stopPropagation(); storeFeedback('up'); });
+        thumbsDown.addEventListener('click', (e) => { e.stopPropagation(); storeFeedback('down'); });
+        feedbackBar.appendChild(feedbackLabel);
+        feedbackBar.appendChild(thumbsUp);
+        feedbackBar.appendChild(thumbsDown);
+        card.appendChild(feedbackBar);
 
         if (safe.confidence > 0) card.appendChild(S.createElement('div', { class: 'claim-confidence' }, `${Math.round(safe.confidence * 100)}% confident`));
         return card;
