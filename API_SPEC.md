@@ -1,6 +1,6 @@
 # API Specification
 
-> FAKTCHECK v2.0.0 — Structured JSON output schema and pipeline reference.
+> FAKTCHECK v2.1.0 — Structured JSON output schema and pipeline reference.
 
 ## Judge Response Schema
 
@@ -80,6 +80,15 @@ Confidence = Base × SourceTierMultiplier × AgreementFactor
 | 4 | 0.5 |
 | 5 | 0.2 |
 
+### v5.4 Confidence Modifiers
+
+| Modifier | Effect | Trigger |
+|----------|--------|---------|
+| **Tier-1 Boost** | ×1.5 | Top source is Tier 1 |
+| **Self-Referential Malus** | ×0.2 (max 0.1) | Only sources are YouTube/video origin |
+| **Tier-1 Override** | Force `false` | Tier-1 contradicts positive LLM verdict |
+| **Self-Ref Auto-Downgrade** | Verdict → `unverifiable` | Only self-referential sources exist |
+
 ---
 
 ## Pipeline Stages
@@ -131,7 +140,45 @@ Gemini 2.0 Flash in JSON mode (`response_mime_type: application/json`). No searc
 - **Cost:** 1 Gemini API call
 - **Input:** Claim + attributed evidence + Tier 1 structured data + fact-check context
 - **Output:** Structured JSON (see schema above)
+- **System Prompt:** "Unbestechlicher Faktenprüfer" with BEWERTUNGS-LOGIK:
+  1. Realitäts-Primat — Video ≠ evidence
+  2. Tier-1 Dominanz — Official data overrides assertions
+  3. Confidence-Malus — Video-only → 0.1
+  4. Metaphern-Erkennung — Check factual core, not rhetoric
+  5–8. Verdict rules + Math Guardrail + Causality check
+  - **ABSCHLUSS-PRÜFUNG:** "Is there official data contradicting this core claim?"
 - **Fallback:** If JSON mode fails, falls back to text mode with regex parsing
+
+### Stage 2 — `extractClaims(transcript, metadata, apiKey, lang)`
+
+Extracts atomic factual claims from a video transcript.
+
+- **Cost:** 1 Gemini API call
+- **Processing Steps:**
+  1. **Semantic Stripping** — Removes attribution shells (prompt + `stripAttribution()` post-processing)
+  2. **Entity Hydration** — Resolves partial names and pronouns from context
+  3. **Atomisierung** — One fact per entry, opinions get `type: "opinion"`
+- **Output schema:**
+
+```json
+[
+  {
+    "claim": "Österreich liegt beim Wirtschaftswachstum auf Platz 185 von 191.",
+    "type": "statistic",
+    "speaker": "Herbert Kickl",
+    "checkable": true,
+    "search_queries": ["Österreich Wirtschaftswachstum Ranking IMF 2024"]
+  }
+]
+```
+
+### `stripAttribution(claimText)`
+
+Code-level post-processor for removing attribution shells.
+
+- **Patterns:** 11 regex (8 DE + 3 EN)
+- **Validation:** `test-stage2-validation.js` — 10/10 (100%)
+- **Example:** `"Laut FPÖ TV liegt Österreich auf Platz 185"` → `"Österreich auf Platz 185"`
 
 ---
 

@@ -1,10 +1,10 @@
 # 📑 FAKTCHECK LIVE
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/version-2.0.0-blue.svg)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-2.1.0-blue.svg)](CHANGELOG.md)
 [![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://github.com/humanchaos/factcheck/graphs/commit-activity)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](http://makeapullrequest.com)
-[![Golden Tests](https://img.shields.io/badge/Golden_Tests-21%2F22_(95.5%25)-brightgreen.svg)](TESTING.md)
+[![Golden Tests](https://img.shields.io/badge/Golden_Tests-22%2F22_(100%25)-brightgreen.svg)](TESTING.md)
 [![Buy Me A Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-ffdd00?style=for-the-badge&logo=buy-me-a-coffee&logoColor=black)](https://www.buymeacoffee.com/humanchaos)
 
 **Protecting the truth in the digital age.**
@@ -98,6 +98,34 @@ graph TD
     D -->|Match found| C
 ```
 
+### 🛡️ v5.4 — "The Ground Truth"
+
+The latest pipeline hardening focuses on separating **facts from propaganda** and ensuring **external reality** always wins over speaker assertion.
+
+#### Stage 2: Semantic Core Extraction
+
+Every claim passes through **3 processing steps** before verification:
+
+| Step | What It Does | Example |
+|------|--------------|---------|
+| **Semantic Stripping** | Removes attribution shells | "Laut FPÖ TV liegt Österreich auf Platz 185" → "Österreich auf Platz 185" |
+| **Entity Hydration** | Resolves names from context | "Stocker" → "Christian Stocker" |
+| **Atomisierung** | One fact per entry, opinions separated | `type: "opinion"` for non-verifiable statements |
+
+`stripAttribution()` provides a **code-level guarantee** with 11 regex patterns (8 DE + 3 EN), validated at 10/10 (100%).
+
+#### Stage 3: Reality-First Judging
+
+The judge operates under **BEWERTUNGS-LOGIK** — 8 rules that ensure external reality always overrides video assertions:
+
+| Rule | Effect |
+|------|--------|
+| **Realitäts-Primat** | Video ≠ evidence. Only external data counts. |
+| **Tier-1 Dominanz** | WIFO/IMF/Eurostat override speaker claims |
+| **Confidence-Malus** | Video-only source → confidence 0.1, verdict → `unverifiable` |
+| **Metaphern-Erkennung** | Political exaggerations checked against real data |
+| **ABSCHLUSS-PRÜFUNG** | "Is there official data contradicting this core claim?" |
+
 ### 🛡️ Math Guardrail
 
 LLMs hallucinate with large numbers. FAKTCHECK includes a **code-level safeguard** that fires before any AI verdict:
@@ -149,10 +177,14 @@ For the complete API schema including JSON output format and tier definitions, s
 FAKTCHECK uses a **22 Golden Test** suite that must pass before any release. The **Assessment Ratio** (≥90%) is our Definition of Done.
 
 ```bash
+# Golden Tests
 GEMINI_API_KEY=AIza... node test-dryrun.js
+
+# Stage 2 Stripping Validation
+node test-stage2-validation.js
 ```
 
-Current status: **21/22 (95.5%)** — see [TESTING.md](TESTING.md) for the full test matrix, pass criteria, and kill switch rules.
+Current status: **22/22 (100%)** — see [TESTING.md](TESTING.md) for the full test matrix, pass criteria, and kill switch rules.
 
 ---
 
@@ -165,7 +197,7 @@ Current status: **21/22 (95.5%)** — see [TESTING.md](TESTING.md) for the full 
 - Multi-Language Support — 6 languages with auto-detection
 - Community Governance — Code of Conduct, Security, Privacy, Trust Policy
 
-### 🟢 Phase 2: Trust Intelligence ✅ (v2.0.0)
+### 🟢 Phase 2: Trust Intelligence ✅ (v2.0.0 → v2.1.0)
 
 - **4-Tier Pipeline** — Professional fact-checks → Wikidata → Eurostat → Gemini Search
 - **Interactive Evidence Chain** — Accordion UI with attributed quotes, tier badges, verification links
@@ -173,7 +205,8 @@ Current status: **21/22 (95.5%)** — see [TESTING.md](TESTING.md) for the full 
 - **Math Guardrail** — 10× outlier rule with UI warning card
 - **Debate Mode** — 🟢/🔴 split view for conflicting evidence
 - **Feedback System** — 👍/👎 + 🚩 Source Report per quote
-- **22 Golden Tests** — 95.5% pass rate, automated stability checks
+- **v5.4 "The Ground Truth"** — Semantic Stripping, Entity Hydration, Reality-First Judging
+- **22 Golden Tests** — 100% pass rate, automated stability checks
 
 ### 🟡 Phase 3: The Trust Engine (Next)
 

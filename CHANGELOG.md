@@ -5,6 +5,29 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.1.0] - 2026-02-08 — "The Ground Truth" (v5.4)
+
+### Added
+- **Stage 2: Semantic Core Extraction** — Complete prompt rewrite for `extractClaims()`:
+  - **Semantic Stripping:** Removes attribution shells ("Laut...", "Kickl sagt...", "Im Video wird erklärt...") to isolate atomic factual cores. 11 regex patterns (8 DE + 3 EN) guaranteed at code level via `stripAttribution()`.
+  - **Entity Hydration:** Resolves partial names and pronouns using transcript context (e.g., "Stocker" → "Christian Stocker").
+  - **Atomisierung:** Separates facts from opinions, each as an individual entry with `type: "opinion"` where appropriate.
+- **Stage 3: Reality-First Judging** — Hardened `judgeEvidence()` prompts:
+  - **Realitäts-Primat:** Video transcript is NOT evidence — only external data counts.
+  - **Tier-1 Dominanz:** Official sources (WIFO, Statistik Austria, IMF, Eurostat) override speaker assertions.
+  - **Confidence-Malus:** Video-only sources → confidence capped at 0.1, verdict → `unverifiable`.
+  - **Metaphern-Erkennung:** Political exaggerations checked against real data, not taken at face value.
+  - **ABSCHLUSS-PRÜFUNG:** Final check: "Is there official data contradicting this core claim?"
+- **`stripAttribution()` Function:** Code-level guarantee against attribution shells. Post-processes every extracted claim.
+- **`test-stage2-validation.js`:** 22-claim validation script for attribution stripping accuracy (10/10 = 100%).
+
+### Changed
+- **Confidence Calculation:** `calculateConfidence()` now applies Tier-1 boost (×1.5), capped at 1.0.
+- **Self-Referential Source Malus:** Hardened to ×0.2 penalty, confidence capped at ≤0.1, auto-downgrade to `unverifiable`.
+- **Tier-1 Override:** If Tier-1 sources contradict a positive LLM verdict, verdict forced to `false`.
+- **Judge Prompt:** "Unbestechlicher Faktenprüfer" with BEWERTUNGS-LOGIK (8 rules) replaces previous "strikt gebundener Verifikationsrichter".
+- **Golden Tests:** 22/22 (100%) — up from 21/22.
+
 ## [2.0.0] - 2026-02-07
 
 ### Added

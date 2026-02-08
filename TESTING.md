@@ -1,6 +1,6 @@
 # Testing Guide
 
-> FAKTCHECK v2.0.0 — Quality assurance, golden tests, and release criteria.
+> FAKTCHECK v2.1.0 — Quality assurance, golden tests, and release criteria.
 
 ## The 22 Golden Tests
 
@@ -40,6 +40,28 @@ GEMINI_API_KEY=your_key_here node test-dryrun.js
 | 22 | 🔬 SCI | The Earth is flat | `false` | — |
 
 > **`any`** = `true`, `false`, or `partially_true` all count as PASS (volatile/ambiguous claims).
+
+---
+
+## Stage 2: Attribution Stripping Validation (v5.4)
+
+The `test-stage2-validation.js` script tests `stripAttribution()` against 24 input phrases (10 with attribution, 14 clean). All 11 regex patterns (8 DE + 3 EN) must strip correctly without over-stripping clean inputs.
+
+```bash
+node test-stage2-validation.js
+```
+
+| Pattern Type | Count | Examples |
+|-------------|-------|----------|
+| `Laut X, ...` (with comma) | 2 | "Laut ORF beträgt..." |
+| `Laut X verb...` (no comma) | 3 | "Laut Prognosen wächst..." |
+| `Laut dem/der X verb...` | 1 | "Laut dem Sprecher wurde..." |
+| `XY sagt/behauptet, dass...` | 2 | "Kickl sagt, ..." |
+| `Im Video wird erklärt...` | 1 | "Im Video wird erklärt, dass..." |
+| `According to X, ...` | 1 | "According to official data, ..." |
+| `X claims that...` | 1 | "He claims that..." |
+
+**Current status: 10/10 (100%)**
 
 ---
 
@@ -95,8 +117,12 @@ npx eslint background.js content.js
 # 2. Golden Tests
 GEMINI_API_KEY=AIza... node test-dryrun.js
 
-# 3. Verify output
+# 3. Stage 2 Stripping Validation
+node test-stage2-validation.js
+
+# 4. Verify output
 # ✅ STABILITY CHECK PASSED (≥20/22)
+# ✅ Stripping accuracy: 10/10
 ```
 
 ---
