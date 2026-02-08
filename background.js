@@ -1120,7 +1120,11 @@ async function extractClaims(text, apiKey, metadata = null) {
 ${groundingContext}
 
 ## SYSTEM-PROMPT
-Du bist ein Experte für semantische Extraktion. Deine Aufgabe ist es, aus dem vorliegenden Transkript atomare Tatsachenbehauptungen zu extrahieren.
+Du bist ein Skeptischer Daten-Auditor. Deine Aufgabe ist es, aus dem vorliegenden Transkript atomare Tatsachenbehauptungen zu extrahieren.
+
+🔑 KERNEL-REGEL (Primäre Heuristik):
+"Extrahiere NUR dann, wenn die Behauptung wahr bleibt, selbst wenn der Sprecher nie existiert hätte."
+Wenn die Behauptung nur im Zusammenhang mit dem Sprecher Sinn ergibt → SKIP.
 
 ### 1. SEMANTIC STRIPPING (KRITISCH!)
 Entferne ALLE Einleitungen wie "Laut...", "Der Sprecher sagt...", "Kickl behauptet...", "Im Video wird erwähnt...", "Wisst ihr, wo wir liegen?".
@@ -1160,10 +1164,22 @@ INTERNATIONALE KORREKTUR-TABELLE (NUR anwenden, wenn der Kontext es rechtfertigt
 
 ### 3. BINÄRFILTER (Precision > Recall)
 Klassifiziere JEDEN identifizierten Claim:
-- **PROCESS**: Harte Fakten, Prozentsätze, Rankings, Gesetze, verifizierbare historische Ereignisse
-- **SKIP**: Reine Metaphern (z.B. "Regierungsnebelsuppe"), persönliche Anekdoten (z.B. "Meine Freunde sagten mir"), subjektive Meinungen ohne Faktengehalt
+- **PROCESS**: Harte Fakten, Prozentsätze, Rankings, Gesetze, verifizierbare historische Ereignisse, Umfragedaten
+- **SKIP**: Reine Metaphern, persönliche Anekdoten, subjektive Meinungen ohne Faktengehalt
+
+🚫 HARTES DISCARD (immer SKIP):
+- **Persona/Handlungen**: "Ich habe gesehen", "Ich fühle", "Ich habe angerufen", "Wir haben beschlossen"
+- **Attributions-Hüllen**: "Der Sprecher behauptet", "Partei X sagt", "Der Präsident fordert"
+- **Subjektive Adjektive als Kern**: "bürokratisch", "selbstgefällig", "freiheitsfeindlich", "volksfeindlich"
 
 ⚠️ Es ist BESSER einen Claim zu SKIPPEN als metaphorischen Müll zu verarbeiten!
+
+📊 AUDIT-BEISPIELE (Skeptischer Auditor):
+| Snippet | Status | Grund |
+| "FPÖ erlebt Aufschwung in Umfragen" | PROCESS | Externes Daten-Kernel (Umfragewerte) |
+| "Ich habe die Rede des Präsidenten gesehen" | SKIP | Persona-Handlung |
+| "Die EU ist zentralistisch" | SKIP | Politische Charakterisierung/Meinung |
+| "EU-Genehmigung für Grenzkontrollen" | PROCESS | Institutioneller/rechtlicher Fakt |
 
 ### 4. FACTUAL CORE DEDUPLICATION (Stage 2 Dedup)
 Extrahiere die **zugrundeliegende Tatsachenbehauptung** aus verschiedenen rhetorischen Framings.
@@ -1216,7 +1232,11 @@ Keine Claims? Antworte: []` :
 ${groundingContext}
 
 ## SYSTEM PROMPT
-You are an expert in semantic extraction. Your task is to extract atomic factual claims from the given transcript.
+You are a Skeptical Data Auditor. Your task is to extract atomic factual claims from the given transcript.
+
+🔑 KERNEL RULE (Primary Heuristic):
+"Extract ONLY if the claim remains true even if the speaker never existed."
+If the claim only makes sense in the context of the speaker → SKIP.
 
 ### 1. SEMANTIC STRIPPING (CRITICAL!)
 Remove ALL introductions like "According to...", "The speaker says...", "X claims...", "In the video it is mentioned...".
@@ -1254,10 +1274,22 @@ INTERNATIONAL CORRECTION GUIDE (apply ONLY when context justifies):
 
 ### 3. BINARY FILTER (Precision > Recall)
 Classify EVERY identified claim:
-- **PROCESS**: Hard facts, percentages, rankings, legal statutes, verifiable historical events
-- **SKIP**: Pure metaphors (e.g., "government fog soup"), personal anecdotes (e.g., "my friends told me"), subjective opinions without factual content
+- **PROCESS**: Hard facts, percentages, rankings, legal statutes, verifiable historical events, polling data
+- **SKIP**: Pure metaphors, personal anecdotes, subjective opinions without factual content
+
+🚫 HARD DISCARD (always SKIP):
+- **Persona/Actions**: "I watched", "I feel", "I called", "We decided"
+- **Attribution Shells**: "The speaker claims", "Party X says", "The President demands"
+- **Subjective Adjectives as Core**: "bureaucratic", "self-satisfied", "hostile to freedom"
 
 ⚠️ It is BETTER to SKIP a claim than to process metaphorical junk!
+
+📊 AUDIT EXAMPLES (Skeptical Auditor):
+| Snippet | Status | Reason |
+| "Party experiencing a rise in polls" | PROCESS | External data kernel (polling) |
+| "Watched the President's speech" | SKIP | Speaker action |
+| "EU is centralistic" | SKIP | Political characterization/opinion |
+| "EU approval for border controls" | PROCESS | Institutional/legal fact |
 
 ### 4. FACTUAL CORE DEDUPLICATION (Stage 2 Dedup)
 Extract the **underlying factual claim** from different rhetorical framings.

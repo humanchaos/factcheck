@@ -5,14 +5,14 @@
  */
 const { calculateConfidence } = require('./calculateConfidence.js');
 
-describe('Verification Engine v5.4: Confidence Calibration', () => {
+describe('Verification Engine v5.4 Stable Plus: Confidence Calibration', () => {
 
     test('Case: Stocker 1% Goal (High Trust / Tier-1)', () => {
         const evidence = [
             { url: 'https://www.bundeskanzleramt.gv.at/news/stocker', tier: 1, timestamp: '2026-01-10', sentiment: 'supporting' },
             { url: 'https://www.dievolkspartei.at/programm', tier: 1, timestamp: '2025-11-20', sentiment: 'supporting' }
         ];
-        // Two Tier-1, recent, unanimous: (0.5 + 0.5) * 1.0 = 1.0 → capped at 0.95
+        // Two Tier-1, recent, unanimous: (0.75 + 0.75) * 1.0 = 1.5 → capped at 0.95
         const result = calculateConfidence(evidence);
         expect(result).toBe(0.95);
     });
@@ -39,18 +39,18 @@ describe('Verification Engine v5.4: Confidence Calibration', () => {
             { url: 'https://www.statistik.at/daten', tier: 1, timestamp: '2026-01-01', sentiment: 'supporting' },
             { url: 'https://www.wifo.ac.at/prognose', tier: 1, timestamp: '2026-01-01', sentiment: 'contradicting' }
         ];
-        // Erwartung: (0.5 + 0.5) * 0.5 (Multiplier) = 0.5
+        // Erwartung: (0.75 + 0.75) * 0.5 (Multiplier) = 0.75
         const result = calculateConfidence(evidence);
-        expect(result).toBe(0.5);
+        expect(result).toBe(0.75);
     });
 
     test('Case: Outdated Data (Recency Weight)', () => {
         const evidence = [
             { url: 'https://www.imf.org/report2020', tier: 1, timestamp: '2020-01-01', sentiment: 'supporting' }
         ];
-        // Tier-1 × old = 0.5 * 0.5 = 0.25
+        // Tier-1 × old = 0.75 * 0.5 = 0.375
         const result = calculateConfidence(evidence);
-        expect(result).toBe(0.25);
+        expect(result).toBe(0.38);
     });
 
     test('Case: Global Ranking "Platz 185" (Mixed Sources)', () => {
@@ -73,8 +73,8 @@ describe('Verification Engine v5.4: Confidence Calibration', () => {
         const evidence = [
             { url: 'https://www.statistik.at/daten', tier: 1, timestamp: null, sentiment: 'supporting' }
         ];
-        // No timestamp → assumes current → W_i = 1.0 → 0.5 * 1.0 = 0.5
-        expect(calculateConfidence(evidence)).toBe(0.5);
+        // No timestamp → assumes current → W_i = 1.0 → 0.75 * 1.0 = 0.75
+        expect(calculateConfidence(evidence)).toBe(0.75);
     });
 
     test('Case: Mixed Tier-2 + Tier-3 (News agencies)', () => {

@@ -1,9 +1,9 @@
 /* global module */
 /**
- * Verification Engine v5.4 Stable — Deterministic Confidence Formula
+ * Verification Engine v5.4 Stable Plus — Deterministic Confidence Formula
  * Formula: Confidence = min(0.95, Σ(S_i × W_i) × V_c)
  *
- * S_i = Source Score (Tier-1: 0.5, Tier-2: 0.3, Tier-3+: 0.1)
+ * S_i = Source Score (Tier-1: 0.75 [1.5x sovereign boost], Tier-2: 0.3, Tier-3+: 0.1)
  * W_i = Recency Weight (≤24mo: 1.0, >24mo: 0.5)
  * V_c = Verdict Consistency (unanimous: 1.0, conflicting: 0.5)
  *
@@ -30,8 +30,8 @@ function calculateConfidence(evidenceChain) {
     const currentYear = new Date().getFullYear();
 
     for (const source of filteredEvidence) {
-        // A. Source Score (S_i) based on tier
-        const S_i = source.tier === 1 ? 0.5
+        // A. Source Score (S_i) based on tier — v5.4+: 1.5x Tier-1 sovereign boost
+        const S_i = source.tier === 1 ? 0.75  // 0.5 × 1.5x Tier-1 boost
             : source.tier === 2 ? 0.3
                 : 0.1; // Tier 3, 4, 5
 
