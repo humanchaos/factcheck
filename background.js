@@ -203,20 +203,33 @@ function stripAttribution(claimText) {
     if (!claimText || typeof claimText !== 'string') return claimText;
     let text = claimText.trim();
 
-    // German attribution patterns
+    // German attribution patterns (ordered from most specific to broadest)
     const dePatterns = [
-        /^Laut\s+[^,]+[,:]\s*/i,                           // "Laut FPÖ TV, ..."
-        /^Laut\s+(?:dem|der|des|einem|einer)\s+[^,]+[,:]\s*/i, // "Laut dem Video, ..."
+        // "Laut X, ..." or "Laut X: ..." — with explicit delimiter (non-greedy to prevent over-strip on numbers with commas)
+        /^Laut\s+\S+(?:\s+\S+){0,3}[,:]\s*/i,
+        // "Laut dem/der/des X, ..." — with article + delimiter
+        /^Laut\s+(?:dem|der|des|einem|einer)\s+\S+(?:\s+\S+){0,3}[,:]\s*/i,
+        // "Laut X verb..." — NO comma, verb acts as boundary (e.g., "Laut Prognosen wächst...")
+        /^Laut\s+\S+(?:\s+\S+){0,3}\s+(?:ist|sind|war|wird|wächst|liegt|beträgt|hat|haben|wurde|soll|steigt|sinkt|fällt|verursachen|zeigen)\s+/i,
+        // "Laut dem/der X verb..." — with article, NO comma
+        /^Laut\s+(?:dem|der|des|einem|einer)\s+\S+(?:\s+\S+){0,3}\s+(?:ist|sind|war|wird|wächst|liegt|beträgt|hat|haben|wurde|soll|steigt|sinkt|fällt|verursachen|zeigen)\s+/i,
+        // "Gemäß/Wie X sagt/behauptet..." — with speech verb
         /^(?:Laut|Gemäß|Wie)\s+\S+(?:\s+\S+){0,4}\s+(?:sagt|behauptet|erklärt|meint|betont|argumentiert|stellt fest)[,:]?\s*/i,
+        // "XY sagt/behauptet, dass..." — speaker + speech verb
         /^\S+(?:\s+\S+){0,3}\s+(?:sagt|behauptet|erklärt|meint|betont|argumentiert|stellt fest|weiß|wissen|findet|glaubt)[,:]?\s+(?:dass\s+)?/i,
+        // "Es wird behauptet / Man sagt / Es heißt..."
         /^(?:Es\s+(?:ist|wird)\s+behauptet|Man\s+sagt|Es\s+heißt)[,:]?\s+(?:dass\s+)?/i,
+        // "Im Video wird gesagt/behauptet/erklärt, dass..."
         /^(?:Im\s+Video\s+(?:wird\s+)?(?:gesagt|behauptet|erklärt))[,:]?\s+(?:dass\s+)?/i,
     ];
 
     // English attribution patterns
     const enPatterns = [
-        /^According\s+to\s+[^,]+[,:]\s*/i,                  // "According to X, ..."
+        // "According to X, ..." — with comma
+        /^According\s+to\s+[^,]+[,:]\s*/i,
+        // "X says/claims/states that..." — speaker + speech verb
         /^\S+(?:\s+\S+){0,3}\s+(?:says|claims|states|argues|asserts|maintains|believes)[,:]?\s+(?:that\s+)?/i,
+        // "It is said/claimed/alleged/reported that..."
         /^(?:It\s+is\s+(?:said|claimed|alleged|reported))[,:]?\s+(?:that\s+)?/i,
     ];
 
