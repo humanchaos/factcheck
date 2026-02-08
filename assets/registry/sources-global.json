@@ -396,9 +396,21 @@
             "tier": 1,
             "label": "Government"
         },
+        "*.gov.uk": {
+            "tier": 1,
+            "label": "UK Government"
+        },
+        "*.go.jp": {
+            "tier": 1,
+            "label": "Japanese Government"
+        },
         "*.edu": {
             "tier": 2,
             "label": "Academic"
+        },
+        "*.edu.au": {
+            "tier": 2,
+            "label": "Australian Academic"
         },
         "*.ac.at": {
             "tier": 2,
@@ -411,6 +423,10 @@
         "*.bund.de": {
             "tier": 1,
             "label": "German Federal"
+        },
+        "*.mil": {
+            "tier": 1,
+            "label": "Military"
         }
     }
 }

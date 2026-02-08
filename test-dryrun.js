@@ -70,14 +70,30 @@ function getSourceMeta(url) {
     return null;
 }
 
-// ─── R2.3: Reproducible Confidence Scoring ──────────────────
-function calculateConfidence(matchType, topTier, allSourcesAgree) {
-    const baseMap = { direct: 0.9, paraphrase: 0.7, none: 0.0 };
-    const tierMap = { 1: 1.0, 2: 0.85, 3: 0.7, 4: 0.4, 5: 0.1 };
-    const base = baseMap[matchType] || 0.0;
-    const sourceMult = tierMap[topTier] || 0.5;
-    const agreementMult = allSourcesAgree ? 1.0 : 0.7;
-    return parseFloat((base * sourceMult * agreementMult).toFixed(2));
+// ─── V5.4 STABLE: Deterministic Confidence = min(0.95, Σ(S_i × W_i) × V_c) ──
+function calculateConfidence(evidenceChain) {
+    if (!Array.isArray(evidenceChain) || evidenceChain.length === 0) return 0.1;
+    const filteredEvidence = evidenceChain.filter(item => {
+        if (!item.url) return true;
+        try {
+            const domain = new URL(item.url).hostname.toLowerCase();
+            return !domain.includes('youtube.com') && !domain.includes('youtu.be');
+        } catch { return true; }
+    });
+    if (filteredEvidence.length === 0) return 0.1;
+    let totalScore = 0;
+    let hasConflict = false;
+    const currentYear = new Date().getFullYear();
+    for (const source of filteredEvidence) {
+        const S_i = source.tier === 1 ? 0.5 : source.tier === 2 ? 0.3 : 0.1;
+        let sourceYear = currentYear - 3;
+        if (source.timestamp) { try { sourceYear = new Date(source.timestamp).getFullYear(); } catch { } }
+        const W_i = (currentYear - sourceYear <= 2) ? 1.0 : 0.5;
+        totalScore += (S_i * W_i);
+        if (source.sentiment === 'contradicting') hasConflict = true;
+    }
+    const V_c = hasConflict ? 0.5 : 1.0;
+    return parseFloat(Math.min(0.95, totalScore * V_c).toFixed(2)) || 0.1;
 }
 
 // ─── API Helpers ────────────────────────────────────────────
@@ -318,32 +334,39 @@ async function runTest(testCase, index) {
         const judgeResponse = await judgeEvidence(testCase.claim, evidenceQuotes, evidence.sources, evidence.rawText);
         const parsed = parseVerdict(judgeResponse);
 
-        // Calculate deterministic confidence
+        // V5.4 STABLE: Build evidence chain for deterministic confidence
         const tier1Count = evidence.sources.filter(s => s.tier === 1).length;
-        const tier2Count = evidence.sources.filter(s => s.tier === 2).length;
         const totalSources = evidence.sources.length;
-        const rawMatchType = parsed.confidenceBasis
-            || (tier1Count >= 1 ? 'direct'
-                : (tier2Count >= 1 || totalSources >= 2) ? 'paraphrase'
-                    : 'none');
-        const matchType = rawMatchType === 'insufficient_data' ? 'none' : rawMatchType;
+        const verdictIsNeg = ['false', 'mostly_false', 'deceptive'].includes(parsed.verdict);
+        const evidenceChain = evidence.sources.map(s => ({
+            url: s.url, tier: s.tier, timestamp: null,
+            sentiment: verdictIsNeg ? 'contradicting' : 'supporting'
+        }));
+        const calibrated = calculateConfidence(evidenceChain);
+
+        // Source sanitization — remove YouTube
+        const sanitizedSources = evidence.sources.filter(s => {
+            try {
+                const host = new URL(s.url).hostname.toLowerCase();
+                return !host.includes('youtube.com') && !host.includes('youtu.be');
+            } catch { return true; }
+        });
+
         const llmPositive = ['true', 'mostly_true'].includes(parsed.verdict);
         const originalLlmPositive = llmPositive;
-        const allSourcesAgree = !(llmPositive && totalSources === 0);
-        const calibrated = calculateConfidence(matchType, topTier, allSourcesAgree);
 
         // ─── V5.4: VALIDATE VERIFICATION OVERRIDES (mirrors background.js) ───
         let finalVerdict = parsed.verdict;
 
-        // Override 1: Downgrade to unverifiable if no quality sources — but SKIP if Tier-1 exists
-        if (llmPositive && matchType === 'none' && tier1Count === 0) {
+        // Override 1: Downgrade to unverifiable if no external sources — SKIP if Tier-1 exists
+        if (llmPositive && sanitizedSources.length === 0 && tier1Count === 0) {
             finalVerdict = 'unverifiable';
-            console.log(`${label} 🔄 Override: unverifiable (no quality sources, no Tier-1)`);
+            console.log(`${label} 🔄 Override: unverifiable (no external sources)`);
         }
 
-        // Override 2: Self-referential source malus — only if ALL sources are YouTube/FPÖ party sites
-        const selfRefPatterns = /youtube\.com|youtu\.be|fpoe\.at|fpö|fpoetv|tv\.at\/fpoe|social[-\s]?media/i;
-        const nonSelfRefSources = evidence.sources.filter(s => !selfRefPatterns.test(s.url || ''));
+        // Override 2: Self-referential source malus — party/propaganda sites only
+        const partyPatterns = /fpoe\.at|fpö|fpoetv|tv\.at\/fpoe|social[-\s]?media/i;
+        const nonSelfRefSources = sanitizedSources.filter(s => !partyPatterns.test(s.url || ''));
         const onlySelfRef = totalSources > 0 && nonSelfRefSources.length === 0;
         if (onlySelfRef) {
             finalVerdict = 'unverifiable';
@@ -390,7 +413,7 @@ async function runTest(testCase, index) {
         console.log(`${label} Quote: ${parsed.quote.slice(0, 120) || parsed.explanation.slice(0, 120)}`);
 
         // Flag hallucinated confidence
-        if (parsed.confidenceBasis === 'direct_match' && matchType === 'none') {
+        if (parsed.confidenceBasis === 'direct_match' && sanitizedSources.length === 0) {
             console.log(`${label} ⚠️  HALLUCINATED BASIS: Judge says direct_match but no quality sources found`);
         }
 

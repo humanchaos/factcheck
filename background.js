@@ -40,12 +40,16 @@ const claimCache = new Map();
 
 async function hashClaim(claim) {
     try {
-        const normalized = claim.toLowerCase().trim().replace(/\s+/g, ' ');
+        // V5.4 STABLE MODULE 3: Enhanced normalization for semantic deduplication
+        // Strips punctuation + collapses whitespace so "Platz 185." == "platz 185"
+        const normalized = claim.toLowerCase().trim()
+            .replace(/[^\w\s\u00C0-\u017F]/g, '')  // Strip punctuation, keep umlauts
+            .replace(/\s+/g, ' ');
         const encoder = new TextEncoder();
         const hashBuffer = await crypto.subtle.digest('SHA-256', encoder.encode(normalized));
         return Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
     } catch {
-        return claim.toLowerCase().slice(0, 50);
+        return claim.toLowerCase().replace(/[^\w\s]/g, '').slice(0, 50);
     }
 }
 
@@ -180,21 +184,57 @@ function getSourceMeta(url) {
     return null;
 }
 
-// ─── R2.3: REPRODUCIBLE CONFIDENCE SCORING ──────────────────
-// Replaces "LLM vibes" with a deterministic, debuggable number.
-// matchType: how well sources corroborate the claim
-// topTier:   best source tier found (1=official, 5=unknown)
-// allSourcesAgree: no conflicting information found
-function calculateConfidence(matchType, topTier, allSourcesAgree) {
-    const baseMap = { direct: 0.9, paraphrase: 0.7, none: 0.0 };
-    // V5.4: Tier-1 Dominanz — Gewichtung ×5.0 für offizielle Quellen
-    const tierMap = { 1: 1.0, 2: 0.85, 3: 0.7, 4: 0.4, 5: 0.1 };
-    const base = baseMap[matchType] || 0.0;
-    const sourceMult = tierMap[topTier] || 0.5;
-    const agreementMult = allSourcesAgree ? 1.0 : 0.7;
-    // V5.4: Tier-1 boost — if top source is Tier-1, multiply confidence by 1.5x (capped at 1.0)
-    const tier1Boost = topTier === 1 ? 1.5 : 1.0;
-    return parseFloat(Math.min(1.0, base * sourceMult * agreementMult * tier1Boost).toFixed(2));
+// ─── V5.4 STABLE: DETERMINISTIC CONFIDENCE SCORING ──────────────────
+// Formula: Confidence = min(0.95, Σ(S_i × W_i) × V_c)
+// S_i = Source Score (Tier-1: 0.5, Tier-2: 0.3, Tier-3+: 0.1)
+// W_i = Recency Weight (≤24mo: 1.0, >24mo: 0.5)
+// V_c = Verdict Consistency (unanimous: 1.0, conflicting: 0.5)
+function calculateConfidence(evidenceChain) {
+    if (!Array.isArray(evidenceChain) || evidenceChain.length === 0) return 0.1;
+
+    // 1. YouTube & self-ref source sanitization
+    const filteredEvidence = evidenceChain.filter(item => {
+        if (!item.url) return true; // Keep items without URL (conservative)
+        try {
+            const domain = new URL(item.url).hostname.toLowerCase();
+            return !domain.includes('youtube.com') && !domain.includes('youtu.be');
+        } catch { return true; }
+    });
+
+    if (filteredEvidence.length === 0) return 0.1; // No external evidence
+
+    let totalScore = 0;
+    let hasConflict = false;
+    const currentYear = new Date().getFullYear();
+
+    for (const source of filteredEvidence) {
+        // A. Source Score (S_i) based on tier
+        const S_i = source.tier === 1 ? 0.5
+            : source.tier === 2 ? 0.3
+                : 0.1; // Tier 3, 4, 5
+
+        // B. Recency Weight (W_i)
+        let sourceYear = currentYear - 3; // Default: treat as old if no timestamp
+        if (source.timestamp) {
+            try { sourceYear = new Date(source.timestamp).getFullYear(); } catch { }
+        }
+        const W_i = (currentYear - sourceYear <= 2) ? 1.0 : 0.5;
+
+        // C. Accumulate
+        totalScore += (S_i * W_i);
+
+        // D. Conflict detection
+        if (source.sentiment === 'contradicting') {
+            hasConflict = true;
+        }
+    }
+
+    // E. Verdict Consistency multiplier
+    const V_c = hasConflict ? 0.5 : 1.0;
+
+    // F. Final: capped at 0.95, floor at 0.1
+    const raw = Math.min(0.95, totalScore * V_c);
+    return parseFloat(raw.toFixed(2)) || 0.1;
 }
 
 // V5.4: SEMANTIC CORE EXTRACTION — Strip attribution shells at code level
@@ -451,51 +491,52 @@ function validateVerification(data, claimType = 'factual', claimText = '') {
     const tier2Count = tieredSources.filter(s => s.tier === 2).length;
     const totalSources = tieredSources.length;
 
-    // R2.3: Deterministic confidence via calculateConfidence()
-    const topTier = tieredSources.length > 0
-        ? Math.min(...tieredSources.map(s => s.tier))
-        : 5;
-    // Use CONFIDENCE_BASIS from judge if available, otherwise infer from sources
-    const confidenceBasis = data._confidenceBasis || null;
-    const matchType = confidenceBasis
-        ? confidenceBasis  // Judge explicitly stated: direct_match, paraphrase, or insufficient_data
-        : (tier1Count >= 1 ? 'direct'
-            : (tier2Count >= 1 || totalSources >= 2) ? 'paraphrase'
-                : 'none');
-    // Map judge's 'insufficient_data' to our 'none'
-    const normalizedMatchType = matchType === 'insufficient_data' ? 'none' : matchType;
-    // If LLM says TRUE but we have no quality sources, sources disagree
+    // V5.4 STABLE: Build evidence chain for deterministic confidence
+    const verdictIsNeg = ['false', 'mostly_false', 'deceptive'].includes(verdict);
+    const evidenceChain = tieredSources.map(s => ({
+        url: s.url,
+        tier: s.tier,
+        timestamp: s.timestamp || null,  // from grounding metadata if available
+        sentiment: verdictIsNeg ? 'contradicting' : 'supporting'
+    }));
+    const calibrated = calculateConfidence(evidenceChain);
+
+    // V5.4 STABLE MODULE 2: Source Sanitization — remove YouTube from visible sources
+    const sanitizedSources = tieredSources.filter(s => {
+        try {
+            const host = new URL(s.url).hostname.toLowerCase();
+            return !host.includes('youtube.com') && !host.includes('youtu.be');
+        } catch { return true; }
+    });
+
+    // Use calibrated confidence
     const llmPositive = ['true', 'mostly_true'].includes(verdict);
     const originalLlmPositive = llmPositive; // V5.4: Preserve BEFORE any downgrades
-    const allSourcesAgree = !(llmPositive && totalSources === 0);
-    const calibrated = calculateConfidence(normalizedMatchType, topTier, allSourcesAgree);
-
-    // Use calibrated score, but keep LLM score if it's lower (conservative)
     if (calibrated > 0) {
-        confidence = Math.min(Math.max(calibrated, 0.1), 1.0);
+        confidence = Math.min(Math.max(calibrated, 0.1), 0.95);
     }
 
     // Downgrade verdict if sources don't back it up
     // V5.4: Skip this downgrade if Tier-1 sources exist — let Tier-1 Override handle it
-    if (llmPositive && matchType === 'none' && tier1Count === 0) {
+    if (llmPositive && sanitizedSources.length === 0 && tier1Count === 0) {
         verdict = 'unverifiable';
-        confidence = 0.30;
-    } else if (llmPositive && totalSources === 1 && topTier >= 4) {
+        confidence = 0.10;  // V5.4 Stable: YouTube-only → 0.1
+    } else if (llmPositive && sanitizedSources.length === 1 && sanitizedSources[0]?.tier >= 4) {
         verdict = 'partially_true';
         confidence = Math.min(confidence, 0.60);
     }
 
-    // V5.4: GROUND TRUTH — Self-referential source malus (hardened)
-    // If the ONLY sources are YouTube/video-origin (the claim's own video), apply penalty ×0.2
-    const selfRefPatterns = /youtube\.com|youtu\.be|fpoe\.at|fpö|fpoetv|tv\.at\/fpoe|social[-\s]?media/i;
-    const externalSources = tieredSources.filter(s => !selfRefPatterns.test(s.url || ''));
+    // V5.4 STABLE: Self-referential source malus — party/propaganda sites only
+    // YouTube already removed by sanitizedSources above
+    const partyPatterns = /fpoe\.at|fpö|fpoetv|tv\.at\/fpoe|social[-\s]?media/i;
+    const externalSources = sanitizedSources.filter(s => !partyPatterns.test(s.url || ''));
     const onlySelfRef = totalSources > 0 && externalSources.length === 0;
 
     if (onlySelfRef) {
-        console.log('[FAKTCHECK BG] ⚠️ GROUND TRUTH: Only self-referential sources — penalty ×0.2');
-        confidence = Math.min(confidence * 0.2, 0.10);  // V5.4: ≤0.1 per spec
+        console.log('[FAKTCHECK BG] ⚠️ GROUND TRUTH: Only self-referential sources — penalty');
+        confidence = 0.10;
         verdict = 'unverifiable';
-        explanation = (explanation || '') + ' [Ground Truth: Keine unabhängigen externen Quellen. Die einzige Quelle ist das Video selbst — keine Evidenz für Richtigkeit.]';
+        explanation = (explanation || '') + ' [Ground Truth: Keine unabhängigen externen Quellen.]';
     }
 
     // V5.4: TIER-1 OVERRIDE — If Tier-1 sources exist AND judge originally said positive, force FALSE
@@ -601,7 +642,7 @@ function validateVerification(data, claimType = 'factual', claimText = '') {
         confidence,
         explanation,
         key_facts: Array.isArray(data.key_facts) ? data.key_facts.filter(f => typeof f === 'string').slice(0, 5) : [],
-        sources: tieredSources,
+        sources: sanitizedSources,
         timeline: timeline,
         is_causal: isCausalClaim,
         source_quality: tier1Count > 0 ? 'high' : tier2Count > 0 ? 'medium' : 'low',
