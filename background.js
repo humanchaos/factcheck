@@ -38,6 +38,10 @@ const rateLimiter = {
 // Claim Cache
 const claimCache = new Map();
 
+// V5.5+: Global IFCN cache (cross-video, 24h TTL)
+// Key: SHA256(cleanedClaim + lang), Value: { result, ts }
+const ifcnCache = new Map();
+
 async function hashClaim(claim) {
     try {
         // V5.4 STABLE MODULE 3: Enhanced normalization for semantic deduplication
@@ -513,25 +517,64 @@ function validateVerification(data, claimType = 'factual', claimText = '') {
         } catch { return true; }
     });
 
-    // ─── V5.5: IFCN OVERRIDE — professional fact-checkers take priority ───
+    // ─── V5.5+: IFCN NUANCED CONFIDENCE — temporal decay + relevance ───
     const factChecks = Array.isArray(data._factChecks) ? data._factChecks : [];
     const ifcnReviews = factChecks.flatMap(fc => (fc.reviews || []).filter(r => r.url));
     let ifcnOverrideApplied = false;
+    let ifcnConflict = false;
+    let ifcnConfidence = 0;
+    let ifcnVerdict = null;
+    let ifcnStale = false;
 
     if (ifcnReviews.length > 0) {
-        console.log(`[FAKTCHECK BG] 🏆 IFCN OVERRIDE: ${ifcnReviews.length} professional fact-check(s) found`);
-        confidence = 0.95;
-        ifcnOverrideApplied = true;
+        const review = ifcnReviews[0];
+
+        // ─ Temporal Decay λ(t) ─
+        const reviewDate = review.date ? new Date(review.date) : null;
+        const monthsAgo = reviewDate ? (Date.now() - reviewDate.getTime()) / (1000 * 60 * 60 * 24 * 30) : 12;
+        let lambda = 1.0;
+        if (monthsAgo > 18) { lambda = 0.3; ifcnStale = true; }
+        else if (monthsAgo > 6) { lambda = 0.7; }
+
+        // ─ Match Relevance ρ ─
+        // Check if IFCN claimText closely matches our claim (from parent factCheck object)
+        const ifcnClaimText = (factChecks[0]?.claimText || '').toLowerCase();
+        const ourClaim = (data._claim || '').toLowerCase();
+        const rho = (ifcnClaimText && ourClaim && ifcnClaimText.includes(ourClaim.slice(0, 40))) ? 1.0 : 0.7;
+
+        // ─ Dynamic IFCN Score ─
+        ifcnConfidence = 0.95 * rho * lambda;
+        console.log(`[FAKTCHECK BG] 🏆 IFCN: C=${ifcnConfidence.toFixed(2)} (ρ=${rho}, λ=${lambda}, age=${monthsAgo.toFixed(0)}mo, stale=${ifcnStale})`);
+
         // Map textual IFCN rating to verdict
-        const ifcnRating = (ifcnReviews[0].rating || '').toLowerCase();
+        const ifcnRating = (review.rating || '').toLowerCase();
         if (/false|falsch|fake|wrong|pants on fire|unwahr|incorrect/i.test(ifcnRating)) {
-            verdict = 'false';
+            ifcnVerdict = 'false';
         } else if (/true|wahr|correct|richtig|accurate/i.test(ifcnRating)) {
-            verdict = 'true';
+            ifcnVerdict = 'true';
         } else if (/half|partly|teilw|mixture|gemischt|misleading/i.test(ifcnRating)) {
-            verdict = 'partially_true';
+            ifcnVerdict = 'partially_true';
         }
-        explanation = `[IFCN: "${ifcnReviews[0].rating}" — ${ifcnReviews[0].publisher}] ${explanation || ''}`;
+
+        // ─ Conflict Detection: AI vs IFCN ─
+        if (ifcnVerdict && verdict && ifcnVerdict !== verdict) {
+            // Verdicts disagree — flag conflict, do NOT override
+            ifcnConflict = true;
+            console.log(`[FAKTCHECK BG] ⚠️ IFCN CONFLICT: AI says "${verdict}" but IFCN says "${ifcnVerdict}"`);
+            explanation = `[⚠️ Conflict: IFCN rated "${review.rating}" (${review.publisher}), AI verdict: "${verdict}"] ${explanation || ''}`;
+            // Take the higher confidence but keep AI verdict when conflict
+            if (ifcnConfidence > confidence) confidence = ifcnConfidence;
+        } else if (!ifcnStale) {
+            // Non-stale, non-conflicting IFCN — apply override
+            ifcnOverrideApplied = true;
+            confidence = ifcnConfidence;
+            if (ifcnVerdict) verdict = ifcnVerdict;
+            explanation = `[IFCN: "${review.rating}" — ${review.publisher}] ${explanation || ''}`;
+        } else {
+            // Stale IFCN (>18mo) — context only, no override
+            console.log('[FAKTCHECK BG] 📅 IFCN STALE (>18mo): context only, no override');
+            explanation = `[📅 IFCN (Context Only, ${monthsAgo.toFixed(0)}mo old): "${review.rating}" — ${review.publisher}] ${explanation || ''}`;
+        }
     }
 
     // Use calibrated confidence (only if IFCN didn't already set it)
@@ -711,7 +754,11 @@ function validateVerification(data, claimType = 'factual', claimText = '') {
         math_outlier: mathOutlier,
         // Stage 0: Professional fact-check results
         fact_checks: Array.isArray(data._factChecks) ? data._factChecks : [],
-        ifcn_override: ifcnOverrideApplied
+        ifcn_override: ifcnOverrideApplied,
+        ifcn_conflict: ifcnConflict,
+        ifcn_stale: ifcnStale,
+        ifcn_confidence: ifcnConfidence > 0 ? ifcnConfidence : null,
+        ifcn_verdict: ifcnVerdict
     };
 }
 
@@ -1426,6 +1473,14 @@ Respond with JSON matching this schema exactly.`;
 // Free, ~100ms, uses same API key as Gemini.
 async function searchFactChecks(claimText, apiKey, lang = 'de') {
     try {
+        // V5.5+: Check IFCN cache first (cross-video, 24h TTL)
+        const cacheKey = await hashClaim(claimText + ':' + lang);
+        const cached = ifcnCache.get(cacheKey);
+        if (cached && Date.now() - cached.ts < 86400000) {
+            console.log('[FAKTCHECK BG] ── STAGE 0: IFCN Cache HIT ──');
+            return cached.result;
+        }
+
         const url = new URL('https://factchecktools.googleapis.com/v1alpha1/claims:search');
         url.searchParams.set('query', claimText.slice(0, 200));
         url.searchParams.set('key', apiKey);
@@ -1433,7 +1488,7 @@ async function searchFactChecks(claimText, apiKey, lang = 'de') {
         url.searchParams.set('maxAgeDays', '365');
         url.searchParams.set('pageSize', '3');
 
-        console.log('[FAKTCHECK BG] ── STAGE 0: Fact Check API ──');
+        console.log('[FAKTCHECK BG] ── STAGE 0: Fact Check API (cache MISS) ──');
         const resp = await fetch(url.toString());
         if (!resp.ok) {
             console.log('[FAKTCHECK BG] Fact Check API returned', resp.status);
@@ -1454,6 +1509,13 @@ async function searchFactChecks(claimText, apiKey, lang = 'de') {
                 date: r.reviewDate || ''
             }))
         }));
+
+        // Store in IFCN cache (evict oldest if >200 entries)
+        if (ifcnCache.size >= 200) {
+            const first = ifcnCache.keys().next().value;
+            if (first) ifcnCache.delete(first);
+        }
+        ifcnCache.set(cacheKey, { result: results, ts: Date.now() });
 
         if (results.length > 0) {
             console.log(`[FAKTCHECK BG] 🏆 Found ${results.length} existing fact-check(s):`);

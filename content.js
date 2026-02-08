@@ -569,12 +569,19 @@
             if (safe.fact_checks?.length > 0) {
                 for (const fc of safe.fact_checks) {
                     for (const review of (fc.reviews || [])) {
-                        const fcCard = S.createElement('div', { class: 'evidence-source-item fact-check-highlight ifcn-highlight' });
+                        const isStale = safe.ifcn_stale;
+                        const fcCard = S.createElement('div', {
+                            class: `evidence-source-item fact-check-highlight ${isStale ? '' : 'ifcn-highlight'}`
+                        });
                         fcCard.appendChild(S.createElement('span', {
                             class: 'tier-tag tier-0'
                         }, '🏆 Professional Fact-Check'));
-                        // IFCN Verified Signatory badge
-                        fcCard.appendChild(S.createElement('span', { class: 'ifcn-badge' }, '✅ IFCN Verified Signatory'));
+                        // Badge: IFCN or Context Only
+                        if (isStale) {
+                            fcCard.appendChild(S.createElement('span', { class: 'ifcn-badge ifcn-stale' }, '📅 Context Only'));
+                        } else {
+                            fcCard.appendChild(S.createElement('span', { class: 'ifcn-badge' }, '✅ IFCN Verified Signatory'));
+                        }
                         fcCard.appendChild(S.createElement('div', { class: 'evidence-quote' },
                             `Rating: "${S.text(review.rating)}"`));
                         fcCard.appendChild(S.createElement('div', { class: 'evidence-source-name' },
@@ -591,6 +598,20 @@
                         chain.appendChild(fcCard);
                     }
                 }
+            }
+
+            // 1c.2: IFCN CONFLICT BANNER — when AI and IFCN disagree
+            if (safe.ifcn_conflict) {
+                const conflictBanner = S.createElement('div', { class: 'ifcn-conflict-banner' });
+                conflictBanner.appendChild(S.createElement('span', { class: 'conflict-icon' }, '⚠️'));
+                const conflictText = S.createElement('div', { class: 'conflict-text' });
+                conflictText.appendChild(S.createElement('strong', {}, 'Conflict Detected'));
+                const aiVerdict = safe.displayVerdict || safe.verdict || 'unknown';
+                const ifcnVerdict = safe.ifcn_verdict || 'unknown';
+                conflictText.appendChild(S.createElement('div', { class: 'conflict-detail' },
+                    `AI verdict: "${aiVerdict.toUpperCase()}" — IFCN verdict: "${ifcnVerdict.toUpperCase()}". Current data may have changed since the IFCN review.`));
+                conflictBanner.appendChild(conflictText);
+                chain.appendChild(conflictBanner);
             }
 
             // 1d. V5.5: STRUCTURED EVIDENCE CHAIN — render evidence_chain items (IFCN pinned at top)

@@ -754,6 +754,45 @@
     background: rgba(0, 204, 136, 0.04);
 }
 
+/* V5.5+: IFCN Conflict Banner */
+.ifcn-conflict-banner {
+    display: flex;
+    gap: 8px;
+    padding: 8px 10px;
+    background: rgba(255, 160, 0, 0.08);
+    border: 1px solid rgba(255, 160, 0, 0.3);
+    border-left: 3px solid #ffa000;
+    border-radius: 6px;
+    margin: 6px 0;
+}
+
+.conflict-icon {
+    font-size: 16px;
+}
+
+.conflict-text {
+    flex: 1;
+}
+
+.conflict-text strong {
+    color: #ffa000;
+    font-size: 11px;
+}
+
+.conflict-detail {
+    font-size: 10px;
+    color: #999;
+    margin-top: 2px;
+    line-height: 1.4;
+}
+
+/* Stale IFCN badge (>18mo) */
+.ifcn-badge.ifcn-stale {
+    color: #cc9900;
+    background: rgba(204, 153, 0, 0.08);
+    border-color: rgba(204, 153, 0, 0.2);
+}
+
 .evidence-chain-section {
     display: flex;
     flex-direction: column;
