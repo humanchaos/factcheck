@@ -192,12 +192,13 @@ function getSourceMeta(url) {
 function calculateConfidence(evidenceChain) {
     if (!Array.isArray(evidenceChain) || evidenceChain.length === 0) return 0.1;
 
-    // 1. YouTube & self-ref source sanitization
+    // 1. Source sanitization — remove YouTube + Wikipedia (context only, not evidence)
     const filteredEvidence = evidenceChain.filter(item => {
         if (!item.url) return true; // Keep items without URL (conservative)
         try {
             const domain = new URL(item.url).hostname.toLowerCase();
-            return !domain.includes('youtube.com') && !domain.includes('youtu.be');
+            return !domain.includes('youtube.com') && !domain.includes('youtu.be')
+                && !domain.includes('wikipedia.org');
         } catch { return true; }
     });
 
@@ -214,7 +215,8 @@ function calculateConfidence(evidenceChain) {
                 : 0.1; // Tier 3, 4, 5
 
         // B. Recency Weight (W_i)
-        let sourceYear = currentYear - 3; // Default: treat as old if no timestamp
+        // Default: assume current — Google Search grounding returns live data
+        let sourceYear = currentYear;
         if (source.timestamp) {
             try { sourceYear = new Date(source.timestamp).getFullYear(); } catch { }
         }
@@ -492,20 +494,22 @@ function validateVerification(data, claimType = 'factual', claimText = '') {
     const totalSources = tieredSources.length;
 
     // V5.4 STABLE: Build evidence chain for deterministic confidence
-    const verdictIsNeg = ['false', 'mostly_false', 'deceptive'].includes(verdict);
+    // Sources found by Google Search SUPPORT the verdict — they don't contradict it.
+    // V_c conflict detection is separate (from evidence_quotes debate analysis, not verdict polarity)
     const evidenceChain = tieredSources.map(s => ({
         url: s.url,
         tier: s.tier,
-        timestamp: s.timestamp || null,  // from grounding metadata if available
-        sentiment: verdictIsNeg ? 'contradicting' : 'supporting'
+        timestamp: s.timestamp || null,
+        sentiment: 'supporting'  // Grounding sources back the verdict by definition
     }));
     const calibrated = calculateConfidence(evidenceChain);
 
-    // V5.4 STABLE MODULE 2: Source Sanitization — remove YouTube from visible sources
+    // V5.4 STABLE MODULE 2: Source Sanitization — remove YouTube + Wikipedia from confidence/counting
     const sanitizedSources = tieredSources.filter(s => {
         try {
             const host = new URL(s.url).hostname.toLowerCase();
-            return !host.includes('youtube.com') && !host.includes('youtu.be');
+            return !host.includes('youtube.com') && !host.includes('youtu.be')
+                && !host.includes('wikipedia.org');
         } catch { return true; }
     });
 

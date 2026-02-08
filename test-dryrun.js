@@ -77,7 +77,8 @@ function calculateConfidence(evidenceChain) {
         if (!item.url) return true;
         try {
             const domain = new URL(item.url).hostname.toLowerCase();
-            return !domain.includes('youtube.com') && !domain.includes('youtu.be');
+            return !domain.includes('youtube.com') && !domain.includes('youtu.be')
+                && !domain.includes('wikipedia.org');
         } catch { return true; }
     });
     if (filteredEvidence.length === 0) return 0.1;
@@ -86,7 +87,7 @@ function calculateConfidence(evidenceChain) {
     const currentYear = new Date().getFullYear();
     for (const source of filteredEvidence) {
         const S_i = source.tier === 1 ? 0.5 : source.tier === 2 ? 0.3 : 0.1;
-        let sourceYear = currentYear - 3;
+        let sourceYear = currentYear; // Default: current (grounding = live data)
         if (source.timestamp) { try { sourceYear = new Date(source.timestamp).getFullYear(); } catch { } }
         const W_i = (currentYear - sourceYear <= 2) ? 1.0 : 0.5;
         totalScore += (S_i * W_i);
@@ -337,18 +338,18 @@ async function runTest(testCase, index) {
         // V5.4 STABLE: Build evidence chain for deterministic confidence
         const tier1Count = evidence.sources.filter(s => s.tier === 1).length;
         const totalSources = evidence.sources.length;
-        const verdictIsNeg = ['false', 'mostly_false', 'deceptive'].includes(parsed.verdict);
         const evidenceChain = evidence.sources.map(s => ({
             url: s.url, tier: s.tier, timestamp: null,
-            sentiment: verdictIsNeg ? 'contradicting' : 'supporting'
+            sentiment: 'supporting'  // Grounding sources back the verdict by definition
         }));
         const calibrated = calculateConfidence(evidenceChain);
 
-        // Source sanitization — remove YouTube
+        // Source sanitization — remove YouTube + Wikipedia
         const sanitizedSources = evidence.sources.filter(s => {
             try {
                 const host = new URL(s.url).hostname.toLowerCase();
-                return !host.includes('youtube.com') && !host.includes('youtu.be');
+                return !host.includes('youtube.com') && !host.includes('youtu.be')
+                    && !host.includes('wikipedia.org');
             } catch { return true; }
         });
 

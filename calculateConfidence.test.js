@@ -12,19 +12,26 @@ describe('Verification Engine v5.4: Confidence Calibration', () => {
             { url: 'https://www.bundeskanzleramt.gv.at/news/stocker', tier: 1, timestamp: '2026-01-10', sentiment: 'supporting' },
             { url: 'https://www.dievolkspartei.at/programm', tier: 1, timestamp: '2025-11-20', sentiment: 'supporting' }
         ];
-        // Erwartung: (0.5 + 0.5) * 1.0 = 1.0 -> Deckelung auf 0.95
+        // Two Tier-1, recent, unanimous: (0.5 + 0.5) * 1.0 = 1.0 → capped at 0.95
         const result = calculateConfidence(evidence);
-        expect(result).toBeGreaterThanOrEqual(0.85);
-        expect(result).toBeLessThanOrEqual(0.95);
+        expect(result).toBe(0.95);
     });
 
     test('Case: Propaganda Filter (YouTube Sanitization)', () => {
         const evidence = [
             { url: 'https://www.youtube.com/watch?v=123', tier: 3, timestamp: '2026-02-08', sentiment: 'supporting' }
         ];
-        // Erwartung: YouTube wird gefiltert -> Leeres Array -> 0.1 Confidence
+        // YouTube filtered → empty → 0.1
         const result = calculateConfidence(evidence);
         expect(result).toBe(0.1);
+    });
+
+    test('Case: Wikipedia Sanitization', () => {
+        const evidence = [
+            { url: 'https://de.wikipedia.org/wiki/Test', tier: 3, timestamp: '2026-02-08', sentiment: 'supporting' }
+        ];
+        // Wikipedia filtered → empty → 0.1
+        expect(calculateConfidence(evidence)).toBe(0.1);
     });
 
     test('Case: Contradicting Evidence (Consistency Multiplier)', () => {
@@ -41,7 +48,7 @@ describe('Verification Engine v5.4: Confidence Calibration', () => {
         const evidence = [
             { url: 'https://www.imf.org/report2020', tier: 1, timestamp: '2020-01-01', sentiment: 'supporting' }
         ];
-        // Erwartung: 0.5 (Tier-1) * 0.5 (Weight) = 0.25
+        // Tier-1 × old = 0.5 * 0.5 = 0.25
         const result = calculateConfidence(evidence);
         expect(result).toBe(0.25);
     });
@@ -62,13 +69,21 @@ describe('Verification Engine v5.4: Confidence Calibration', () => {
         expect(calculateConfidence(undefined)).toBe(0.1);
     });
 
+    test('Case: No timestamp defaults to current year', () => {
+        const evidence = [
+            { url: 'https://www.statistik.at/daten', tier: 1, timestamp: null, sentiment: 'supporting' }
+        ];
+        // No timestamp → assumes current → W_i = 1.0 → 0.5 * 1.0 = 0.5
+        expect(calculateConfidence(evidence)).toBe(0.5);
+    });
+
     test('Case: Mixed Tier-2 + Tier-3 (News agencies)', () => {
         const evidence = [
             { url: 'https://reuters.com/article/test', tier: 2, timestamp: '2026-01-15', sentiment: 'supporting' },
             { url: 'https://apnews.com/article/test', tier: 2, timestamp: '2026-01-15', sentiment: 'supporting' },
             { url: 'https://random-blog.com', tier: 3, timestamp: '2026-02-01', sentiment: 'supporting' }
         ];
-        // Erwartung: (0.3 + 0.3 + 0.1) * 1.0 = 0.7
+        // (0.3 + 0.3 + 0.1) * 1.0 = 0.7
         const result = calculateConfidence(evidence);
         expect(result).toBe(0.7);
     });

@@ -13,12 +13,13 @@
 function calculateConfidence(evidenceChain) {
     if (!Array.isArray(evidenceChain) || evidenceChain.length === 0) return 0.1;
 
-    // 1. YouTube & self-ref source sanitization
+    // 1. Source sanitization — remove YouTube + Wikipedia (context only, not evidence)
     const filteredEvidence = evidenceChain.filter(item => {
         if (!item.url) return true; // Keep items without URL (conservative)
         try {
             const domain = new URL(item.url).hostname.toLowerCase();
-            return !domain.includes('youtube.com') && !domain.includes('youtu.be');
+            return !domain.includes('youtube.com') && !domain.includes('youtu.be')
+                && !domain.includes('wikipedia.org');
         } catch { return true; }
     });
 
@@ -35,7 +36,8 @@ function calculateConfidence(evidenceChain) {
                 : 0.1; // Tier 3, 4, 5
 
         // B. Recency Weight (W_i)
-        let sourceYear = currentYear - 3; // Default: treat as old if no timestamp
+        // Default: assume current — Google Search grounding returns live data
+        let sourceYear = currentYear;
         if (source.timestamp) {
             try { sourceYear = new Date(source.timestamp).getFullYear(); } catch { }
         }
