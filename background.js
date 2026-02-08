@@ -924,47 +924,47 @@ async function extractClaims(text, apiKey, metadata = null) {
     }
 
     const prompt = lang === 'de' ?
-        `# FAKTCHECK v5.3 — Extraktions-Engine (Reality-First)
+        `# FAKTCHECK v5.4 — Stage 2: Semantic Core Extraction
 ${groundingContext}
 
-## AUFGABE
-Extrahiere Claims nach dem Anker-Prinzip mit QUERY DECOMPOSITION:
+## SYSTEM-PROMPT
+Du bist ein Experte für semantische Extraktion. Deine Aufgabe ist es, aus dem vorliegenden Transkript atomare Tatsachenbehauptungen zu extrahieren.
 
-### 1. SEMANTIC CLAIM STRIPPING (KRITISCH!)
-Extrahiere ausschließlich den harten Fakten-Kern. Entferne ALLE Verweise auf den Sprecher oder die Quelle.
-Wandle "Sprecher A behauptet X ist Y" um in die atomare Behauptung "X ist Y".
-Nur so kann die REALITÄT geprüft werden, nicht die Existenz der Aussage.
+### 1. SEMANTIC STRIPPING (KRITISCH!)
+Entferne ALLE Einleitungen wie "Laut...", "Der Sprecher sagt...", "Kickl behauptet...", "Im Video wird erwähnt...", "Wisst ihr, wo wir liegen?".
+Wandle jede Aussage in eine neutrale, direkte Tatsachenbehauptung um.
+Die Tatsache wird von der Propaganda-Hülle getrennt.
 
 BEISPIELE FÜR STRIPPING:
+- "Wisst ihr, wo wir liegen? Am sensationellen Platz 185." → "Österreich liegt beim Wirtschaftswachstum weltweit auf Platz 185 von 191."
 - "Laut FPÖ TV liegt Österreich auf Platz 185" → "Österreich liegt beim Wirtschaftswachstum auf Platz 185 von 191 Ländern"
 - "Kickl sagt, die Inflation beträgt 10%" → "Die Inflation in Österreich beträgt 10%"
-- "Laut dem Video ist das BIP um 5% gewachsen" → "Österreichs BIP ist um 5% gewachsen"
 - "Der Kanzler behauptet, die Arbeitslosigkeit sinkt" → "Die Arbeitslosigkeit in Österreich sinkt"
 
-### 2. CLAIM HYDRATION
-Jeder Claim MUSS die "Wer-Was-Wo-Regel" erfüllen:
+### 2. ENTITY HYDRATION
+Korrigiere unvollständige oder falsche Eigennamen basierend auf dem Kontext:
 - Ersetze ALLE Pronomen durch konkrete Namen
+- Wenn von "Stocker" im Kontext des Bundeskanzleramts die Rede ist, verwende immer den vollen Namen "Christian Stocker"
 - Ergänze Kontext aus Video-Titel/Gremium
-- ⚠️ NAMEN-TREUE: Verwende NUR Namen EXAKT wie im Transkript geschrieben. NIEMALS raten oder abändern!
+- ⚠️ NAMEN-TREUE: Verwende NUR Namen EXAKT wie im Transkript. NIEMALS raten oder abändern!
 
-### 3. QUERY DECOMPOSITION
+### 3. ATOMISIERUNG
+Erstelle für jede einzelne Fakten-Behauptung einen eigenen Eintrag.
+Vermische KEINE Meinungen mit Fakten. Meinungen erhalten type: "opinion".
+
+### 4. QUERY DECOMPOSITION
 Für jeden Claim generiere 2-3 kurze Such-Queries (3-6 Wörter):
-- Kombiniere Schlüssel-Entitäten für Google-Suche
-- NICHT den ganzen hydratisierten Satz verwenden
 - PRIORISIERE offizielle Quellen: Statistik Austria, WIFO, IMF, Eurostat, Weltbank
+- Kombiniere Schlüssel-Entitäten für Google-Suche
 
 BEISPIEL:
-Claim: "Österreich liegt beim Wirtschaftswachstum auf Platz 185 von 191 Ländern"
+Claim: "Österreich liegt beim Wirtschaftswachstum auf Platz 185 von 191"
 search_queries: ["IMF World Economic Outlook GDP growth ranking 2026", "WIFO Österreich BIP Wachstum Prognose 2026", "Statistik Austria Wirtschaftswachstum"]
 
-### 4. TYPE DETECTION
+### 5. TYPE DETECTION
 - "factual": Reine Faktenbehauptung
 - "causal": Enthält "weil/aufgrund/verursacht/führte zu"
 - "opinion": Werturteil/Meinung einer Person (z.B. "X kritisiert", "Y fordert")
-
-### 5. VETO
-LÖSCHE NUR: Reine Befindlichkeiten ("Er ist glücklich")
-BEHALTE: Alles mit Entitäten → hydratisieren!
 
 ## Text:
 "${sanitized.slice(0, 4000)}"
@@ -979,33 +979,42 @@ BEHALTE: Alles mit Entitäten → hydratisieren!
 }]
 
 Keine Claims? Antworte: []` :
-        `You are a fact-checker. Extract verifiable factual claims from this transcript.
+        `# FAKTCHECK v5.4 — Stage 2: Semantic Core Extraction
+${groundingContext}
+
+## SYSTEM PROMPT
+You are an expert in semantic extraction. Your task is to extract atomic factual claims from the given transcript.
+
+### 1. SEMANTIC STRIPPING (CRITICAL!)
+Remove ALL introductions like "According to...", "The speaker says...", "X claims...", "In the video it is mentioned...".
+Convert every statement into a neutral, direct factual claim.
+Separate the fact from the propaganda shell.
+
+EXAMPLES:
+- "According to the President, unemployment is at 3%" → "Unemployment in the US is at 3%"
+- "The CEO claims revenue doubled" → "Company X revenue doubled"
+- "Sources say the deal is worth $5B" → "The deal is worth $5 billion"
+
+### 2. ENTITY HYDRATION
+Fix incomplete or incorrect proper names based on context:
+- Replace ALL pronouns with concrete names
+- Complete partial names using context (e.g., "Biden" → "Joe Biden")
+- Add context from video title/description
+- NAME FIDELITY: Use EXACT spelling from transcript. NEVER guess or alter names!
+
+### 3. ATOMIZATION
+Create a separate entry for each individual factual claim.
+NEVER mix opinions with facts. Opinions get type: "opinion".
+
+### 4. QUERY DECOMPOSITION
+For each claim, generate 2-3 short search queries (3-6 words):
+- PRIORITIZE official sources: national statistics offices, IMF, World Bank, Eurostat
+- Combine key entities for Google search
 
 Text: "${sanitized.slice(0, 4000)}"
 
-CRITICAL RULES:
-1. Every claim MUST be semantically complete (Subject + Verb + Object)
-2. NEVER extract sentence fragments like "They did that" or "He said this"
-3. The claim must be understandable and verifiable WITHOUT additional context
-4. REPLACE ALL PRONOUNS AND REFERENCES with specific terms from context:
-   - "that standard" → "the ISO 8601 date format standard" (or whichever standard is meant)
-   - "this organization" → "the ITU" (or whichever organization is meant)
-   - "the country" → "Germany" (or whichever country is meant)
-5. ONLY claims with specific numbers, dates, names, or verifiable facts
-6. If context is missing to resolve the reference, DO NOT extract the claim
-
-GOOD EXAMPLES:
-✓ "US unemployment rate fell to 3.7% in November 2023"
-✓ "Tesla sold over 1.8 million vehicles worldwide in 2023"
-✓ "The ITU time format standard was adopted by 20 countries"
-
-BAD EXAMPLES (DO NOT EXTRACT):
-✗ "Today, almost every country has that standard" (Which standard?)
-✗ "At the beginning, only three countries adopted it" (Adopted what?)
-✗ "Prices came down" (Which prices? By how much?)
-
 Respond ONLY with JSON array:
-[{"claim": "Complete, self-explanatory claim with all resolved references", "speaker": "Name or null", "checkability": 1-5, "importance": 1-5, "category": "STATISTICS|ECONOMY|POLITICS|SCIENCE"}]
+[{"claim": "Atomic factual claim WITHOUT speaker attribution", "search_queries": ["Query1", "Query2"], "speaker": "Name or null", "checkability": 1-5, "importance": 1-5, "category": "STATISTICS|ECONOMY|POLITICS|SCIENCE", "type": "factual|causal|opinion"}]
 
 No verifiable facts with sufficient context? Respond: []`;
 
@@ -1167,29 +1176,32 @@ async function judgeEvidence(claimText, snippets, sources, apiKey, lang = 'de', 
         ? (lang === 'de' ? '\n9. Kausalität: Prüfe ob die zeitliche Abfolge den kausalen Zusammenhang stützt.' : '\n9. Causality: Check whether the timeline supports the causal relationship.')
         : '';
 
-    const systemInstruction = lang === 'de'
-        ? `Du bist ein strikt gebundener Verifikationsrichter. Antworte NUR mit dem vorgegebenen JSON-Schema.
 
-KRITISCHE REGELN:
-1. REALITY-FIRST: Die Tatsache, dass jemand etwas in einem Video sagt, ist KEIN Beweis für dessen Richtigkeit. Das Video-Transkript ist KEINE Evidenzquelle. Prüfe die Behauptung gegen unabhängige, externe Daten.
-2. STATISTIK-PRÄZEDENZ: Offizielle Statistiken (Eurostat, IMF, WIFO, Statistik Austria, Weltbank) haben immer Vorrang vor medialer Verbreitung oder Wiederholung einer Behauptung. Wenn offizielle Daten der Behauptung widersprechen → verdict: "false".
-3. METAPHERN-ERKENNUNG: Politische Übertreibungen und Metaphern (z.B. "Schneckentempo", "Rekordniveau", "Pleitewelle") sind KEINE Fakten. Prüfe den faktischen Kern gegen reale Daten. Wenn WIFO 1,1% Wachstum prognostiziert und jemand von "Schneckentempo" spricht → prüfe ob 1,1% Wachstum stimmt, nicht ob es "langsam" ist.
-4. Direkter Widerspruch durch Tier 1/2 Quelle → verdict: "false".
-5. Direkte Bestätigung durch Tier 1/2 Quelle → verdict: "true".
-6. Teilweise Übereinstimmung → verdict: "partially_true".
-7. Meinung ohne prüfbaren Inhalt → verdict: "opinion".${mathGuardrail}${causalRule}
+    const systemInstruction = lang === 'de'
+        ? `Du bist ein unbestechlicher Faktenprüfer. Deine Aufgabe ist es, die Behauptungen aus Stage 2 gegen die recherchierten Beweise aus Stage 1 zu prüfen. Antworte NUR mit dem vorgegebenen JSON-Schema.
+
+BEWERTUNGS-LOGIK:
+1. REALITÄTS-PRIMAT: Die Tatsache, dass eine Aussage in einem Video getätigt wurde, ist kein Beweis für deren Richtigkeit. Prüfe, ob der INHALT der Aussage mit der Realität übereinstimmt.
+2. TIER-1 DOMINANZ: Wenn offizielle Daten (WIFO, Statistik Austria, IMF, Weltbank, Eurostat) der Behauptung widersprechen, markiere sie als FALSCH, auch wenn der Sprecher sie als Fakt darstellt.
+3. CONFIDENCE-MALUS: Wenn die einzige Quelle für eine Behauptung das Video selbst ist, setze die Confidence auf 0.1. Wenn externe Tier-1 Quellen fehlen, nutze das Label UNVERIFIABLE statt "Wahr".
+4. METAPHERN-ERKENNUNG: Politische Übertreibungen und Metaphern (z.B. "Schneckentempo", "Rekordniveau", "Pleitewelle") sind KEINE Fakten. Prüfe den faktischen Kern gegen reale Daten.
+5. Direkter Widerspruch durch Tier 1/2 Quelle → verdict: "false".
+6. Direkte Bestätigung durch Tier 1/2 Quelle → verdict: "true".
+7. Teilweise Übereinstimmung → verdict: "partially_true".
+8. Meinung ohne prüfbaren Inhalt → verdict: "opinion".${mathGuardrail}${causalRule}
 
 ABSCHLUSS-PRÜFUNG: Frage dich VOR der Antwort: "Gibt es offizielle Daten, die diesem Kern widersprechen?" Wenn ja → verdict: "false".`
-        : `You are a strictly grounded Verification Judge. Respond ONLY with the required JSON schema.
+        : `You are an incorruptible fact-checker. Your task is to verify the claims from Stage 2 against the researched evidence from Stage 1. Respond ONLY with the required JSON schema.
 
-CRITICAL RULES:
-1. REALITY-FIRST: The fact that someone says something in a video is NOT evidence of its truth. The video transcript is NOT an evidence source. Verify the claim against independent, external data.
-2. STATISTICS PRECEDENCE: Official statistics (Eurostat, IMF, World Bank, national statistics offices) always override media repetition of a claim. If official data contradicts the claim → verdict: "false".
-3. METAPHOR DETECTION: Political exaggerations and metaphors (e.g., "snail's pace", "record levels", "bankruptcy wave") are NOT facts. Check the factual core against real data.
-4. Direct Contradiction by Tier 1/2 source → verdict: "false".
-5. Direct Support by Tier 1/2 source → verdict: "true".
-6. Partial Match → verdict: "partially_true".
-7. Opinion with no verifiable assertion → verdict: "opinion".${mathGuardrail}${causalRule}
+EVALUATION LOGIC:
+1. REALITY PRIMACY: The fact that a statement was made in a video is NOT evidence of its truth. Check whether the CONTENT of the statement matches reality.
+2. TIER-1 DOMINANCE: If official data (IMF, World Bank, Eurostat, national statistics offices) contradicts the claim, mark it as FALSE, even if the speaker presents it as fact.
+3. CONFIDENCE PENALTY: If the only source for a claim is the video itself, set confidence to 0.1. If external Tier-1 sources are missing, use UNVERIFIABLE instead of "True".
+4. METAPHOR DETECTION: Political exaggerations and metaphors (e.g., "snail's pace", "record levels") are NOT facts. Check the factual core against real data.
+5. Direct Contradiction by Tier 1/2 source → verdict: "false".
+6. Direct Support by Tier 1/2 source → verdict: "true".
+7. Partial Match → verdict: "partially_true".
+8. Opinion with no verifiable assertion → verdict: "opinion".${mathGuardrail}${causalRule}
 
 FINAL CHECK: Before answering, ask: "Is there official data contradicting this core claim?" If yes → verdict: "false".`;
 
