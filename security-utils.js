@@ -144,7 +144,22 @@ const SecurityUtils = {
                         })).filter(r => r.url)
                         : []
                 }))
-                : []
+                : [],
+            // v5.4+: Nested ClaimObject fields
+            occurrences: Array.isArray(claim.occurrences)
+                ? claim.occurrences.slice(0, 10).map(o => ({
+                    timestamp_hint: String(o.timestamp_hint || '').slice(0, 20),
+                    rhetorical_framing: String(o.rhetorical_framing || '').slice(0, 200),
+                    raw_snippet: String(o.raw_snippet || '').slice(0, 500)
+                }))
+                : [],
+            phonetic_repairs: Array.isArray(claim.phonetic_repairs)
+                ? claim.phonetic_repairs.slice(0, 10).map(r => ({
+                    original: String(r.original || '').slice(0, 100),
+                    corrected: String(r.corrected || '').slice(0, 100)
+                }))
+                : [],
+            category: claim.category ? String(claim.category).slice(0, 30) : null
         };
     }
 };

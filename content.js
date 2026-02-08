@@ -497,18 +497,36 @@
         // ─── COLLAPSED STATE: Header row ───
         const header = S.createElement('div', { class: 'claim-header' });
 
-        // V5.5: Multi-timestamp pills (deduplication shows multiple occurrences)
-        const timestamps = Array.isArray(safe.timestamps) ? safe.timestamps : [safe.timestamp];
+        // v5.4+: Multi-occurrence timestamps from Stage 2 dedup, fallback to single timestamp
+        const occurrences = safe.occurrences || [];
         const timestampContainer = S.createElement('span', { class: 'claim-timestamps' });
-        for (const ts of timestamps) {
-            const pill = S.createElement('span', { class: 'claim-timestamp timestamp-pill' }, formatTime(ts));
-            pill.addEventListener('click', () => {
-                const video = document.querySelector('#movie_player video');
-                if (video) video.currentTime = ts;
-            });
-            timestampContainer.appendChild(pill);
+        if (occurrences.length > 0) {
+            for (const occ of occurrences) {
+                const label = occ.timestamp_hint || formatTime(safe.timestamp);
+                const pill = S.createElement('span', {
+                    class: 'claim-timestamp timestamp-pill',
+                    title: occ.rhetorical_framing || ''
+                }, label);
+                timestampContainer.appendChild(pill);
+            }
+        } else {
+            const timestamps = Array.isArray(safe.timestamps) ? safe.timestamps : [safe.timestamp];
+            for (const ts of timestamps) {
+                const pill = S.createElement('span', { class: 'claim-timestamp timestamp-pill' }, formatTime(ts));
+                pill.addEventListener('click', () => {
+                    const video = document.querySelector('#movie_player video');
+                    if (video) video.currentTime = ts;
+                });
+                timestampContainer.appendChild(pill);
+            }
         }
         header.appendChild(timestampContainer);
+
+        // v5.4+: Category badge
+        if (safe.category) {
+            const catBadge = S.createElement('span', { class: 'category-badge' }, safe.category);
+            header.appendChild(catBadge);
+        }
 
         // Verdict badge with icon
         const isSatireContext = safe.is_satire_context || false;
@@ -523,6 +541,15 @@
 
         // Hydrated claim text
         card.appendChild(S.createElement('div', { class: 'claim-text' }, safe.text));
+
+        // v5.4+: Phonetic repair annotation
+        const repairs = safe.phonetic_repairs || [];
+        if (repairs.length > 0) {
+            const repairLine = S.createElement('div', { class: 'phonetic-repair' });
+            const repairText = repairs.map(r => `${r.original} → ${r.corrected}`).join(', ');
+            repairLine.appendChild(S.createText(`🔧 ${repairText}`));
+            card.appendChild(repairLine);
+        }
 
         // Quick signal line (collapsed summary)
         const signalText = buildQuickSignal(safe);
@@ -1154,43 +1181,37 @@
 
             for (const claim of claims) {
                 const claimId = `claim-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
-                console.log('[FAKTCHECK] Processing:', claim.claim.slice(0, 50) + '...');
+                // v5.4+: Use factual_core (falling back to claim for backward compat)
+                const claimText = claim.factual_core || claim.claim;
+                console.log('[FAKTCHECK] Processing:', claimText.slice(0, 50) + '...');
 
-                // V5.5: Client-side dedup — merge timestamps instead of creating duplicate cards
-                const normalizedKey = claim.claim.toLowerCase().replace(/[^a-zäöüß0-9]/g, '').slice(0, 100);
-                const existingCard = container?.querySelector(`[data-claim-normalized="${CSS.escape(normalizedKey)}"]`);
-
-                if (existingCard) {
-                    // Merge: add new timestamp pill to existing card
-                    console.log('[FAKTCHECK] ♻️ DEDUP: Merging timestamp into existing card');
-                    const tsContainer = existingCard.querySelector('.claim-timestamps');
-                    if (tsContainer) {
-                        const pill = S.createElement('span', { class: 'claim-timestamp timestamp-pill' }, formatTime(timestamp));
-                        pill.addEventListener('click', () => {
-                            const video = document.querySelector('#movie_player video');
-                            if (video) video.currentTime = timestamp;
-                        });
-                        tsContainer.appendChild(pill);
-                    }
-                    continue;  // Skip creating a new card
-                }
-
-                const card = createClaimCard({ id: claimId, text: claim.claim, timestamp, verdict: 'pending', speaker: claim.speaker });
+                const card = createClaimCard({
+                    id: claimId,
+                    text: claimText,
+                    timestamp,
+                    verdict: 'pending',
+                    speaker: claim.speaker,
+                    // v5.4+: pass nested fields
+                    occurrences: claim.occurrences || [],
+                    phonetic_repairs: claim.phonetic_repairs || [],
+                    category: claim.category || null
+                });
                 if (card && container) {
-                    // Add normalized key for dedup matching
-                    card.setAttribute('data-claim-normalized', normalizedKey);
                     container.insertBefore(card, container.firstChild);
                     updateCount(container.querySelectorAll('.faktcheck-card').length);
                 }
-                const verifyResponse = await sendMessageSafe({ type: 'VERIFY_CLAIM', claim: claim.claim, lang: currentLang, videoId: getCurrentVideoId() || '' });
+                const verifyResponse = await sendMessageSafe({ type: 'VERIFY_CLAIM', claim: claimText, lang: currentLang, videoId: getCurrentVideoId() || '' });
 
                 // Store full claim with verification for export
                 const claimEntry = {
-                    originalClaim: claim.claim,
+                    originalClaim: claimText,
+                    factual_core: claimText,
                     speaker: claim.speaker || null,
                     category: claim.category || null,
                     checkability: claim.checkability || null,
                     importance: claim.importance || null,
+                    occurrences: claim.occurrences || [],
+                    phonetic_repairs: claim.phonetic_repairs || [],
                     verification: null
                 };
 

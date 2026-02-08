@@ -793,6 +793,30 @@
     border-color: rgba(204, 153, 0, 0.2);
 }
 
+/* v5.4+: Category badge */
+.category-badge {
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    color: #888;
+    background: rgba(128, 128, 128, 0.08);
+    border: 1px solid rgba(128, 128, 128, 0.15);
+    border-radius: 4px;
+    padding: 1px 5px;
+    white-space: nowrap;
+}
+
+/* v5.4+: Phonetic repair inline annotation */
+.phonetic-repair {
+    font-size: 10px;
+    font-style: italic;
+    color: #999;
+    padding: 2px 8px;
+    margin-top: -2px;
+    line-height: 1.4;
+}
+
 .evidence-chain-section {
     display: flex;
     flex-direction: column;

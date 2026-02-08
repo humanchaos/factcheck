@@ -96,22 +96,44 @@ function validateClaims(data) {
         console.log('[FAKTCHECK BG] validateClaims: Not an array:', typeof data);
         return [];
     }
-    const valid = data.filter(item =>
-        typeof item === 'object' && item !== null &&
-        typeof item.claim === 'string' &&
-        item.claim.length > 5
-    ).map(item => ({
-        claim: sanitize(item.claim, 1000),
-        speaker: item.speaker ? String(item.speaker).slice(0, 100) : null,
-        checkability: Number(item.checkability) || 3,
-        importance: Number(item.importance) || 3,
-        category: String(item.category || 'UNKNOWN'),
-        // V3.0 fields
-        type: ['factual', 'causal', 'opinion'].includes(item.type) ? item.type : 'factual',
-        search_queries: Array.isArray(item.search_queries) ? item.search_queries.slice(0, 3) : [],
-        anchors: Array.isArray(item.anchors) ? item.anchors.slice(0, 5) : [],
-        is_satire_context: Boolean(item.is_satire_context)
-    }));
+    const valid = data
+        // v5.4+: Binary filter — drop SKIP claims
+        .filter(item => {
+            if (typeof item !== 'object' || item === null) return false;
+            if (item.status === 'SKIP') {
+                console.log('[FAKTCHECK BG] ⏭️ SKIP (binary filter):', (item.factual_core || item.claim || '').slice(0, 60));
+                return false;
+            }
+            // Accept both new schema (factual_core) and old (claim)
+            const text = item.factual_core || item.claim;
+            return typeof text === 'string' && text.length > 5;
+        })
+        .map(item => {
+            const factualCore = sanitize(item.factual_core || item.claim, 1000);
+            return {
+                claim: factualCore,  // Backward compat: downstream uses .claim
+                factual_core: factualCore,
+                speaker: item.speaker ? String(item.speaker).slice(0, 100) : null,
+                checkability: Number(item.checkability) || 3,
+                importance: Number(item.importance) || 3,
+                category: String(item.category || 'UNKNOWN'),
+                type: ['factual', 'causal', 'opinion'].includes(item.type) ? item.type : 'factual',
+                search_queries: Array.isArray(item.search_queries) ? item.search_queries.slice(0, 3) : [],
+                anchors: Array.isArray(item.anchors) ? item.anchors.slice(0, 5) : [],
+                is_satire_context: Boolean(item.is_satire_context),
+                // v5.4+ nested fields
+                occurrences: Array.isArray(item.occurrences) ? item.occurrences.slice(0, 10).map(o => ({
+                    timestamp_hint: String(o.timestamp_hint || o.timestamp || ''),
+                    rhetorical_framing: String(o.rhetorical_framing || ''),
+                    raw_snippet: String(o.raw_snippet || '').slice(0, 500)
+                })) : [],
+                phonetic_repairs: Array.isArray(item.phonetic_repairs) ? item.phonetic_repairs.slice(0, 10).map(r => ({
+                    original: String(r.original || ''),
+                    corrected: String(r.corrected || '')
+                })) : [],
+                status: 'PROCESS'
+            };
+        });
     console.log('[FAKTCHECK BG] Validated claims:', valid.length);
     return valid;
 }
@@ -1136,20 +1158,36 @@ INTERNATIONALE KORREKTUR-TABELLE (NUR anwenden, wenn der Kontext es rechtfertigt
 
 ⚠️ GUARDRAIL: "Griechisch" im Kontext internationaler Politik → NICHT zu "Kriechgang" korrigieren!
 
-### 3. ATOMISIERUNG
-Erstelle für jede einzelne Fakten-Behauptung einen eigenen Eintrag.
-Vermische KEINE Meinungen mit Fakten. Meinungen erhalten type: "opinion".
+### 3. BINÄRFILTER (Precision > Recall)
+Klassifiziere JEDEN identifizierten Claim:
+- **PROCESS**: Harte Fakten, Prozentsätze, Rankings, Gesetze, verifizierbare historische Ereignisse
+- **SKIP**: Reine Metaphern (z.B. "Regierungsnebelsuppe"), persönliche Anekdoten (z.B. "Meine Freunde sagten mir"), subjektive Meinungen ohne Faktengehalt
 
-### 4. QUERY DECOMPOSITION
-Für jeden Claim generiere 2-3 kurze Such-Queries (3-6 Wörter):
+⚠️ Es ist BESSER einen Claim zu SKIPPEN als metaphorischen Müll zu verarbeiten!
+
+### 4. FACTUAL CORE DEDUPLICATION (Stage 2 Dedup)
+Extrahiere die **zugrundeliegende Tatsachenbehauptung** aus verschiedenen rhetorischen Framings.
+Wenn der gleiche Fakt mehrmals mit unterschiedlicher Formulierung vorkommt → EINE ClaimObject mit mehreren Einträgen in "occurrences[]".
+
+BEISPIEL:
+- "Wir befinden uns im Kriechgang" (12:04) + "mickrige 1 Prozent Wachstum" (45:10)
+  → factual_core: "Österreichs BIP-Wachstum beträgt ca. 1%."
+  → occurrences: [{timestamp_hint: "12:04", rhetorical_framing: "Wirtschaftlicher Schneckengang"}, {timestamp_hint: "45:10", rhetorical_framing: "1% Wachstum"}]
+
+### 5. ATOMISIERUNG
+Erstelle für jede einzelne Fakten-Behauptung einen eigenen Eintrag.
+Vermische KEINE Meinungen mit Fakten. Meinungen erhalten type: "opinion" UND status: "SKIP".
+
+### 6. QUERY DECOMPOSITION
+Für jeden PROCESS-Claim generiere 2-3 kurze Such-Queries (3-6 Wörter):
 - PRIORISIERE offizielle Quellen: Statistik Austria, WIFO, IMF, Eurostat, Weltbank
 - Kombiniere Schlüssel-Entitäten für Google-Suche
 
 BEISPIEL:
-Claim: "Österreich liegt beim Wirtschaftswachstum auf Platz 185 von 191"
+factual_core: "Österreich liegt beim Wirtschaftswachstum auf Platz 185 von 191"
 search_queries: ["IMF World Economic Outlook GDP growth ranking 2026", "WIFO Österreich BIP Wachstum Prognose 2026", "Statistik Austria Wirtschaftswachstum"]
 
-### 5. TYPE DETECTION
+### 7. TYPE DETECTION
 - "factual": Reine Faktenbehauptung
 - "causal": Enthält "weil/aufgrund/verursacht/führte zu"
 - "opinion": Werturteil/Meinung einer Person (z.B. "X kritisiert", "Y fordert")
@@ -1159,12 +1197,18 @@ search_queries: ["IMF World Economic Outlook GDP growth ranking 2026", "WIFO Ös
 
 ## Output (NUR JSON-Array):
 [{
-  "claim": "Atomare Fakten-Behauptung OHNE Sprecher-Attribution (phonetisch korrigiert)",
-  "rawTranscriptSnippet": "Originaltext aus dem Transkript VOR Korrektur",
+  "status": "PROCESS",
+  "factual_core": "Atomare Fakten-Behauptung OHNE Sprecher-Attribution (phonetisch korrigiert)",
+  "category": "ECONOMICS|POLITICS|SCIENCE|STATISTICS",
+  "importance": 3,
+  "occurrences": [{
+    "timestamp_hint": "ungefähre Position im Transkript",
+    "rhetorical_framing": "Wie der Sprecher es formuliert hat",
+    "raw_snippet": "Originaltext aus dem ASR-Transkript"
+  }],
+  "phonetic_repairs": [{"original": "ASR-Fehler", "corrected": "Korrektur"}],
   "search_queries": ["Query1 3-6 Wörter", "Query2 3-6 Wörter"],
-  "anchors": ["Person", "Institution", "Ereignis"],
-  "type": "factual|causal|opinion",
-  "is_satire_context": false
+  "type": "factual|causal|opinion"
 }]
 
 Keine Claims? Antworte: []` :
@@ -1208,19 +1252,48 @@ INTERNATIONAL CORRECTION GUIDE (apply ONLY when context justifies):
 
 ⚠️ GUARDRAIL: "Greek" in the context of international politics → Do NOT correct to "creeping"!
 
-### 3. ATOMIZATION
-Create a separate entry for each individual factual claim.
-NEVER mix opinions with facts. Opinions get type: "opinion".
+### 3. BINARY FILTER (Precision > Recall)
+Classify EVERY identified claim:
+- **PROCESS**: Hard facts, percentages, rankings, legal statutes, verifiable historical events
+- **SKIP**: Pure metaphors (e.g., "government fog soup"), personal anecdotes (e.g., "my friends told me"), subjective opinions without factual content
 
-### 4. QUERY DECOMPOSITION
-For each claim, generate 2-3 short search queries (3-6 words):
+⚠️ It is BETTER to SKIP a claim than to process metaphorical junk!
+
+### 4. FACTUAL CORE DEDUPLICATION (Stage 2 Dedup)
+Extract the **underlying factual claim** from different rhetorical framings.
+If the same fact appears multiple times with different wording → ONE ClaimObject with multiple entries in "occurrences[]".
+
+EXAMPLE:
+- "Economy is at a snail's pace" (12:04) + "mere 1 percent growth" (45:10)
+  → factual_core: "GDP growth is approximately 1%."
+  → occurrences: [{timestamp_hint: "12:04", rhetorical_framing: "Economic snail's pace"}, {timestamp_hint: "45:10", rhetorical_framing: "1% growth"}]
+
+### 5. ATOMIZATION
+Create a separate entry for each individual factual claim.
+NEVER mix opinions with facts. Opinions get type: "opinion" AND status: "SKIP".
+
+### 6. QUERY DECOMPOSITION
+For each PROCESS claim, generate 2-3 short search queries (3-6 words):
 - PRIORITIZE official sources: national statistics offices, IMF, World Bank, Eurostat
 - Combine key entities for Google search
 
 Text: "${sanitized.slice(0, 4000)}"
 
 Respond ONLY with JSON array:
-[{"claim": "Atomic factual claim WITHOUT speaker attribution (phonetically corrected)", "rawTranscriptSnippet": "Original text from transcript BEFORE correction", "search_queries": ["Query1", "Query2"], "speaker": "Name or null", "checkability": 1-5, "importance": 1-5, "category": "STATISTICS|ECONOMY|POLITICS|SCIENCE", "type": "factual|causal|opinion"}]
+[{
+  "status": "PROCESS",
+  "factual_core": "Atomic factual claim WITHOUT speaker attribution (phonetically corrected)",
+  "category": "ECONOMICS|POLITICS|SCIENCE|STATISTICS",
+  "importance": 3,
+  "occurrences": [{
+    "timestamp_hint": "approximate position in transcript",
+    "rhetorical_framing": "How the speaker framed it",
+    "raw_snippet": "Original ASR transcript text"
+  }],
+  "phonetic_repairs": [{"original": "ASR error", "corrected": "Correction"}],
+  "search_queries": ["Query1", "Query2"],
+  "type": "factual|causal|opinion"
+}]
 
 No verifiable facts with sufficient context? Respond: []`;
 
@@ -1267,17 +1340,19 @@ No verifiable facts with sufficient context? Respond: []`;
                     }
                 }
                 claim.claim = text;
+                claim.factual_core = text;  // v5.4+: keep in sync
             }
         }
 
         // V5.4: Post-extraction attribution stripping (code-level guarantee)
         for (const claim of validated) {
             claim.claim = stripAttribution(claim.claim);
+            claim.factual_core = claim.claim;  // v5.4+: keep in sync
         }
 
         console.log('[FAKTCHECK BG] ========== RESULT ==========');
         console.log('[FAKTCHECK BG] Extracted', validated.length, 'claims');
-        validated.forEach((c, i) => console.log(`[FAKTCHECK BG]   ${i + 1}. ${c.claim.slice(0, 60)}...`));
+        validated.forEach((c, i) => console.log(`[FAKTCHECK BG]   ${i + 1}. [${c.status}] ${c.claim.slice(0, 60)}...`));
         return { claims: validated, lang };
     } catch (error) {
         console.error('[FAKTCHECK BG] ========== ERROR ==========');
