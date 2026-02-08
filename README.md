@@ -1,7 +1,7 @@
 # 📑 FAKTCHECK LIVE
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/version-2.1.0-blue.svg)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-2.2.0-blue.svg)](CHANGELOG.md)
 [![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://github.com/humanchaos/factcheck/graphs/commit-activity)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](http://makeapullrequest.com)
 [![Golden Tests](https://img.shields.io/badge/Golden_Tests-22%2F22_(100%25)-brightgreen.svg)](TESTING.md)
@@ -122,7 +122,8 @@ The judge operates under **BEWERTUNGS-LOGIK** — 8 rules that ensure external r
 |------|--------|
 | **Realitäts-Primat** | Video ≠ evidence. Only external data counts. |
 | **Tier-1 Dominanz** | WIFO/IMF/Eurostat override speaker claims |
-| **Confidence-Malus** | Video-only source → confidence 0.1, verdict → `unverifiable` |
+| **Confidence Formula** | `min(0.95, Σ(S_i × W_i) × V_c)` — deterministic, per-source scoring |
+| **Source Sanitization** | YouTube + Wikipedia filtered from confidence and source lists |
 | **Metaphern-Erkennung** | Political exaggerations checked against real data |
 | **ABSCHLUSS-PRÜFUNG** | "Is there official data contradicting this core claim?" |
 

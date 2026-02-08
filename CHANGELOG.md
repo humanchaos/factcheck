@@ -5,6 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.2.0] - 2026-02-08 — "v5.4 Stable" ✅
+
+### Added
+- **Deterministic Confidence Formula:** `Confidence = min(0.95, Σ(S_i × W_i) × V_c)` — per-source scoring based on source tier (S_i), recency weight (W_i), and verdict consistency (V_c). No LLM-generated confidence values.
+- **Source Sanitization:** YouTube and Wikipedia sources automatically filtered from confidence calculation and source lists. YouTube-only claims → `unverifiable` at 0.1 confidence.
+- **Semantic Deduplication:** `hashClaim()` now strips punctuation and preserves umlauts for SHA-256 hashing. "Platz 185." and "platz 185" now hit the same cache entry.
+- **Always-Visible Feedback:** 👍/👎 buttons moved from hidden evidence chain to card surface — visible without expanding.
+- **Standalone Test Module:** `calculateConfidence.js` extracted for Jest testing (9/9 green).
+- **Global Wildcards:** Added `.gov.uk`, `.go.jp`, `.edu.au`, `.mil` to source registry.
+
+### Fixed
+- **Confidence Regression:** Two compounding bugs suppressed confidence to max 0.40:
+  - Null timestamps defaulted to `currentYear-3` (W_i=0.5 for every source)
+  - FALSE verdicts set all sources to 'contradicting' (V_c=0.5, halving again)
+  - Combined: Tier-1 scored 0.125 instead of 0.50. Now fixed.
+
+### Changed
+- **Self-Referential Malus:** Simplified to party/propaganda domains only (YouTube handled upstream by sanitization).
+- **Confidence Capping:** Hard cap at 0.95, floor at 0.10.
+
 ## [2.1.0] - 2026-02-08 — "The Ground Truth" (v5.4)
 
 ### Added
@@ -22,7 +42,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **`test-stage2-validation.js`:** 22-claim validation script for attribution stripping accuracy (10/10 = 100%).
 
 ### Changed
-- **Confidence Calculation:** `calculateConfidence()` now applies Tier-1 boost (×1.5), capped at 1.0.
+- **Confidence Calculation:** `calculateConfidence()` now applies Tier-1 boost (×1.5), capped at 1.0. *(Superseded by v2.2.0 deterministic formula)*
 - **Self-Referential Source Malus:** Hardened to ×0.2 penalty, confidence capped at ≤0.1, auto-downgrade to `unverifiable`.
 - **Tier-1 Override:** If Tier-1 sources contradict a positive LLM verdict, verdict forced to `false`.
 - **Judge Prompt:** "Unbestechlicher Faktenprüfer" with BEWERTUNGS-LOGIK (8 rules) replaces previous "strikt gebundener Verifikationsrichter".
