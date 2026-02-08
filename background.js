@@ -187,11 +187,52 @@ function getSourceMeta(url) {
 // allSourcesAgree: no conflicting information found
 function calculateConfidence(matchType, topTier, allSourcesAgree) {
     const baseMap = { direct: 0.9, paraphrase: 0.7, none: 0.0 };
+    // V5.4: Tier-1 Dominanz — Gewichtung ×5.0 für offizielle Quellen
     const tierMap = { 1: 1.0, 2: 0.85, 3: 0.7, 4: 0.4, 5: 0.1 };
     const base = baseMap[matchType] || 0.0;
     const sourceMult = tierMap[topTier] || 0.5;
     const agreementMult = allSourcesAgree ? 1.0 : 0.7;
-    return parseFloat((base * sourceMult * agreementMult).toFixed(2));
+    // V5.4: Tier-1 boost — if top source is Tier-1, multiply confidence by 1.5x (capped at 1.0)
+    const tier1Boost = topTier === 1 ? 1.5 : 1.0;
+    return parseFloat(Math.min(1.0, base * sourceMult * agreementMult * tier1Boost).toFixed(2));
+}
+
+// V5.4: SEMANTIC CORE EXTRACTION — Strip attribution shells at code level
+// Removes "Laut...", "XY sagt...", "...behauptet" etc. to extract atomic factual core
+function stripAttribution(claimText) {
+    if (!claimText || typeof claimText !== 'string') return claimText;
+    let text = claimText.trim();
+
+    // German attribution patterns
+    const dePatterns = [
+        /^Laut\s+[^,]+[,:]\s*/i,                           // "Laut FPÖ TV, ..."
+        /^Laut\s+(?:dem|der|des|einem|einer)\s+[^,]+[,:]\s*/i, // "Laut dem Video, ..."
+        /^(?:Laut|Gemäß|Wie)\s+\S+(?:\s+\S+){0,4}\s+(?:sagt|behauptet|erklärt|meint|betont|argumentiert|stellt fest)[,:]?\s*/i,
+        /^\S+(?:\s+\S+){0,3}\s+(?:sagt|behauptet|erklärt|meint|betont|argumentiert|stellt fest|weiß|wissen|findet|glaubt)[,:]?\s+(?:dass\s+)?/i,
+        /^(?:Es\s+(?:ist|wird)\s+behauptet|Man\s+sagt|Es\s+heißt)[,:]?\s+(?:dass\s+)?/i,
+        /^(?:Im\s+Video\s+(?:wird\s+)?(?:gesagt|behauptet|erklärt))[,:]?\s+(?:dass\s+)?/i,
+    ];
+
+    // English attribution patterns
+    const enPatterns = [
+        /^According\s+to\s+[^,]+[,:]\s*/i,                  // "According to X, ..."
+        /^\S+(?:\s+\S+){0,3}\s+(?:says|claims|states|argues|asserts|maintains|believes)[,:]?\s+(?:that\s+)?/i,
+        /^(?:It\s+is\s+(?:said|claimed|alleged|reported))[,:]?\s+(?:that\s+)?/i,
+    ];
+
+    const allPatterns = [...dePatterns, ...enPatterns];
+    for (const pattern of allPatterns) {
+        const stripped = text.replace(pattern, '');
+        if (stripped !== text && stripped.length > 10) {
+            console.log(`[FAKTCHECK BG] ✂️ Attribution stripped: "${text.slice(0, 60)}" → "${stripped.slice(0, 60)}"`);
+            text = stripped;
+            // Capitalize first letter after stripping
+            text = text.charAt(0).toUpperCase() + text.slice(1);
+            break;  // Only strip once
+        }
+    }
+
+    return text;
 }
 
 // V3.1 JSON Extraction (BATTLE-TESTED)
@@ -429,20 +470,26 @@ function validateVerification(data, claimType = 'factual') {
         confidence = Math.min(confidence, 0.60);
     }
 
-    // V5.3: REALITY-FIRST — Self-referential source malus
-    // If the ONLY sources are YouTube/video-origin (the claim's own video), apply heavy penalty
-    const selfRefPatterns = /youtube\.com|youtu\.be|fpoe\.at|fpö|fpoetv|tv\.at\/fpoe/i;
+    // V5.4: GROUND TRUTH — Self-referential source malus (hardened)
+    // If the ONLY sources are YouTube/video-origin (the claim's own video), apply penalty ×0.2
+    const selfRefPatterns = /youtube\.com|youtu\.be|fpoe\.at|fpö|fpoetv|tv\.at\/fpoe|social[-\s]?media/i;
     const externalSources = tieredSources.filter(s => !selfRefPatterns.test(s.url || '') && s.tier <= 3);
     const onlySelfRef = totalSources > 0 && externalSources.length === 0;
 
-    if (onlySelfRef && llmPositive) {
-        console.log('[FAKTCHECK BG] ⚠️ REALITY-FIRST: Only self-referential sources — applying confidence malus');
-        confidence = Math.min(confidence - 0.5, 0.25);
-        if (confidence <= 0.25) {
-            verdict = 'unverifiable';
-            confidence = 0.25;
-            explanation = (explanation || '') + ' [Reality-First: Keine unabhängigen externen Quellen gefunden. Die einzige Quelle ist das Video selbst.]';
-        }
+    if (onlySelfRef) {
+        console.log('[FAKTCHECK BG] ⚠️ GROUND TRUTH: Only self-referential sources — penalty ×0.2');
+        confidence = Math.min(confidence * 0.2, 0.10);  // V5.4: ≤0.1 per spec
+        verdict = 'unverifiable';
+        explanation = (explanation || '') + ' [Ground Truth: Keine unabhängigen externen Quellen. Die einzige Quelle ist das Video selbst — keine Evidenz für Richtigkeit.]';
+    }
+
+    // V5.4: TIER-1 OVERRIDE — If Tier-1 source contradicts a positive verdict, force FALSE
+    const tier1Sources = tieredSources.filter(s => s.tier === 1);
+    if (tier1Sources.length > 0 && llmPositive && !allSourcesAgree) {
+        console.log('[FAKTCHECK BG] 🏛️ TIER-1 OVERRIDE: Official sources contradict claim');
+        verdict = 'false';
+        confidence = Math.max(confidence, 0.85);
+        explanation = (explanation || '') + ' [Tier-1 Übersteuerung: Offizielle Quelle widerspricht der Behauptung.]';
     }
 
     // V3.0: Causal analysis - ONLY for explicit causal claims
@@ -1008,6 +1055,11 @@ No verifiable facts with sufficient context? Respond: []`;
             }
         }
 
+        // V5.4: Post-extraction attribution stripping (code-level guarantee)
+        for (const claim of validated) {
+            claim.claim = stripAttribution(claim.claim);
+        }
+
         console.log('[FAKTCHECK BG] ========== RESULT ==========');
         console.log('[FAKTCHECK BG] Extracted', validated.length, 'claims');
         validated.forEach((c, i) => console.log(`[FAKTCHECK BG]   ${i + 1}. ${c.claim.slice(0, 60)}...`));
@@ -1095,7 +1147,7 @@ function mapEvidence(groundingSupports, groundingSources) {
 }
 
 async function judgeEvidence(claimText, snippets, sources, apiKey, lang = 'de', claimType = 'factual', facts = []) {
-    console.log('[FAKTCHECK BG] ── STAGE 3: judgeEvidence (JSON mode) ──');
+    console.log('[FAKTCHECK BG] ── STAGE 3: judgeEvidence (v5.4 Ground Truth) ──');
     const sanitized = sanitize(claimText, 1000);
     const isCausal = claimType === 'causal';
     const evidenceBlock = snippets.length > 0
@@ -1109,10 +1161,10 @@ async function judgeEvidence(claimText, snippets, sources, apiKey, lang = 'de', 
         : 'none';
 
     const mathGuardrail = lang === 'de'
-        ? '\n6. Mathematischer Ausreißer: Wenn der Claim einen numerischen Wert enthält, der >10x höher ist als der höchste bestätigte Wert in den Beweisen, setze verdict auf "false" und math_outlier auf true.'
-        : '\n6. Mathematical Outlier: If the claim contains a numerical value >10x higher than the highest confirmed figure in the evidence, set verdict to "false" and math_outlier to true.';
+        ? '\n8. Mathematischer Ausreißer: Wenn der Claim einen numerischen Wert enthält, der >10x höher ist als der höchste bestätigte Wert in den Beweisen, setze verdict auf "false" und math_outlier auf true.'
+        : '\n8. Mathematical Outlier: If the claim contains a numerical value >10x higher than the highest confirmed figure in the evidence, set verdict to "false" and math_outlier to true.';
     const causalRule = isCausal
-        ? (lang === 'de' ? '\n7. Kausalität: Prüfe ob die zeitliche Abfolge den kausalen Zusammenhang stützt.' : '\n7. Causality: Check whether the timeline supports the causal relationship.')
+        ? (lang === 'de' ? '\n9. Kausalität: Prüfe ob die zeitliche Abfolge den kausalen Zusammenhang stützt.' : '\n9. Causality: Check whether the timeline supports the causal relationship.')
         : '';
 
     const systemInstruction = lang === 'de'
@@ -1121,19 +1173,25 @@ async function judgeEvidence(claimText, snippets, sources, apiKey, lang = 'de', 
 KRITISCHE REGELN:
 1. REALITY-FIRST: Die Tatsache, dass jemand etwas in einem Video sagt, ist KEIN Beweis für dessen Richtigkeit. Das Video-Transkript ist KEINE Evidenzquelle. Prüfe die Behauptung gegen unabhängige, externe Daten.
 2. STATISTIK-PRÄZEDENZ: Offizielle Statistiken (Eurostat, IMF, WIFO, Statistik Austria, Weltbank) haben immer Vorrang vor medialer Verbreitung oder Wiederholung einer Behauptung. Wenn offizielle Daten der Behauptung widersprechen → verdict: "false".
-3. Direkter Widerspruch durch Tier 1/2 Quelle → verdict: "false".
-4. Direkte Bestätigung durch Tier 1/2 Quelle → verdict: "true".
-5. Teilweise Übereinstimmung → verdict: "partially_true".
-6. Meinung ohne prüfbaren Inhalt → verdict: "opinion".${mathGuardrail}${causalRule}`
+3. METAPHERN-ERKENNUNG: Politische Übertreibungen und Metaphern (z.B. "Schneckentempo", "Rekordniveau", "Pleitewelle") sind KEINE Fakten. Prüfe den faktischen Kern gegen reale Daten. Wenn WIFO 1,1% Wachstum prognostiziert und jemand von "Schneckentempo" spricht → prüfe ob 1,1% Wachstum stimmt, nicht ob es "langsam" ist.
+4. Direkter Widerspruch durch Tier 1/2 Quelle → verdict: "false".
+5. Direkte Bestätigung durch Tier 1/2 Quelle → verdict: "true".
+6. Teilweise Übereinstimmung → verdict: "partially_true".
+7. Meinung ohne prüfbaren Inhalt → verdict: "opinion".${mathGuardrail}${causalRule}
+
+ABSCHLUSS-PRÜFUNG: Frage dich VOR der Antwort: "Gibt es offizielle Daten, die diesem Kern widersprechen?" Wenn ja → verdict: "false".`
         : `You are a strictly grounded Verification Judge. Respond ONLY with the required JSON schema.
 
 CRITICAL RULES:
 1. REALITY-FIRST: The fact that someone says something in a video is NOT evidence of its truth. The video transcript is NOT an evidence source. Verify the claim against independent, external data.
 2. STATISTICS PRECEDENCE: Official statistics (Eurostat, IMF, World Bank, national statistics offices) always override media repetition of a claim. If official data contradicts the claim → verdict: "false".
-3. Direct Contradiction by Tier 1/2 source → verdict: "false".
-4. Direct Support by Tier 1/2 source → verdict: "true".
-5. Partial Match → verdict: "partially_true".
-6. Opinion with no verifiable assertion → verdict: "opinion".${mathGuardrail}${causalRule}`;
+3. METAPHOR DETECTION: Political exaggerations and metaphors (e.g., "snail's pace", "record levels", "bankruptcy wave") are NOT facts. Check the factual core against real data.
+4. Direct Contradiction by Tier 1/2 source → verdict: "false".
+5. Direct Support by Tier 1/2 source → verdict: "true".
+6. Partial Match → verdict: "partially_true".
+7. Opinion with no verifiable assertion → verdict: "opinion".${mathGuardrail}${causalRule}
+
+FINAL CHECK: Before answering, ask: "Is there official data contradicting this core claim?" If yes → verdict: "false".`;
 
     const prompt = `${systemInstruction}
 
