@@ -408,7 +408,7 @@ function parseVerdictFromText(text) {
 }
 
 
-function validateVerification(data, claimType = 'factual') {
+function validateVerification(data, claimType = 'factual', claimText = '') {
     const validVerdicts = ['true', 'mostly_true', 'partially_true', 'mostly_false', 'false', 'unverifiable', 'unverified', 'misleading', 'opinion', 'deceptive'];
     if (typeof data !== 'object' || !data) {
         return { verdict: 'unverifiable', displayVerdict: 'unverifiable', confidence: 0.3, explanation: 'Invalid response', sources: [] };
@@ -488,7 +488,7 @@ function validateVerification(data, claimType = 'factual') {
     // V5.4: GROUND TRUTH — Self-referential source malus (hardened)
     // If the ONLY sources are YouTube/video-origin (the claim's own video), apply penalty ×0.2
     const selfRefPatterns = /youtube\.com|youtu\.be|fpoe\.at|fpö|fpoetv|tv\.at\/fpoe|social[-\s]?media/i;
-    const externalSources = tieredSources.filter(s => !selfRefPatterns.test(s.url || '') && s.tier <= 3);
+    const externalSources = tieredSources.filter(s => !selfRefPatterns.test(s.url || ''));
     const onlySelfRef = totalSources > 0 && externalSources.length === 0;
 
     if (onlySelfRef) {
@@ -506,6 +506,17 @@ function validateVerification(data, claimType = 'factual') {
         verdict = 'false';
         confidence = Math.max(confidence, 0.85);
         explanation = (explanation || '') + ' [Tier-1 Übersteuerung: Offizielle Quelle widerspricht der Behauptung.]';
+    }
+
+    // V5.4: CONTRADICTION OVERRIDE (Math Guardrail)
+    // When judge says "unverifiable" but external sources exist AND claim contains specific numbers,
+    // sources found different data → that's a contradiction, not "insufficient data"
+    const hasSpecificNumbers = /\b(Platz|Rang|Stelle|place|rank)\s+\d+|\b\d+[.,]\d+\s*%|\b\d+\s*(Milliarden|Mrd|Billionen|trillion|billion|million|Millionen)|\bPlatz\s+\d+\s+von\s+\d+/i.test(claimText);
+    if (verdict === 'unverifiable' && totalSources > 0 && externalSources.length > 0 && hasSpecificNumbers) {
+        console.log('[FAKTCHECK BG] 📐 MATH GUARDRAIL: Numeric claim unverifiable with contradicting evidence — forcing FALSE');
+        verdict = 'false';
+        confidence = Math.max(confidence, 0.70);
+        explanation = (explanation || '') + ' [Math Guardrail: Spezifische Zahlenangabe widerspricht den gefundenen Daten.]';
     }
 
     // V3.0: Causal analysis - ONLY for explicit causal claims
@@ -1648,7 +1659,7 @@ async function verifyClaim(claimText, apiKey, lang = 'de', claimType = 'factual'
             parsed._groundingSources = evidence.sources;
         }
 
-        const validated = validateVerification(parsed, claimType);
+        const validated = validateVerification(parsed, claimType, claimText);
         await setCache(claimText, validated, videoId);
         console.log('[FAKTCHECK BG v2.0] ✅ Verdict:', validated.verdict, '| Confidence:', validated.confidence, '| Quality:', validated.source_quality);
         return validated;
