@@ -254,6 +254,43 @@ async function callGemini(prompt, options = {}) {
     throw lastError;
 }
 
+// V5.4: SEMANTIC CORE EXTRACTION — Strip attribution shells at code level
+// Mirrors background.js::stripAttribution() — both paths MUST strip identically
+function stripAttribution(claimText) {
+    if (!claimText || typeof claimText !== 'string') return claimText;
+    let text = claimText.trim();
+
+    const dePatterns = [
+        /^Laut\s+\S+(?:\s+\S+){0,3}[,:]\s*/i,
+        /^Laut\s+(?:dem|der|des|einem|einer)\s+\S+(?:\s+\S+){0,3}[,:]\s*/i,
+        /^Laut\s+\S+(?:\s+\S+){0,3}\s+(?:ist|sind|war|wird|wächst|liegt|beträgt|hat|haben|wurde|soll|steigt|sinkt|fällt|verursachen|zeigen)\s+/i,
+        /^Laut\s+(?:dem|der|des|einem|einer)\s+\S+(?:\s+\S+){0,3}\s+(?:ist|sind|war|wird|wächst|liegt|beträgt|hat|haben|wurde|soll|steigt|sinkt|fällt|verursachen|zeigen)\s+/i,
+        /^(?:Laut|Gemäß|Wie)\s+\S+(?:\s+\S+){0,4}\s+(?:sagt|behauptet|erklärt|meint|betont|argumentiert|stellt fest)[,:]?\s*/i,
+        /^\S+(?:\s+\S+){0,3}\s+(?:sagt|behauptet|erklärt|meint|betont|argumentiert|stellt fest|weiß|wissen|findet|glaubt)[,:]?\s+(?:dass\s+)?/i,
+        /^(?:Es\s+(?:ist|wird)\s+behauptet|Man\s+sagt|Es\s+heißt)[,:]?\s+(?:dass\s+)?/i,
+        /^(?:Im\s+Video\s+(?:wird\s+)?(?:gesagt|behauptet|erklärt))[,:]?\s+(?:dass\s+)?/i,
+    ];
+
+    const enPatterns = [
+        /^According\s+to\s+[^,]+[,:]\s*/i,
+        /^\S+(?:\s+\S+){0,3}\s+(?:says|claims|states|argues|asserts|maintains|believes)[,:]?\s+(?:that\s+)?/i,
+        /^(?:It\s+is\s+(?:said|claimed|alleged|reported))[,:]?\s+(?:that\s+)?/i,
+    ];
+
+    const allPatterns = [...dePatterns, ...enPatterns];
+    for (const pattern of allPatterns) {
+        const stripped = text.replace(pattern, '');
+        if (stripped !== text && stripped.length > 10) {
+            console.log(`[FAKTCHECK v3.2] ✂️ Attribution stripped: "${text.slice(0, 60)}" → "${stripped.slice(0, 60)}"`);
+            text = stripped;
+            text = text.charAt(0).toUpperCase() + text.slice(1);
+            break;
+        }
+    }
+
+    return text;
+}
+
 // ─── PHASE 1: EXTRACTION ────────────────────────────────────
 
 async function extractClaims(text, videoTitle = '') {
@@ -283,7 +320,7 @@ Keine Claims? Antworte: []`;
         if (!Array.isArray(parsed)) return fallbackExtraction(clean);
 
         return parsed.filter(c => c?.claim).map(c => ({
-            claim: sanitize(c.claim, 500),
+            claim: stripAttribution(sanitize(c.claim, 500)),
             originalClaim: sanitize(c.claim, 500),
             search_queries: Array.isArray(c.search_queries) ? c.search_queries.map(q => sanitize(q, 100)).slice(0, 3) : [],
             anchors: Array.isArray(c.anchors) ? c.anchors.slice(0, 5) : [],
@@ -301,7 +338,7 @@ Keine Claims? Antworte: []`;
 function fallbackExtraction(text) {
     return text.split(/[.!?]+/).map(s => s.trim()).filter(s => s.length > 20 && /[A-ZÄÖÜ]/.test(s))
         .slice(0, 5).map(s => ({
-            claim: s, originalClaim: s,
+            claim: stripAttribution(s), originalClaim: s,
             search_queries: s.split(/\s+/).filter(w => /^[A-ZÄÖÜ]/.test(w) && w.length > 2).slice(0, 4),
             anchors: [], type: 'factual', speaker: null,
             checkability: 2, importance: 2, _fallback: true

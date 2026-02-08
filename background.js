@@ -466,6 +466,7 @@ function validateVerification(data, claimType = 'factual') {
     const normalizedMatchType = matchType === 'insufficient_data' ? 'none' : matchType;
     // If LLM says TRUE but we have no quality sources, sources disagree
     const llmPositive = ['true', 'mostly_true'].includes(verdict);
+    const originalLlmPositive = llmPositive; // V5.4: Preserve BEFORE any downgrades
     const allSourcesAgree = !(llmPositive && totalSources === 0);
     const calibrated = calculateConfidence(normalizedMatchType, topTier, allSourcesAgree);
 
@@ -475,7 +476,8 @@ function validateVerification(data, claimType = 'factual') {
     }
 
     // Downgrade verdict if sources don't back it up
-    if (llmPositive && matchType === 'none') {
+    // V5.4: Skip this downgrade if Tier-1 sources exist — let Tier-1 Override handle it
+    if (llmPositive && matchType === 'none' && tier1Count === 0) {
         verdict = 'unverifiable';
         confidence = 0.30;
     } else if (llmPositive && totalSources === 1 && topTier >= 4) {
@@ -496,10 +498,11 @@ function validateVerification(data, claimType = 'factual') {
         explanation = (explanation || '') + ' [Ground Truth: Keine unabhängigen externen Quellen. Die einzige Quelle ist das Video selbst — keine Evidenz für Richtigkeit.]';
     }
 
-    // V5.4: TIER-1 OVERRIDE — If Tier-1 source contradicts a positive verdict, force FALSE
+    // V5.4: TIER-1 OVERRIDE — If Tier-1 sources exist AND judge originally said positive, force FALSE
+    // Fixed: uses originalLlmPositive (saved before downgrades) instead of broken allSourcesAgree check
     const tier1Sources = tieredSources.filter(s => s.tier === 1);
-    if (tier1Sources.length > 0 && llmPositive && !allSourcesAgree) {
-        console.log('[FAKTCHECK BG] 🏛️ TIER-1 OVERRIDE: Official sources contradict claim');
+    if (tier1Sources.length > 0 && originalLlmPositive && verdict !== 'false') {
+        console.log('[FAKTCHECK BG] 🏛️ TIER-1 OVERRIDE: Official sources contradict claim — forcing FALSE');
         verdict = 'false';
         confidence = Math.max(confidence, 0.85);
         explanation = (explanation || '') + ' [Tier-1 Übersteuerung: Offizielle Quelle widerspricht der Behauptung.]';
