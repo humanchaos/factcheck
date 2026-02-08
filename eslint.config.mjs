@@ -22,10 +22,20 @@ export default [
         }
     },
     {
-        files: ["test-dryrun.js"],
+        files: ["test-dryrun.js", "test-stage2-validation.js"],
         languageOptions: {
             globals: {
-                ...globals.node
+                ...globals.node,
+                stripAttribution: "readonly"
+            }
+        }
+    },
+    {
+        files: ["*.test.js"],
+        languageOptions: {
+            globals: {
+                ...globals.node,
+                ...globals.jest
             }
         }
     }
