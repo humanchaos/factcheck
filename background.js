@@ -1120,7 +1120,7 @@ async function extractClaims(text, apiKey, metadata = null) {
 ${groundingContext}
 
 ## SYSTEM-PROMPT
-Du bist ein Skeptischer Daten-Auditor. Deine Aufgabe ist es, aus dem vorliegenden Transkript atomare Tatsachenbehauptungen zu extrahieren.
+Du bist ein Deterministischer Fakten-Extraktor. Du extrahierst NUR Aussagen, die den Zustand der Welt beschreiben — NICHT die Wünsche des Sprechers.
 
 🔑 KERNEL-REGEL (Primäre Heuristik):
 "Extrahiere NUR dann, wenn die Behauptung wahr bleibt, selbst wenn der Sprecher nie existiert hätte."
@@ -1162,8 +1162,20 @@ INTERNATIONALE KORREKTUR-TABELLE (NUR anwenden, wenn der Kontext es rechtfertigt
 
 ⚠️ GUARDRAIL: "Griechisch" im Kontext internationaler Politik → NICHT zu "Kriechgang" korrigieren!
 
-### 3. BINÄRFILTER (Precision > Recall)
-Klassifiziere JEDEN identifizierten Claim:
+### 3. FALSIFIZIERBARKEITSTEST (VOR dem Binärfilter!)
+Frage dich bei JEDEM Claim: "Kann diese Aussage mit externen Daten widerlegt werden?"
+- Enthält "soll/muss/sollte" (Soll/Muss) → Es ist eine FORDERUNG → SKIP
+- Enthält "will/werde/werden" (Wollen/Werden) → Es ist ein VERSPRECHEN → SKIP
+- Enthält "ist/war/hat/beträgt" (Ist/War) → Es ist eine FAKTENBEHAUPTUNG → WEITER PRÜFEN
+
+| Verbale Kategorie | Beispiel | Aktion |
+| Imperativ/Modal | "Steuern müssen runter" | SKIP (Forderung) |
+| Optativ/Absicht | "Der Sektor soll wachsen" | SKIP (Wunsch) |
+| Futur/Versprechen | "Wir werden das tun" | SKIP (Polit. Versprechen) |
+| Indikativ (Präs./Verg.) | "Österreich hat ein Defizit von..." | PROCESS (Faktenbehauptung) |
+
+### 4. BINÄRFILTER (Precision > Recall)
+Klassifiziere JEDEN verbleibenden identifizierten Claim:
 - **PROCESS**: Harte Fakten, Prozentsätze, Rankings, Gesetze, verifizierbare historische Ereignisse, Umfragedaten
 - **SKIP**: Reine Metaphern, persönliche Anekdoten, subjektive Meinungen ohne Faktengehalt
 
@@ -1171,17 +1183,27 @@ Klassifiziere JEDEN identifizierten Claim:
 - **Persona/Handlungen**: "Ich habe gesehen", "Ich fühle", "Ich habe angerufen", "Wir haben beschlossen"
 - **Attributions-Hüllen**: "Der Sprecher behauptet", "Partei X sagt", "Der Präsident fordert"
 - **Subjektive Adjektive als Kern**: "bürokratisch", "selbstgefällig", "freiheitsfeindlich", "volksfeindlich"
+- **Modale Forderungen**: Jeder Satz mit "muss", "soll", "sollte", "müsste" als Kern
+
+🚫 SELBSTREFERENZ-FILTER:
+Wenn der factual_core den Sprecher als Subjekt hat → SKIP.
+Muster: (Ich|Wir|Der Sprecher) + (habe|will|finde|bin|sehe|glaube|meine)
+Beispiel: "Ich habe die Rede gesehen" → SKIP (Anekdote, kein Daten-Kernel)
 
 ⚠️ Es ist BESSER einen Claim zu SKIPPEN als metaphorischen Müll zu verarbeiten!
 
-📊 AUDIT-BEISPIELE (Skeptischer Auditor):
+📊 AUDIT-BEISPIELE (Deterministischer Fakten-Extraktor):
 | Snippet | Status | Grund |
 | "FPÖ erlebt Aufschwung in Umfragen" | PROCESS | Externes Daten-Kernel (Umfragewerte) |
-| "Ich habe die Rede des Präsidenten gesehen" | SKIP | Persona-Handlung |
-| "Die EU ist zentralistisch" | SKIP | Politische Charakterisierung/Meinung |
+| "Steuern müssen gesenkt werden" | SKIP | Politische Forderung (Modalverb) |
+| "Lohnnebenkosten müssen gesenkt werden" | SKIP | Politische Forderung (Modalverb) |
+| "Der öffentliche Sektor muss kleiner werden" | SKIP | Ideologische Präferenz |
+| "Österreich ist momentan ein Intensivpatient" | SKIP | Metapher |
+| "Österreich hat ein Defizit von 3.7%" | PROCESS | Indikativ-Faktenbehauptung |
+| "Ich habe die Rede des Präsidenten gesehen" | SKIP | Selbstreferenz |
 | "EU-Genehmigung für Grenzkontrollen" | PROCESS | Institutioneller/rechtlicher Fakt |
 
-### 4. FACTUAL CORE DEDUPLICATION (Stage 2 Dedup)
+### 5. FACTUAL CORE DEDUPLICATION (Stage 2 Dedup)
 Extrahiere die **zugrundeliegende Tatsachenbehauptung** aus verschiedenen rhetorischen Framings.
 Wenn der gleiche Fakt mehrmals mit unterschiedlicher Formulierung vorkommt → EINE ClaimObject mit mehreren Einträgen in "occurrences[]".
 
@@ -1190,11 +1212,12 @@ BEISPIEL:
   → factual_core: "Österreichs BIP-Wachstum beträgt ca. 1%."
   → occurrences: [{timestamp_hint: "12:04", rhetorical_framing: "Wirtschaftlicher Schneckengang"}, {timestamp_hint: "45:10", rhetorical_framing: "1% Wachstum"}]
 
-### 5. ATOMISIERUNG
+### 6. ATOMISIERUNG
 Erstelle für jede einzelne Fakten-Behauptung einen eigenen Eintrag.
 Vermische KEINE Meinungen mit Fakten. Meinungen erhalten type: "opinion" UND status: "SKIP".
+Forderungen ("muss", "soll") erhalten type: "opinion" UND status: "SKIP".
 
-### 6. QUERY DECOMPOSITION
+### 7. QUERY DECOMPOSITION
 Für jeden PROCESS-Claim generiere 2-3 kurze Such-Queries (3-6 Wörter):
 - PRIORISIERE offizielle Quellen: Statistik Austria, WIFO, IMF, Eurostat, Weltbank
 - Kombiniere Schlüssel-Entitäten für Google-Suche
@@ -1203,7 +1226,7 @@ BEISPIEL:
 factual_core: "Österreich liegt beim Wirtschaftswachstum auf Platz 185 von 191"
 search_queries: ["IMF World Economic Outlook GDP growth ranking 2026", "WIFO Österreich BIP Wachstum Prognose 2026", "Statistik Austria Wirtschaftswachstum"]
 
-### 7. TYPE DETECTION
+### 8. TYPE DETECTION
 - "factual": Reine Faktenbehauptung
 - "causal": Enthält "weil/aufgrund/verursacht/führte zu"
 - "opinion": Werturteil/Meinung einer Person (z.B. "X kritisiert", "Y fordert")
@@ -1232,7 +1255,7 @@ Keine Claims? Antworte: []` :
 ${groundingContext}
 
 ## SYSTEM PROMPT
-You are a Skeptical Data Auditor. Your task is to extract atomic factual claims from the given transcript.
+You are a Deterministic Fact-Extractor. You extract ONLY statements that describe the state of the world — NOT the desires of the speaker.
 
 🔑 KERNEL RULE (Primary Heuristic):
 "Extract ONLY if the claim remains true even if the speaker never existed."
@@ -1272,8 +1295,20 @@ INTERNATIONAL CORRECTION GUIDE (apply ONLY when context justifies):
 
 ⚠️ GUARDRAIL: "Greek" in the context of international politics → Do NOT correct to "creeping"!
 
-### 3. BINARY FILTER (Precision > Recall)
-Classify EVERY identified claim:
+### 3. FALSIFIABILITY TEST (BEFORE the Binary Filter!)
+For EVERY claim ask: "Can this statement be proven false using only external data?"
+- Contains "should/must/ought" → It is a DEMAND → SKIP
+- Contains "will/want to/going to" → It is a PROMISE → SKIP
+- Contains "is/was/has/amounts to" → It is a FACTUAL ASSERTION → CONTINUE CHECKING
+
+| Verbal Category | Example | Action |
+| Imperative/Modal | "Taxes must be lowered" | SKIP (Demand) |
+| Optative/Intent | "The sector should grow" | SKIP (Wish) |
+| Future/Promise | "We will do that" | SKIP (Political promise) |
+| Indicative (Pres./Past) | "The deficit is 3.7%" | PROCESS (Factual assertion) |
+
+### 4. BINARY FILTER (Precision > Recall)
+Classify EVERY remaining identified claim:
 - **PROCESS**: Hard facts, percentages, rankings, legal statutes, verifiable historical events, polling data
 - **SKIP**: Pure metaphors, personal anecdotes, subjective opinions without factual content
 
@@ -1281,17 +1316,26 @@ Classify EVERY identified claim:
 - **Persona/Actions**: "I watched", "I feel", "I called", "We decided"
 - **Attribution Shells**: "The speaker claims", "Party X says", "The President demands"
 - **Subjective Adjectives as Core**: "bureaucratic", "self-satisfied", "hostile to freedom"
+- **Modal Demands**: Any sentence with "must", "should", "ought to", "needs to" as its core
+
+🚫 SELF-REFERENTIAL FILTER:
+If the factual_core has the speaker as its subject → SKIP.
+Pattern: (I|We|The speaker) + (watched|want|feel|am|see|believe|think)
+Example: "I watched the President's speech" → SKIP (Anecdote, not a data kernel)
 
 ⚠️ It is BETTER to SKIP a claim than to process metaphorical junk!
 
-📊 AUDIT EXAMPLES (Skeptical Auditor):
+📊 AUDIT EXAMPLES (Deterministic Fact-Extractor):
 | Snippet | Status | Reason |
 | "Party experiencing a rise in polls" | PROCESS | External data kernel (polling) |
-| "Watched the President's speech" | SKIP | Speaker action |
-| "EU is centralistic" | SKIP | Political characterization/opinion |
+| "Taxes must be lowered" | SKIP | Political demand (modal verb) |
+| "The public sector must shrink" | SKIP | Ideological preference |
+| "The country is currently an intensive care patient" | SKIP | Metaphor |
+| "The deficit is 3.7% of GDP" | PROCESS | Indicative factual assertion |
+| "I watched the President's speech" | SKIP | Self-reference |
 | "EU approval for border controls" | PROCESS | Institutional/legal fact |
 
-### 4. FACTUAL CORE DEDUPLICATION (Stage 2 Dedup)
+### 5. FACTUAL CORE DEDUPLICATION (Stage 2 Dedup)
 Extract the **underlying factual claim** from different rhetorical framings.
 If the same fact appears multiple times with different wording → ONE ClaimObject with multiple entries in "occurrences[]".
 
@@ -1300,11 +1344,12 @@ EXAMPLE:
   → factual_core: "GDP growth is approximately 1%."
   → occurrences: [{timestamp_hint: "12:04", rhetorical_framing: "Economic snail's pace"}, {timestamp_hint: "45:10", rhetorical_framing: "1% growth"}]
 
-### 5. ATOMIZATION
+### 6. ATOMIZATION
 Create a separate entry for each individual factual claim.
 NEVER mix opinions with facts. Opinions get type: "opinion" AND status: "SKIP".
+Demands ("must", "should") get type: "opinion" AND status: "SKIP".
 
-### 6. QUERY DECOMPOSITION
+### 7. QUERY DECOMPOSITION
 For each PROCESS claim, generate 2-3 short search queries (3-6 words):
 - PRIORITIZE official sources: national statistics offices, IMF, World Bank, Eurostat
 - Combine key entities for Google search
