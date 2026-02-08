@@ -562,10 +562,12 @@
             if (safe.fact_checks?.length > 0) {
                 for (const fc of safe.fact_checks) {
                     for (const review of (fc.reviews || [])) {
-                        const fcCard = S.createElement('div', { class: 'evidence-source-item fact-check-highlight' });
+                        const fcCard = S.createElement('div', { class: 'evidence-source-item fact-check-highlight ifcn-highlight' });
                         fcCard.appendChild(S.createElement('span', {
                             class: 'tier-tag tier-0'
                         }, '🏆 Professional Fact-Check'));
+                        // IFCN Verified Signatory badge
+                        fcCard.appendChild(S.createElement('span', { class: 'ifcn-badge' }, '✅ IFCN Verified Signatory'));
                         fcCard.appendChild(S.createElement('div', { class: 'evidence-quote' },
                             `Rating: "${S.text(review.rating)}"`));
                         fcCard.appendChild(S.createElement('div', { class: 'evidence-source-name' },
@@ -581,6 +583,57 @@
                         }
                         chain.appendChild(fcCard);
                     }
+                }
+            }
+
+            // 1d. V5.5: STRUCTURED EVIDENCE CHAIN — render evidence_chain items (IFCN pinned at top)
+            if (safe.evidence_chain?.length > 0) {
+                const ecSection = S.createElement('div', { class: 'evidence-chain-section' });
+
+                for (const entry of safe.evidence_chain) {
+                    // Skip IFCN entries already rendered above in fact_checks
+                    if (entry.is_ifcn) continue;
+
+                    const item = S.createElement('div', { class: `evidence-source-item ${entry.is_ifcn ? 'ifcn-highlight' : ''}` });
+
+                    // Tier badge
+                    const tierLabels = { 1: 'Authority', 2: 'Public Interest', 3: 'Fact-Check', 4: 'General', 5: 'Unreliable' };
+                    item.appendChild(S.createElement('span', {
+                        class: `tier-tag tier-${entry.tier || 4}`
+                    }, `Tier ${entry.tier}: ${tierLabels[entry.tier] || 'General'}`));
+
+                    // Source name
+                    if (entry.source_name) {
+                        item.appendChild(S.createElement('div', { class: 'evidence-source-name' },
+                            `${entry.sentiment === 'contradicting' ? '🔴' : '🟢'} ${S.text(entry.source_name)}`));
+                    }
+
+                    // Snippet
+                    if (entry.snippet) {
+                        item.appendChild(S.createElement('div', { class: 'evidence-quote' }, S.text(entry.snippet)));
+                    }
+
+                    // Verify link
+                    if (entry.url) {
+                        const link = S.createElement('a', {
+                            href: entry.url,
+                            target: '_blank',
+                            rel: 'noopener noreferrer',
+                            class: 'evidence-verify-link'
+                        });
+                        try {
+                            link.textContent = `Verify at ${new URL(entry.url).hostname} ↗`;
+                        } catch {
+                            link.textContent = 'See source ↗';
+                        }
+                        item.appendChild(link);
+                    }
+
+                    ecSection.appendChild(item);
+                }
+
+                if (ecSection.children.length > 0) {
+                    chain.appendChild(ecSection);
                 }
             }
 

@@ -513,40 +513,60 @@ function validateVerification(data, claimType = 'factual', claimText = '') {
         } catch { return true; }
     });
 
-    // Use calibrated confidence
+    // ─── V5.5: IFCN OVERRIDE — professional fact-checkers take priority ───
+    const factChecks = Array.isArray(data._factChecks) ? data._factChecks : [];
+    const ifcnReviews = factChecks.flatMap(fc => (fc.reviews || []).filter(r => r.url));
+    let ifcnOverrideApplied = false;
+
+    if (ifcnReviews.length > 0) {
+        console.log(`[FAKTCHECK BG] 🏆 IFCN OVERRIDE: ${ifcnReviews.length} professional fact-check(s) found`);
+        confidence = 0.95;
+        ifcnOverrideApplied = true;
+        // Map textual IFCN rating to verdict
+        const ifcnRating = (ifcnReviews[0].rating || '').toLowerCase();
+        if (/false|falsch|fake|wrong|pants on fire|unwahr|incorrect/i.test(ifcnRating)) {
+            verdict = 'false';
+        } else if (/true|wahr|correct|richtig|accurate/i.test(ifcnRating)) {
+            verdict = 'true';
+        } else if (/half|partly|teilw|mixture|gemischt|misleading/i.test(ifcnRating)) {
+            verdict = 'partially_true';
+        }
+        explanation = `[IFCN: "${ifcnReviews[0].rating}" — ${ifcnReviews[0].publisher}] ${explanation || ''}`;
+    }
+
+    // Use calibrated confidence (only if IFCN didn't already set it)
     const llmPositive = ['true', 'mostly_true'].includes(verdict);
-    const originalLlmPositive = llmPositive; // V5.4: Preserve BEFORE any downgrades
-    if (calibrated > 0) {
+    const originalLlmPositive = llmPositive; // Preserve BEFORE any downgrades
+    if (!ifcnOverrideApplied && calibrated > 0) {
         confidence = Math.min(Math.max(calibrated, 0.1), 0.95);
     }
 
-    // Downgrade verdict if sources don't back it up
-    // V5.4: Skip this downgrade if Tier-1 sources exist — let Tier-1 Override handle it
-    if (llmPositive && sanitizedSources.length === 0 && tier1Count === 0) {
-        verdict = 'unverifiable';
-        confidence = 0.10;  // V5.4 Stable: YouTube-only → 0.1
-    } else if (llmPositive && sanitizedSources.length === 1 && sanitizedSources[0]?.tier >= 4) {
-        verdict = 'partially_true';
-        confidence = Math.min(confidence, 0.60);
+    // Downgrade verdict if sources don't back it up (skip if IFCN override)
+    if (!ifcnOverrideApplied) {
+        if (llmPositive && sanitizedSources.length === 0 && tier1Count === 0) {
+            verdict = 'unverifiable';
+            confidence = 0.10;
+        } else if (llmPositive && sanitizedSources.length === 1 && sanitizedSources[0]?.tier >= 4) {
+            verdict = 'partially_true';
+            confidence = Math.min(confidence, 0.60);
+        }
     }
 
-    // V5.4 STABLE: Self-referential source malus — party/propaganda sites only
-    // YouTube already removed by sanitizedSources above
+    // Self-referential source malus — party/propaganda sites only (skip if IFCN override)
     const partyPatterns = /fpoe\.at|fpö|fpoetv|tv\.at\/fpoe|social[-\s]?media/i;
     const externalSources = sanitizedSources.filter(s => !partyPatterns.test(s.url || ''));
     const onlySelfRef = totalSources > 0 && externalSources.length === 0;
 
-    if (onlySelfRef) {
+    if (onlySelfRef && !ifcnOverrideApplied) {
         console.log('[FAKTCHECK BG] ⚠️ GROUND TRUTH: Only self-referential sources — penalty');
         confidence = 0.10;
         verdict = 'unverifiable';
         explanation = (explanation || '') + ' [Ground Truth: Keine unabhängigen externen Quellen.]';
     }
 
-    // V5.4: TIER-1 OVERRIDE — If Tier-1 sources exist AND judge originally said positive, force FALSE
-    // Fixed: uses originalLlmPositive (saved before downgrades) instead of broken allSourcesAgree check
+    // TIER-1 OVERRIDE (skip if IFCN override already took priority)
     const tier1Sources = tieredSources.filter(s => s.tier === 1);
-    if (tier1Sources.length > 0 && originalLlmPositive && verdict !== 'false') {
+    if (!ifcnOverrideApplied && tier1Sources.length > 0 && originalLlmPositive && verdict !== 'false') {
         console.log('[FAKTCHECK BG] 🏛️ TIER-1 OVERRIDE: Official sources contradict claim — forcing FALSE');
         verdict = 'false';
         confidence = Math.max(confidence, 0.85);
@@ -640,16 +660,46 @@ function validateVerification(data, claimType = 'factual', claimText = '') {
         'opinion': 'opinion'  // V3: new category (purple)
     };
 
+    // ─── V5.5: Build structured evidence_chain ───
+    const evidenceQuoteMap = new Map();
+    if (Array.isArray(data._evidenceQuotes)) {
+        for (const eq of data._evidenceQuotes) {
+            if (eq.url && !evidenceQuoteMap.has(eq.url)) evidenceQuoteMap.set(eq.url, eq.quote || '');
+        }
+    }
+
+    const evidence_chain = sanitizedSources.map(s => ({
+        url: s.url,
+        source_name: s.title || '',
+        is_ifcn: false,
+        snippet: evidenceQuoteMap.get(s.url) || '',
+        tier: s.tier,
+        sentiment: 'supporting'
+    }));
+
+    // Prepend IFCN entries (pinned at top)
+    for (const review of ifcnReviews) {
+        evidence_chain.unshift({
+            url: review.url,
+            source_name: review.publisher || 'Fact-Checker',
+            is_ifcn: true,
+            snippet: review.title || review.rating || '',
+            tier: 1,
+            sentiment: /false|falsch|fake|wrong|unwahr/i.test(review.rating || '') ? 'contradicting' : 'supporting'
+        });
+    }
+
     return {
         verdict,
         displayVerdict: displayMap[verdict] || 'unverifiable',
         confidence,
         explanation,
         key_facts: Array.isArray(data.key_facts) ? data.key_facts.filter(f => typeof f === 'string').slice(0, 5) : [],
-        sources: sanitizedSources,
+        sources: sanitizedSources,         // backward compat
+        evidence_chain,                    // V5.5: structured format
         timeline: timeline,
         is_causal: isCausalClaim,
-        source_quality: tier1Count > 0 ? 'high' : tier2Count > 0 ? 'medium' : 'low',
+        source_quality: ifcnReviews.length > 0 ? 'ifcn' : tier1Count > 0 ? 'high' : tier2Count > 0 ? 'medium' : 'low',
         // Evidence Chain data from judge
         quote: data._quote || '',
         primary_source: data._primarySource || '',
@@ -660,7 +710,8 @@ function validateVerification(data, claimType = 'factual', claimText = '') {
             new Set(data._evidenceQuotes.map(eq => eq.url)).size > 1),
         math_outlier: mathOutlier,
         // Stage 0: Professional fact-check results
-        fact_checks: Array.isArray(data._factChecks) ? data._factChecks : []
+        fact_checks: Array.isArray(data._factChecks) ? data._factChecks : [],
+        ifcn_override: ifcnOverrideApplied
     };
 }
 
@@ -1558,8 +1609,13 @@ async function verifyClaim(claimText, apiKey, lang = 'de', claimType = 'factual'
     if (cached) return cached;
 
     try {
-        // ─── TIER 0: Check professional fact-checkers (free, ~100ms) ───
-        const existingFactChecks = await searchFactChecks(claimText, apiKey, lang);
+        // ─── TIER 0 + TIER 2: Run in parallel (IFCN is free, ~100ms; search is ~1s) ───
+        const [factCheckResult, evidenceResult] = await Promise.allSettled([
+            searchFactChecks(claimText, apiKey, lang),
+            searchOnly(claimText, apiKey)
+        ]);
+        const existingFactChecks = factCheckResult.status === 'fulfilled' ? factCheckResult.value : [];
+        const evidence = evidenceResult.status === 'fulfilled' ? evidenceResult.value : { error: 'Search failed', sources: [], rawText: '' };
 
         // ─── TIER 1: Structured Data (Wikidata + Eurostat, free, ~200ms) ───
         let tier1Data = [];
@@ -1590,9 +1646,6 @@ async function verifyClaim(claimText, apiKey, lang = 'de', claimType = 'factual'
         } else {
             console.log('[FAKTCHECK BG] Tier 1: No structured data found (falling through to Tier 2)');
         }
-
-        // ─── TIER 2: Gemini Search Grounding (API call) ───
-        const evidence = await searchOnly(claimText, apiKey);
 
         // Safety net: if search failed entirely, return unverifiable
         if (evidence.error && evidence.sources.length === 0) {

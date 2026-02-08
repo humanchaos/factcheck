@@ -722,6 +722,33 @@
     border: 1px solid rgba(255, 200, 0, 0.4);
 }
 
+/* V5.5: IFCN Verified Signatory badge */
+.ifcn-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 9px;
+    color: #00cc88;
+    font-weight: 600;
+    background: rgba(0, 204, 136, 0.08);
+    border: 1px solid rgba(0, 204, 136, 0.2);
+    border-radius: 4px;
+    padding: 2px 6px;
+    margin-left: 6px;
+}
+
+.evidence-source-item.ifcn-highlight {
+    border-left: 2px solid #00cc88;
+    background: rgba(0, 204, 136, 0.04);
+}
+
+.evidence-chain-section {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-top: 8px;
+}
+
 .tier-tag.tier-2 {
     background: rgba(150, 100, 255, 0.2);
     color: #aa88ff;
