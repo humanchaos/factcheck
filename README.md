@@ -5,6 +5,7 @@
 [![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://github.com/humanchaos/factcheck/graphs/commit-activity)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](http://makeapullrequest.com)
 [![Golden Tests](https://img.shields.io/badge/Golden_Tests-22%2F22_(100%25)-brightgreen.svg)](TESTING.md)
+[![Quality Score](https://img.shields.io/badge/Quality_Score-62%2F100-orange.svg)](CHANGELOG.md)
 [![Buy Me A Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-ffdd00?style=for-the-badge&logo=buy-me-a-coffee&logoColor=black)](https://www.buymeacoffee.com/humanchaos)
 
 **Protecting the truth in the digital age.**
@@ -167,7 +168,15 @@ Sources are tiered using a [registry of 57+ domains](assets/registry/sources-glo
 | 4 | 📄 | General / Unclassified | Unknown domains |
 | 5 | ⚠️ | Unreliable | RT, InfoWars, Sputnik |
 
-Confidence is calculated deterministically: `Confidence = Base × SourceTier × Agreement` — no LLM "feelings."
+Confidence is calculated deterministically: `Confidence = min(0.95, Σ(S_i × W_i) × V_c)` — per-source tier scoring, no LLM "feelings."
+
+#### Current Quality (Independent Audit — v2.2.0)
+
+| Verdict 75 | Explanations 80 | Sources 70 | Confidence 35 | Evidence 15 | Dedup 40 | Global 30 | UX 45 |
+|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|
+| 🟢 | 🟢 | 🟡 | 🔴 | 🔴 | 🔴 | 🔴 | 🟡 |
+
+**Weighted Average: 62/100** — Milestone reached. [Path to 80+](CHANGELOG.md) is tracked.
 
 For the complete API schema including JSON output format and tier definitions, see **[API_SPEC.md](API_SPEC.md)**.
 

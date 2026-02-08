@@ -25,6 +25,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Self-Referential Malus:** Simplified to party/propaganda domains only (YouTube handled upstream by sanitization).
 - **Confidence Capping:** Hard cap at 0.95, floor at 0.10.
 
+### Quality Assessment (Independent Audit — Claude Opus 4.6)
+
+| Category | Score |
+|----------|:-----:|
+| Verdict Quality | 75/100 |
+| Explanation Quality | 80/100 |
+| Source Finding | 70/100 |
+| Confidence Calibration | 35/100 |
+| Evidence Traceability | 15/100 |
+| Deduplication/Efficiency | 40/100 |
+| Global Usability | 30/100 |
+| UX/Accessibility | 45/100 |
+| **Weighted Average** | **62/100** |
+
+**Path to 80+:** (1) Wire up deterministic confidence properly, (2) structured source objects with URLs, (3) Google Fact Check Tools API integration.
+
 ## [2.1.0] - 2026-02-08 — "The Ground Truth" (v5.4)
 
 ### Added
