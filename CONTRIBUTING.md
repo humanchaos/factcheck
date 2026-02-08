@@ -1,69 +1,70 @@
-# Contributing to factcheck 🗳️
+# 🤝 Contributing to FactCheck
 
-First off, **thank you for being here!** Building a tool to protect democratic discourse is a massive undertaking, and we're glad you're part of it.
+We are building a high-precision fact-verification engine. Every line of code directly impacts democratic discourse — so our standards are high. Thank you for being part of this.
 
----
+## 🚀 Getting Started
 
-## ⚠️ The Honest Truth
+1. **Watch the Repo**: Stay updated on active issues and release announcements.
+2. **Find a Task**: Look for the **`good first issue`** label — these are curated entry points.
+3. **Discuss First**: Open a thread in **Discussions** before writing code. This prevents wasted effort and ensures alignment with the roadmap.
 
-Let's be real: This project is far from perfect. The code is in its early stages, the logic needs tightening, and there are likely edge cases we haven't even discovered yet. We didn't release this because it's "finished"—we released it because the mission is too urgent to wait for perfection.
+## 🛠️ v5.4 Standards
 
-**This is where you come in.** We need your brainpower to help us optimize, refactor, and scale this into a tool that can truly make a difference. No contribution is too small.
+These are non-negotiable quality gates for all contributions:
 
----
+| Principle | What It Means |
+|-----------|---------------|
+| **Precision > Recall** | It is better to SKIP a claim than to verify a metaphor. The binary filter (`PROCESS`/`SKIP`) exists for a reason. |
+| **Tier-1 Sourcing** | Prioritize sovereign data: `.gov`, `imf.org`, `ecb.europa.eu`, `statistik.at`. YouTube and Wikipedia alone trigger Source Malus. |
+| **Semantic Commits** | Use `feat:`, `fix:`, `docs:`, or `test:` prefixes. One logical change per commit. |
+| **Factual Core** | Every claim must be stripped to its atomic, speaker-free factual core. No rhetorical framing survives into verification. |
+| **ASR Awareness** | Phonetic repairs must be explicit (`phonetic_repairs[]`), not silently applied. |
 
-## 🚦 How Can I Contribute?
+## 📋 Pull Request Checklist
 
-### 1. Reporting Bugs
+Before opening a PR, ensure:
 
-- Check the [Issues](https://github.com/humanchaos/factcheck/issues) tab to see if the bug has already been reported.
-- If not, open a new issue. Since we are in early stages, please be as descriptive as possible about what went wrong.
+- [ ] ESLint passes with **0 errors** (`npx eslint background.js content.js security-utils.js`)
+- [ ] Jest unit tests pass (`npx jest`)
+- [ ] Gold Standard Dryrun passes (`node test-dryrun.js`) — or document why a tolerance was adjusted
+- [ ] Binary filter tested: metaphors marked as `SKIP`
+- [ ] Factual core dedup tested: rhetorical framings merge into one `ClaimObject`
 
-### 2. Suggesting Enhancements
+## 🏗️ Architecture Overview
 
-Have a better way to parse DOM elements? A faster NLP approach? Open an issue with the tag `enhancement` to discuss your idea.
-
-### 3. Pull Requests (Code)
-
-- Fork the repo and create your branch from `main`.
-- Ensure your code follows the existing style.
-- Issue a Pull Request (PR) with a clear description of what you improved or "un-broke."
-
----
-
-## 🛠️ Local Development Setup (Chrome Extension)
-
-To work on this extension, you need to load it into Chrome manually.
-
-### 1. Clone
-
-```bash
-git clone https://github.com/humanchaos/factcheck.git
-cd factcheck
+```
+YouTube Video
+    ↓
+Stage 1: Transcript Extraction (L1-L5 fallback)
+    ↓
+Stage 2: Semantic Core Extraction (Gemini)
+    ├── Binary Filter (PROCESS/SKIP)
+    ├── Factual Core Dedup (merge framings)
+    ├── Phonetic ASR Correction
+    └── Entity Hydration
+    ↓
+Stage 3: Verification Pipeline
+    ├── Research & Summarize (grounded search)
+    ├── Evidence Mapping (source attribution)
+    └── Judge Evidence (verdict + confidence)
+    ↓
+Sidebar UI (claim cards with evidence chains)
 ```
 
-### 2. Load into Chrome
+## 🐛 Reporting Bugs
 
-1. Open Chrome and go to `chrome://extensions/`.
-2. Enable **Developer Mode** (top right toggle).
-3. Click **Load unpacked**.
-4. Select the folder where your `manifest.json` is located.
-5. The factcheck icon should now appear in your browser bar.
+Use the **Bug Report** issue template. Always include:
+- The raw ASR transcript snippet
+- What the engine produced vs. what it should have produced
+- Whether the issue is in extraction (Stage 2) or verification (Stage 3)
 
-### 3. Testing Changes
+## 💡 Feature Requests
 
-Whenever you save your code, click the **Reload icon (↻)** on the extension card in `chrome://extensions/` to see your changes in action.
-
----
-
-## 🎨 Our "Work in Progress" Standards
-
-- **Function over Form (For Now):** While we want clean code, we prioritize accuracy and speed of fact-checking above all else.
-- **Privacy First:** This tool reads web content. Never log, store, or transmit sensitive user data.
-- **Keep it Light:** Chrome extensions can be resource hogs. We want to keep our memory footprint as small as possible.
-
----
+Use the **Feature Request** issue template. Explain:
+- What gap in v5.4 logic this fills
+- Which Tier-1 data sources the feature would utilize
+- Whether it affects the Gold Standard Dryrun
 
 ## 📜 Code of Conduct
 
-By participating, you agree to keep the discussion constructive and focused on the mission of factual integrity. We are a community of builders, not trolls.
+All contributors must follow our [Code of Conduct](CODE_OF_CONDUCT.md). We are building tools for democratic accountability — toxicity has no place here.

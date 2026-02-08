@@ -1,0 +1,77 @@
+name: "🐛 Bug Report"
+description: "Report a verification error, ASR glitch, or pipeline issue"
+title: "[BUG]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting! Please fill in as much detail as possible so we can reproduce and fix the issue.
+
+  - type: textarea
+    id: description
+    attributes:
+      label: "Bug Description"
+      description: "A clear description of what went wrong."
+      placeholder: "The engine incorrectly verified a metaphor as a factual claim..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: asr-evidence
+    attributes:
+      label: "ASR Evidence"
+      description: "Paste the raw transcript snippet showing the error (if applicable)."
+      placeholder: |
+        Raw ASR: "Wir befinden uns im Griechang der Wirtschaft"
+        Expected: "Wir befinden uns im Kriechgang der Wirtschaft"
+      render: text
+
+  - type: textarea
+    id: actual-behavior
+    attributes:
+      label: "Actual Behavior"
+      description: "What did the engine produce?"
+      placeholder: "Verdict: TRUE with confidence 0.8, but the claim was a metaphor..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected-behavior
+    attributes:
+      label: "Expected Behavior"
+      description: "How should the Precision Filter have handled this?"
+      placeholder: "The binary filter should have marked this as SKIP (metaphor)"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: stage
+    attributes:
+      label: "Pipeline Stage"
+      description: "Where in the pipeline does this occur?"
+      options:
+        - "Stage 1: Transcript Extraction"
+        - "Stage 2: Claim Extraction (Binary Filter / Dedup / ASR)"
+        - "Stage 3: Verification (Research / Evidence / Judge)"
+        - "UI: Sidebar / Claim Cards"
+        - "Unknown"
+    validations:
+      required: true
+
+  - type: input
+    id: video-url
+    attributes:
+      label: "Video URL"
+      description: "Link to the YouTube video (if applicable)"
+      placeholder: "https://youtube.com/watch?v=..."
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: "Environment"
+      description: "Browser, OS, extension version"
+      placeholder: |
+        Browser: Chrome 122
+        OS: macOS Ventura
+        Extension: v2.1.0

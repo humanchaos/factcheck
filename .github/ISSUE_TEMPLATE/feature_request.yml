@@ -1,0 +1,60 @@
+name: "💡 Feature Request"
+description: "Propose an enhancement to the verification engine"
+title: "[FEATURE]: "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for your idea! Please describe how this fits into the FactCheck precision philosophy.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: "The Problem"
+      description: "What gap in v5.4 logic does this fill?"
+      placeholder: "Currently the engine cannot distinguish between..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: "Proposed Solution"
+      description: "Describe the feature and how it should work."
+      placeholder: "Add a new filter stage that checks..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: tier1-alignment
+    attributes:
+      label: "Tier-1 Alignment"
+      description: "Which international data sources will this utilize?"
+      placeholder: |
+        - statistik.at (Austrian federal statistics)
+        - imf.org (IMF World Economic Outlook)
+        - ecb.europa.eu (ECB interest rates)
+
+  - type: dropdown
+    id: component
+    attributes:
+      label: "Component"
+      description: "Which part of the system does this affect?"
+      options:
+        - "Stage 2: Extraction (Binary Filter / ASR / Dedup)"
+        - "Stage 3: Verification Pipeline"
+        - "IFCN Integration"
+        - "UI / Sidebar"
+        - "Source Registry"
+        - "Test Suite / Dryrun"
+        - "Other"
+    validations:
+      required: true
+
+  - type: textarea
+    id: golden-run-impact
+    attributes:
+      label: "Gold Standard Impact"
+      description: "Will this affect the Gold Standard Dryrun? If so, which claims/pillars?"
+      placeholder: "This would add a new test case for Pillar 6 (Phonetic)..."

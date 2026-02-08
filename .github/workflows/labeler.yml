@@ -1,0 +1,41 @@
+name: "Issue Labeler"
+
+on:
+  issues:
+    types: [opened, edited]
+
+jobs:
+  label:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+    steps:
+      - name: Label ASR Errors
+        if: contains(github.event.issue.body, 'ASR') || contains(github.event.issue.body, 'transcript') || contains(github.event.issue.body, 'phonetic')
+        uses: actions-ecosystem/action-add-labels@v1
+        with:
+          labels: "ASR-Correction"
+
+      - name: Label Binary Filter Issues
+        if: contains(github.event.issue.body, 'SKIP') || contains(github.event.issue.body, 'PROCESS') || contains(github.event.issue.body, 'binary filter')
+        uses: actions-ecosystem/action-add-labels@v1
+        with:
+          labels: "Logic-Filter"
+
+      - name: Label Feature Requests
+        if: contains(github.event.issue.title, '[FEATURE]')
+        uses: actions-ecosystem/action-add-labels@v1
+        with:
+          labels: "enhancement"
+
+      - name: Label Bug Reports
+        if: contains(github.event.issue.title, '[BUG]')
+        uses: actions-ecosystem/action-add-labels@v1
+        with:
+          labels: "bug"
+
+      - name: Label UI Issues
+        if: contains(github.event.issue.body, 'sidebar') || contains(github.event.issue.body, 'claim card') || contains(github.event.issue.body, 'UI')
+        uses: actions-ecosystem/action-add-labels@v1
+        with:
+          labels: "UI"
