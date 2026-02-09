@@ -143,7 +143,7 @@
 
     let cachedMetadata = null;
 
-    async function sendMessageSafe(message) {
+    async function sendMessageSafe(message, _retryCount = 0) {
         try {
             console.log('[FAKTCHECK] Sending message:', message.type);
             const response = await chrome.runtime.sendMessage(message);
@@ -154,6 +154,12 @@
             return response;
         } catch (error) {
             console.error('[FAKTCHECK] Message error:', error);
+            // MV3: Service worker channel closed — retry once after wake-up delay
+            if (_retryCount < 1 && error.message?.includes('message channel closed')) {
+                console.warn('[FAKTCHECK] Service worker channel lost, retrying in 500ms...');
+                await new Promise(r => setTimeout(r, 500));
+                return sendMessageSafe(message, _retryCount + 1);
+            }
             if (error.message?.includes('Extension context invalidated')) {
                 return { error: 'Extension reloaded. Please refresh the page.', claims: [], verification: null };
             }
