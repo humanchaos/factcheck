@@ -11,6 +11,29 @@ console.log('[FAKTCHECK BG] Service worker started v3.3');
 console.log('[FAKTCHECK BG] Model:', DEFAULT_MODEL);
 console.log('[FAKTCHECK BG] ====================================');
 
+// ─── MV3 KEEPALIVE: Prevent service worker termination during API calls ───
+let _activeApiCalls = 0;
+let _keepAliveInterval = null;
+
+function apiCallStart() {
+    _activeApiCalls++;
+    if (!_keepAliveInterval) {
+        _keepAliveInterval = setInterval(() => {
+            if (_activeApiCalls > 0) {
+                // chrome.storage.local.get forces the worker to stay alive
+                chrome.storage.local.get(['_keepalive'], () => { });
+            } else {
+                clearInterval(_keepAliveInterval);
+                _keepAliveInterval = null;
+            }
+        }, 25000); // Every 25s (Chrome kills after 30s of inactivity)
+    }
+}
+
+function apiCallEnd() {
+    _activeApiCalls = Math.max(0, _activeApiCalls - 1);
+}
+
 // Rate Limiter
 const rateLimiter = {
     calls: [],
@@ -442,6 +465,8 @@ function parseVerdictFromText(text) {
         verdict = 'opinion'; confidence = 0.75;
     } else if (/\b(verdict|urteil|ergebnis)\s*[:=]\s*"?(unverifiable|nicht überprüfbar)/i.test(t)) {
         verdict = 'unverifiable'; confidence = 0.50;
+    } else if (/\b(verdict|urteil|ergebnis)\s*[:=]\s*"?(missing_context|fehlender[_ ]kontext|whataboutism)/i.test(t)) {
+        verdict = 'missing_context'; confidence = 0.75;
     }
     // Fallback: strong language indicators
     else if (/\b(ist (korrekt|richtig|wahr|bestätigt)|stimmt|trifft zu|dies ist (wahr|korrekt|richtig))\b/i.test(t)) {
@@ -477,7 +502,7 @@ function parseVerdictFromText(text) {
 
 
 function validateVerification(data, claimType = 'factual', claimText = '') {
-    const validVerdicts = ['true', 'mostly_true', 'partially_true', 'mostly_false', 'false', 'unverifiable', 'unverified', 'misleading', 'opinion', 'deceptive'];
+    const validVerdicts = ['true', 'mostly_true', 'partially_true', 'mostly_false', 'false', 'unverifiable', 'unverified', 'misleading', 'opinion', 'deceptive', 'missing_context'];
     if (typeof data !== 'object' || !data) {
         return { verdict: 'unverifiable', displayVerdict: 'unverifiable', confidence: 0.3, explanation: 'Invalid response', sources: [] };
     }
@@ -503,12 +528,15 @@ function validateVerification(data, claimType = 'factual', claimText = '') {
     }
 
     const tieredSources = sources.slice(0, 8).map(s => {
-        const tier = s.tier || getSourceTier(s.url);
-        const meta = getSourceMeta(s.url);
+        // Use resolved domain (from redirect resolution) for tier/meta lookup
+        const lookupUrl = s.domain ? `https://${s.domain}` : s.url;
+        const tier = s.tier || getSourceTier(lookupUrl);
+        const meta = getSourceMeta(lookupUrl);
         const typeIcon = meta?.type && sourceRegistry?.typeIcons?.[meta.type];
         return {
             title: String(s.title || meta?.label || 'Source').slice(0, 100),
             url: s.url,
+            domain: s.domain || '',
             tier,
             icon: typeIcon?.icon || '',
             sourceType: typeIcon?.label || ''
@@ -531,11 +559,18 @@ function validateVerification(data, claimType = 'factual', claimText = '') {
     const calibrated = calculateConfidence(evidenceChain);
 
     // V5.4 STABLE MODULE 2: Source Sanitization — remove YouTube + Wikipedia from confidence/counting
+    // Use resolved domain field (handles Vertex AI redirect URLs correctly)
     const sanitizedSources = tieredSources.filter(s => {
-        try {
-            const host = new URL(s.url).hostname.toLowerCase();
+        const host = (s.domain || '').toLowerCase();
+        if (host) {
             return !host.includes('youtube.com') && !host.includes('youtu.be')
                 && !host.includes('wikipedia.org');
+        }
+        // Fallback to URL parsing if no domain field
+        try {
+            const urlHost = new URL(s.url).hostname.toLowerCase();
+            return !urlHost.includes('youtube.com') && !urlHost.includes('youtu.be')
+                && !urlHost.includes('wikipedia.org');
         } catch { return true; }
     });
 
@@ -604,6 +639,21 @@ function validateVerification(data, claimType = 'factual', claimText = '') {
     const originalLlmPositive = llmPositive; // Preserve BEFORE any downgrades
     if (!ifcnOverrideApplied && calibrated > 0) {
         confidence = Math.min(Math.max(calibrated, 0.1), 0.95);
+    }
+
+    // ─── C3 VERDICT-CONFIDENCE COHERENCE GUARDRAIL ───
+    // A definitive verdict with very low confidence is an oxymoron.
+    // Floor: if verdict is true/false, confidence must be ≥ 0.4
+    // Ceiling: if verdict is unverifiable, confidence must be ≤ 0.4
+    if (!ifcnOverrideApplied) {
+        if (['true', 'false'].includes(verdict) && confidence < 0.4) {
+            console.log(`[FAKTCHECK BG] 📐 C3 COHERENCE: ${verdict.toUpperCase()} with conf=${confidence} → floor to 0.4`);
+            confidence = 0.4;
+        }
+        if (verdict === 'unverifiable' && confidence > 0.4) {
+            console.log(`[FAKTCHECK BG] 📐 C3 COHERENCE: UNVERIFIABLE with conf=${confidence} → cap to 0.4`);
+            confidence = 0.4;
+        }
     }
 
     // Downgrade verdict if sources don't back it up (skip if IFCN override)
@@ -1032,14 +1082,38 @@ async function callGeminiWithSearch(apiKey, prompt, retryAttempt = 0) {
         }
 
         // Extract grounding sources from chunks
+        // NOTE: Gemini's grounding API returns redirect URLs (vertexaisearch.cloud.google.com/grounding-api-redirect/...)
+        // The actual source domain is in web.title (e.g. "britannica.com"). We resolve this for correct tier lookup.
         if (groundingMeta?.groundingChunks) {
             groundingSources = groundingMeta.groundingChunks
                 .filter(c => c.web?.uri)
-                .map(c => ({
-                    title: c.web.title || 'Source',
-                    url: c.web.uri,
-                    tier: getSourceTier(c.web.uri)
-                }));
+                .map(c => {
+                    const rawUrl = c.web.uri;
+                    const titleText = c.web.title || '';
+
+                    // Detect Vertex AI redirect URLs and resolve real domain from title
+                    let realDomain = '';
+                    let isRedirect = false;
+                    try {
+                        const urlHost = new URL(rawUrl).hostname;
+                        isRedirect = urlHost.includes('vertexaisearch.cloud.google.com') ||
+                            urlHost.includes('googleapis.com');
+                    } catch { /* not a valid URL */ }
+
+                    if (isRedirect && titleText) {
+                        // title contains the real domain (e.g. "britannica.com")
+                        realDomain = titleText.replace(/^www\./, '').toLowerCase();
+                    } else {
+                        try { realDomain = new URL(rawUrl).hostname.replace(/^www\./, ''); } catch { realDomain = titleText; }
+                    }
+
+                    return {
+                        title: titleText || 'Source',
+                        url: rawUrl,
+                        domain: realDomain,
+                        tier: getSourceTier(isRedirect ? `https://${realDomain}` : rawUrl)
+                    };
+                });
             console.log('[FAKTCHECK BG] 📚 Grounding sources found:', groundingSources.length);
         }
 
@@ -1137,12 +1211,35 @@ BEISPIELE FÜR STRIPPING:
 - "Kickl sagt, die Inflation beträgt 10%" → "Die Inflation in Österreich beträgt 10%"
 - "Der Kanzler behauptet, die Arbeitslosigkeit sinkt" → "Die Arbeitslosigkeit in Österreich sinkt"
 
+### 1.5 SARKASMUS-DETEKTOR (Inversionsregel)
+Wenn ein Sprecher Sarkasmus verwendet, INVERTIERE die Aussage und extrahiere die implizierte Behauptung.
+- Erkenne sarkastische Marker: übertriebene Zustimmung, offensichtliche Ironie, "Na klar", "Sicher doch", "Genau, weil..."
+- INVERTIERE den Claim und extrahiere den faktischen Kern.
+
+BEISPIELE:
+- "Na klar, die Pharma will nur unsere Gesundheit" → factual_core: "Pharmaindustrie priorisiert Profit über Patientenwohl", type: "opinion"
+- "Ja genau, die Regierung spart bei sich selbst" → factual_core: "Die Regierung spart nicht bei den eigenen Ausgaben", type: "factual"
+
+### 1.6 ANTI-TAUTOLOGIE-FILTER (Selbstbehauptungen aussortieren)
+Extrahiere KEINE Aussagen der folgenden Typen:
+
+1. **Selbstbewertung / Branding:** "Dieses Treffen ist eine Machtdemonstration." / "Wir sind eine patriotische Bewegung." → SKIP (Selbstetikettierung)
+2. **Subjektive Bewertung OHNE Daten:** "Die Regierung ist eine Fehlkonstruktion." → SKIP.
+   ABER: "Fehlkonstruktion, weil die Schulden um 10% gestiegen sind" → Extrahiere NUR "Schulden sind um 10% gestiegen".
+3. **Narrative Behauptungen:** "Jörg Haider war ein Schutzpatron." → SKIP (historische Meinung, nicht falsifizierbar)
+4. **Meta-Kommentar / Populismus:** "Das Volk steht hinter uns." / "Wir sind die Stimme des Volkes." → SKIP (undefiniert, nicht verifizierbar)
+
+REGEL: Extrahiere nur Behauptungen, die durch unabhängige Daten WIDERLEGT werden können.
+
+### 1.7 KONTEXT-FENSTER
+Wenn der Text einen [Context]-Block enthält, verwende diesen NUR zur Auflösung von Pronomen. Extrahiere NIEMALS Behauptungen aus dem [Context]-Block.
+
 ### 2. ENTITY HYDRATION
 Korrigiere unvollständige oder falsche Eigennamen basierend auf dem Kontext:
 - Ersetze ALLE Pronomen durch konkrete Namen
 - Wenn von "Stocker" im Kontext des Bundeskanzleramts die Rede ist, verwende immer den vollen Namen "Christian Stocker"
 - Ergänze Kontext aus Video-Titel/Gremium
-- ⚠️ NAMEN-TREUE: Verwende NUR Namen EXAKT wie im Transkript. NIEMALS raten oder abändern!
+- ⚠️ NAMEN-TREUE: Bevorzuge die Schreibweise aus den ERKANNTEN PERSONEN (Metadaten). Bei offensichtlichen ASR-Fehlern (z.B. "BIOS" → "Pius", "Christoph S." → "Christian Stocker") korrigiere den Namen basierend auf Kontext und Metadaten. NIEMALS Namen frei erfinden!
 
 ### 2.5 PHONETISCHE ASR-KORREKTUR (Intelligence-First)
 Du erhältst fehlerhafte ASR-Transkripte (Automatic Speech Recognition). Identifiziere und repariere phonetische Fehlhörungen.
@@ -1159,6 +1256,8 @@ INTERNATIONALE KORREKTUR-TABELLE (NUR anwenden, wenn der Kontext es rechtfertigt
 | "A missionen" / "E mission" | Emissionen | Klimawandel, CO2, Umwelt |
 | "Lohn stück..." | Lohnstückkosten | Arbeitsmarkt, industrieller Wettbewerb |
 | "Statue" | Statut | Gesetzesrahmen, Gesetzgebung |
+| "BIOS" + Nachname | Pius + Nachname | Person, religiöser Vorname, wenn Metadaten bestätigen |
+| Vorname-Fehlhörung | Metadaten-Schreibweise | wenn ERKANNTE PERSONEN den korrekten Namen enthalten |
 
 ⚠️ GUARDRAIL: "Griechisch" im Kontext internationaler Politik → NICHT zu "Kriechgang" korrigieren!
 
@@ -1189,6 +1288,27 @@ Klassifiziere JEDEN verbleibenden identifizierten Claim:
 Wenn der factual_core den Sprecher als Subjekt hat → SKIP.
 Muster: (Ich|Wir|Der Sprecher) + (habe|will|finde|bin|sehe|glaube|meine)
 Beispiel: "Ich habe die Rede gesehen" → SKIP (Anekdote, kein Daten-Kernel)
+
+🚫 KANAL/PLATFORM-SELBSTPROMO FILTER:
+Wenn der Claim den eigenen Kanal, die eigene Sendung oder Plattform bewirbt → SKIP.
+Muster: (Unser Kanal|Der Kanal|Die Sendung|Unsere Zuschauer|Unser Publikum) + (hat gewonnen|bietet|erreicht|hat Millionen|ist gewachsen)
+Beispiel: "Unser Kanal hat Millionen Zuschauer gewonnen" → SKIP (Plattform-Eigenwerbung)
+Beispiel: "Der Kanal bietet eine alternative Sichtweise" → SKIP (Selbsteinschätzung)
+
+🚫 SPRECHER-BIOGRAFIE FILTER:
+Wenn der Claim nur beschreibt WER der Sprecher ist/war (Titel, Rolle, Position) → SKIP.
+Muster: (Der Sprecher|Die Sprecherin) + (war|ist|wurde) + (Direktor|Leiter|Chef|Vorsitzender|Mitglied)
+Beispiel: "Der Sprecher war Anfang der 2000er im ORF-Kuratorium" → SKIP (Biografie, keine falsifizierbare Behauptung)
+Beispiel: "Der Sprecher ist zum zweiten Mal im Stiftungsrat" → SKIP (persönliche Bio)
+
+🚫 ABSICHTSERKLÄRUNGEN / POLITISCHE VERSPRECHEN FILTER:
+Wenn der Claim ein Versprechen, eine Prognose oder Absichtserklärung des Sprechers über seine eigene Seite ist → SKIP.
+Diese sind nicht falsifizierbar — der Sprecher erklärt was er/seine Seite TUN WIRD, nicht was IST.
+Muster: (Wir werden|Russland wird|Die Ziele werden|Man wird) + (erreichen|befreien|siegen|durchsetzen|schaffen)
+Beispiel: "Russland wird die Befreiung seiner historischen Länder erreichen" → SKIP (Absichtserklärung, keine Tatsache)
+Beispiel: "Die Ziele der Militäroperation werden bedingungslos erreicht" → SKIP (Politisches Versprechen)
+Beispiel: "Die strategische Parität bleibt erhalten" → SKIP (Selbstbehauptung über eigene Stärke)
+Schlüssel: Wenn NUR der Sprecher selbst die Autorität für die Behauptung ist → SKIP.
 
 ⚠️ Es ist BESSER einen Claim zu SKIPPEN als metaphorischen Müll zu verarbeiten!
 
@@ -1271,12 +1391,35 @@ EXAMPLES:
 - "The CEO claims revenue doubled" → "Company X revenue doubled"
 - "Sources say the deal is worth $5B" → "The deal is worth $5 billion"
 
+### 1.5 SARCASM DETECTOR (Inversion Rule)
+If a speaker uses sarcasm, INVERT the statement and extract the implied accusation.
+- Detect sarcastic markers: exaggerated agreement, obvious irony, "Oh sure", "Yeah right", "Of course, because..."
+- INVERT the claim and extract the factual core.
+
+EXAMPLES:
+- "Oh sure, Pharma only wants our health" → factual_core: "Pharmaceutical industry prioritizes profit over patient health", type: "opinion"
+- "Of course the government cuts its own spending" → factual_core: "The government does not cut its own spending", type: "factual"
+
+### 1.6 ANTI-TAUTOLOGY FILTER (Reject Self-Asserting Claims)
+Do NOT extract statements of the following types:
+
+1. **Self-Assessments / Branding:** "This meeting is a demonstration of power." / "We are a patriotic movement." → SKIP (self-labeling)
+2. **Subjective Labels WITHOUT Data:** "The government is a disaster." → SKIP.
+   BUT: "Disaster because debt rose 10%" → Extract ONLY "Debt rose 10%".
+3. **Narrative Assertions:** "Jörg Haider was a patron protector." → SKIP (historical opinion, not falsifiable)
+4. **Meta-Commentary / Populism:** "The people stand behind us." / "We are the voice of the people." → SKIP (undefined, unverifiable)
+
+RULE: Only extract claims that can be proven WRONG by independent data.
+
+### 1.7 CONTEXT WINDOW
+If the text contains a [Context] block, use it ONLY for pronoun resolution. NEVER extract claims from the [Context] block.
+
 ### 2. ENTITY HYDRATION
 Fix incomplete or incorrect proper names based on context:
 - Replace ALL pronouns with concrete names
 - Complete partial names using context (e.g., "Biden" → "Joe Biden")
 - Add context from video title/description
-- NAME FIDELITY: Use EXACT spelling from transcript. NEVER guess or alter names!
+- NAME FIDELITY: Prefer the spelling from RECOGNIZED PERSONS (Metadata). For obvious ASR errors (e.g., "BIOS" → "Pius", "Christoph S." → "Christian Stocker"), correct the name based on context and metadata. NEVER invent names!
 
 ### 2.5 PHONETIC ASR CORRECTION (Intelligence-First)
 You receive noisy ASR (Automatic Speech Recognition) transcripts. Identify and repair phonetic mis-hearings.
@@ -1292,6 +1435,8 @@ INTERNATIONAL CORRECTION GUIDE (apply ONLY when context justifies):
 | "a missions" / "e mission" | emissions | climate, CO2, environment |
 | "statue" | statute | legal frameworks, legislation |
 | "pre-seed-ent" | precedent | legal, judicial context |
+| "BIOS" + surname | Pius + surname | person name, religious first name, when metadata confirms |
+| first-name mismatch | metadata spelling | when RECOGNIZED PERSONS contain the correct name |
 
 ⚠️ GUARDRAIL: "Greek" in the context of international politics → Do NOT correct to "creeping"!
 
@@ -1322,6 +1467,29 @@ Classify EVERY remaining identified claim:
 If the factual_core has the speaker as its subject → SKIP.
 Pattern: (I|We|The speaker) + (watched|want|feel|am|see|believe|think)
 Example: "I watched the President's speech" → SKIP (Anecdote, not a data kernel)
+
+🚫 CHANNEL/PLATFORM SELF-PROMOTION FILTER:
+If the claim promotes the speaker's own channel, show, or platform → SKIP.
+Pattern: (Our channel|The channel|The speaker's channel|Our audience|Our viewers) + (gained|offered|reached|has millions|grew|provides)
+Example: "RT channel gained hundreds of millions of viewers" → SKIP (Platform self-promotion)
+Example: "The speaker's channel offered an alternative truthful point of view" → SKIP (Self-assessment)
+Example: "Channels projects on social media reached 24 billion views" → SKIP (Self-promotion metric)
+Example: "The channel provides its platform for journalists from all over the world" → SKIP (Self-branding)
+
+🚫 SPEAKER BIOGRAPHY FILTER:
+If the claim only describes WHO the speaker is/was (title, role, position) → SKIP.
+Pattern: (The speaker|The host) + (was|is|became) + (director|head|chief|chairman|member|editor)
+Example: "The speaker was the director of the Federal Security Service" → SKIP (Biography, not a falsifiable claim)
+Example: "Margarita Simonyan is the editor-in-chief of Russia Today" → SKIP (Identity statement, not fact-checkable)
+
+🚫 DECLARATIONS OF INTENT / POLITICAL PROMISES FILTER:
+If the claim is a promise, prediction, or declaration of intent by the speaker about their own side → SKIP.
+These are NOT falsifiable — the speaker is declaring what they/their side WILL DO, not what IS.
+Pattern: (We will|Russia will|The goals will|Our forces will) + (achieve|liberate|prevail|maintain|ensure)
+Example: "Russia will achieve the liberation of its historical lands" → SKIP (Declaration of intent, not a fact)
+Example: "The goals of the special military operation will unconditionally be achieved" → SKIP (Political promise)
+Example: "Strategic parity remains Russia's armed forces" → SKIP (Self-assertion of own strength)
+Key test: If ONLY the speaker themselves is the authority for the claim → SKIP.
 
 ⚠️ It is BETTER to SKIP a claim than to process metaphorical junk!
 
@@ -1443,9 +1611,21 @@ No verifiable facts with sufficient context? Respond: []`;
 // Step 2: Judge only — renders verdict from evidence, no search
 // If Step 1 fails, Step 2 never runs (prevents hallucinated verdicts)
 
-async function searchOnly(claimText, apiKey) {
+async function searchOnly(claimText, apiKey, claimCategory = '', claimType = 'factual') {
     console.log('[FAKTCHECK BG] ── STEP 1: researchAndSummarize ──');
     const sanitized = sanitize(claimText, 1000);
+
+    // V5.5: Category-specific search strategies
+    let searchStrategy = '';
+    if (claimCategory === 'SCIENCE') {
+        searchStrategy = `\n- CONSENSUS CHECK: Search for "scientific consensus on [topic]" or "meta-analysis [topic]". Do NOT rely on single studies.`;
+    }
+    // Detect temporal/trend claims
+    const hasTemporal = /\b(since|seit|yesterday|gestern|last (week|month|year)|letzte[ns]? (Woche|Monat|Jahr)|short-term|kurzfristig|recently|kürzlich|in den letzten)\b/i.test(claimText);
+    if (hasTemporal) {
+        searchStrategy += `\n- LONG-TERM TREND: This claim references a short-term change. Also search for the 5-10 year trend to provide context.`;
+    }
+
     const prompt = `Research this claim thoroughly using Google Search. Write a 3-sentence summary of your findings. Focus on specific numbers, dates, and official names.
 
 CLAIM: "${sanitized}"
@@ -1455,7 +1635,7 @@ RULES:
 - Write a concise 3-sentence summary of what you found
 - Focus on specific numbers, dates, and official names
 - Do NOT render a verdict or opinion
-- If no sources found, respond with: No relevant sources found.`;
+- If no sources found, respond with: No relevant sources found.${searchStrategy}`;
 
     try {
         const result = await callGeminiWithSearch(apiKey, prompt);
@@ -1546,9 +1726,13 @@ BEWERTUNGS-LOGIK:
 5. Direkter Widerspruch durch Tier 1/2 Quelle → verdict: "false".
 6. Direkte Bestätigung durch Tier 1/2 Quelle → verdict: "true".
 7. Teilweise Übereinstimmung → verdict: "partially_true".
-8. Meinung ohne prüfbaren Inhalt → verdict: "opinion".${mathGuardrail}${causalRule}
+8. Meinung ohne prüfbaren Inhalt → verdict: "opinion".
+9. DIKTATUR-FILTER: Wenn der Claim auf offiziellen Daten aus Ländern mit niedriger Pressefreiheit basiert (z.B. Russland, China, Nordkorea, Türkei, Iran), akzeptiere diese NICHT als Fakt. Vergleiche mit IMF/Weltbank-Daten. Wenn sie abweichen → verdict: "false", reasoning: Abweichung von unabhängigen Daten.
+10. WHATABOUTISMUS: Wenn ein Fakt korrekt ist, aber offensichtlich verwendet wird, um von berechtigter Kritik abzulenken (z.B. "Aber China baut Kohlekraftwerke!"), markiere als "missing_context" und erkläre den fehlenden Kontext im reasoning.${mathGuardrail}${causalRule}
 
-ABSCHLUSS-PRÜFUNG: Frage dich VOR der Antwort: "Gibt es offizielle Daten, die diesem Kern widersprechen?" Wenn ja → verdict: "false".`
+ABSCHLUSS-PRÜFUNG: Frage dich VOR der Antwort: "Gibt es offizielle Daten, die diesem Kern widersprechen?" Wenn ja → verdict: "false".
+
+WICHTIG: Schreibe alle Antwortfelder (reasoning, quote) auf DEUTSCH.`
         : `You are an incorruptible fact-checker. Your task is to verify the claims from Stage 2 against the researched evidence from Stage 1. Respond ONLY with the required JSON schema.
 
 EVALUATION LOGIC:
@@ -1559,9 +1743,13 @@ EVALUATION LOGIC:
 5. Direct Contradiction by Tier 1/2 source → verdict: "false".
 6. Direct Support by Tier 1/2 source → verdict: "true".
 7. Partial Match → verdict: "partially_true".
-8. Opinion with no verifiable assertion → verdict: "opinion".${mathGuardrail}${causalRule}
+8. Opinion with no verifiable assertion → verdict: "opinion".
+9. DICTATOR FILTER: If the claim relies on official data from countries with low Press Freedom (e.g., Russia, China, North Korea, Turkey, Iran), do NOT accept it as fact. Compare with IMF/World Bank data. If they differ → verdict: "false", reasoning: Discrepancy with independent data.
+10. WHATABOUTISM: If a fact is correct but is clearly used to deflect from legitimate criticism (e.g., "But China builds coal plants!"), mark as "missing_context" and explain the missing context in reasoning.${mathGuardrail}${causalRule}
 
-FINAL CHECK: Before answering, ask: "Is there official data contradicting this core claim?" If yes → verdict: "false".`;
+FINAL CHECK: Before answering, ask: "Is there official data contradicting this core claim?" If yes → verdict: "false".
+
+IMPORTANT: Write all response fields (reasoning, quote) in ENGLISH.`;
 
     const prompt = `${systemInstruction}
 
@@ -1577,7 +1765,7 @@ Respond with JSON matching this schema exactly.`;
     const responseSchema = {
         type: 'object',
         properties: {
-            verdict: { type: 'string', enum: ['true', 'false', 'partially_true', 'opinion', 'unverifiable'] },
+            verdict: { type: 'string', enum: ['true', 'false', 'partially_true', 'opinion', 'unverifiable', 'missing_context'] },
             confidence: { type: 'number' },
             math_outlier: { type: 'boolean' },
             reasoning: { type: 'string' },
@@ -2007,6 +2195,85 @@ async function verifyClaim(claimText, apiKey, lang = 'de', claimType = 'factual'
             parsed._groundingSources = evidence.sources;
         }
 
+        // ─── C5 VERDICT COHERENCE CHECK ───
+        // Detect when explanation language contradicts the verdict and retry with a specific prompt.
+        // Uses the same positive/negative signal matching as the Quality Gate's check_explanation_verdict_alignment().
+        const explanationText = (parsed.explanation || parsed.reasoning || '').toLowerCase();
+        const verdictCoherencePositive = ['confirmed', 'supported', 'is true', 'is correct', 'bestätigt', 'belegt', 'korrekt', 'stimmt', 'trifft zu',
+            'evidence confirms', 'sources indicate', 'sources confirm', 'data supports', 'is supported'];
+        const verdictCoherenceNegative = ['contradicted', 'not supported', 'nicht bestätigt', 'incorrect', 'not true',
+            'no evidence', 'widerlegt', 'is false', 'is incorrect'];
+
+        const hasPositive = verdictCoherencePositive.find(s => explanationText.includes(s));
+        const hasNegative = verdictCoherenceNegative.find(s => explanationText.includes(s));
+
+        const isC5Contradiction = (parsed.verdict === 'false' && hasPositive && !hasNegative) ||
+            (parsed.verdict === 'true' && hasNegative && !hasPositive);
+
+        if (isC5Contradiction) {
+            const contradictPhrase = parsed.verdict === 'false' ? hasPositive : hasNegative;
+            console.warn(`[FAKTCHECK BG] ⚠️ C5: Verdict "${parsed.verdict}" contradicts explanation phrase "${contradictPhrase}". Retrying...`);
+
+            // Build specific retry prompt quoting the exact contradiction
+            const retryPrompt = `You previously judged this claim and produced an INCOHERENT result.
+
+CLAIM: "${sanitize(claimText, 500)}"
+
+YOUR PREVIOUS VERDICT: "${parsed.verdict}"
+YOUR PREVIOUS EXPLANATION: "${(parsed.explanation || parsed.reasoning || '').slice(0, 500)}"
+
+CONTRADICTION: Your explanation contains "${contradictPhrase}" but your verdict is "${parsed.verdict}".
+These are incompatible. Either:
+- Change the verdict to match your evidence (e.g., if your evidence says "confirmed", the verdict should be "true")
+- OR rewrite the explanation to justify why the verdict is "${parsed.verdict}"
+
+Respond with the corrected JSON. Do NOT repeat the same contradiction.`;
+
+            try {
+                const retrySchema = {
+                    type: 'object',
+                    properties: {
+                        verdict: { type: 'string', enum: ['true', 'false', 'partially_true', 'opinion', 'unverifiable'] },
+                        confidence: { type: 'number' },
+                        math_outlier: { type: 'boolean' },
+                        reasoning: { type: 'string' }
+                    },
+                    required: ['verdict', 'confidence', 'reasoning']
+                };
+                const retryResult = await callGeminiJSON(apiKey, retryPrompt, retrySchema);
+
+                if (retryResult && !retryResult._fallback && retryResult.verdict) {
+                    // Check if retry resolved the contradiction
+                    const retryExpl = (retryResult.reasoning || '').toLowerCase();
+                    const retryHasPos = verdictCoherencePositive.some(s => retryExpl.includes(s));
+                    const retryHasNeg = verdictCoherenceNegative.some(s => retryExpl.includes(s));
+                    const stillContradicts = (retryResult.verdict === 'false' && retryHasPos && !retryHasNeg) ||
+                        (retryResult.verdict === 'true' && retryHasNeg && !retryHasPos);
+
+                    if (stillContradicts) {
+                        // Retry also contradicts — override verdict to match evidence direction
+                        const overrideVerdict = hasPositive ? 'true' : 'false';
+                        console.warn(`[FAKTCHECK BG] ⚠️ C5: Retry still contradicts. Overriding verdict to "${overrideVerdict}"`);
+                        parsed.verdict = overrideVerdict;
+                        parsed.confidence = Math.min(parsed.confidence || 0.5, 0.5); // Cap confidence for overridden verdicts
+                        parsed._c5Override = true;
+                    } else {
+                        // Retry resolved it — use the corrected result
+                        console.log(`[FAKTCHECK BG] ✅ C5: Retry resolved contradiction. New verdict: "${retryResult.verdict}"`);
+                        parsed.verdict = retryResult.verdict;
+                        parsed.confidence = retryResult.confidence || parsed.confidence;
+                        parsed.explanation = retryResult.reasoning || parsed.explanation;
+                        parsed.reasoning = retryResult.reasoning || parsed.reasoning;
+                        parsed.math_outlier = retryResult.math_outlier || false;
+                        parsed._c5Retried = true;
+                    }
+                }
+            } catch (retryError) {
+                console.error('[FAKTCHECK BG] C5 retry failed:', retryError.message);
+                // Don't block — proceed with original parsed result
+            }
+        }
+
         const validated = validateVerification(parsed, claimType, claimText);
         await setCache(claimText, validated, videoId);
         console.log('[FAKTCHECK BG v2.0] ✅ Verdict:', validated.verdict, '| Confidence:', validated.confidence, '| Quality:', validated.source_quality);
@@ -2036,6 +2303,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         }
 
         (async () => {
+            apiCallStart();
             try {
                 const { geminiApiKey } = await chrome.storage.local.get(['geminiApiKey']);
                 if (!geminiApiKey) {
@@ -2051,6 +2319,8 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             } catch (e) {
                 console.error('[FAKTCHECK BG] Handler error:', e);
                 sendResponse({ error: e.message, claims: [] });
+            } finally {
+                apiCallEnd();
             }
         })();
         return true;
@@ -2063,6 +2333,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         }
 
         (async () => {
+            apiCallStart();
             try {
                 const { geminiApiKey } = await chrome.storage.local.get(['geminiApiKey']);
                 if (!geminiApiKey) {
@@ -2074,6 +2345,8 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             } catch (e) {
                 console.error('[FAKTCHECK BG] Verify handler error:', e);
                 sendResponse({ error: e.message, verification: null });
+            } finally {
+                apiCallEnd();
             }
         })();
         return true;

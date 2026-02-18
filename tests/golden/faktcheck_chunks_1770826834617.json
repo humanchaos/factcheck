@@ -1,0 +1,349 @@
+[
+  {
+    "timestamp": 472.032258,
+    "videoTime": "7:52",
+    "realTime": "2026-02-11T16:19:20.107Z",
+    "originalLength": 414,
+    "cleanedLength": 225,
+    "tokenSavings": "46%",
+    "fullText": "As before, they will play the main role in deterring an Englisch (automatisch erzeugt) Klicke auf , um die Einstellungen aufzurufen. in deterring an aggressor and maintaining the balance of power in the world. Today in Russia",
+    "context": null,
+    "newContent": "As before, they will play the main role in deterring an Englisch (automatisch erzeugt) Klicke auf , um die Einstellungen aufzurufen. in deterring an aggressor and maintaining the balance of power in the world. Today in Russia",
+    "claims": [
+      {
+        "originalClaim": "Oreshnik missile deployment is confirmed.",
+        "cleanedClaim": "Oreshnik missile deployment is confirmed.",
+        "factual_core": "Oreshnik missile deployment is confirmed.",
+        "speaker": null,
+        "category": "POLITICS",
+        "checkability": 3,
+        "importance": 7,
+        "occurrences": [
+          {
+            "timestamp_hint": "0:00",
+            "rhetorical_framing": "Putin Confirms Oreshnik Missile Deployment",
+            "raw_snippet": "Putin Addresses Army Generals, Confirms Oreshnik Missile Deployment LIVE"
+          }
+        ],
+        "phonetic_repairs": [],
+        "verification": {
+          "verdict": "true",
+          "explanation": "Lukashenko stated the Oreshnik missile system had arrived in Belarus and was entering combat service. Zelenskyy stated Russia has completed preparatory work related to the Oreshnik missile on Belarusian territory. Satellite imagery shows potential Oreshnik missile system vehicles at the former Krychev-6 military airfield in Belarus.",
+          "confidence": 0.5,
+          "key_facts": [],
+          "sources": [
+            {
+              "domain": "rbc.ua",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQHLDqXx9_c2QI17TrRQuFzupw5CFuPpGgs_zu73rDp76QgqrqizAZ-JDj8N3xQ8DeogWauEDDEMl7LWr8JFJrHD9KT3p2FhynDDqt5sdLqjxWrXn9s0hsJt8K9FIOkpEcCy6Y7h_tB25VZ4oQZMmaNXQXGhiu9eUp4eoMW3aALQyYT90_yoVsURbEj5D3tTw6NUpuHW",
+              "title": "rbc.ua",
+              "tier": 4
+            },
+            {
+              "domain": "nv.ua",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQGqezbyeD39dJ5cgWnP4ry6TaHc5bY7EMbGwQ3EpXb3gJiQBfz4mVYoIl3TBZnsGANuo05LMI7gphfpfrLjU7OnHGkUG4klkektNbtC9NKO2LhjdocjeKQ2BN_bjVNzU67lzy-nSbWIKfzu7LVaMTpBWyMI97MD3Ojg3SPxTTyV45VysMlDYaWNLwvQSwJLtA==",
+              "title": "nv.ua",
+              "tier": 4
+            },
+            {
+              "domain": "united24media.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQE2hugPFBJNVglz56cDgjM-aBHhPbQ9SEwYffhRgtVTB33Dah1oUalNwuf5zAva40Q08zY6uQs8GU40qMzh9c8fbD_E3BFCx3l1LU0bsuNBJXYUeiyUFY-rkupC3NV8jC93mBOAktTaXR6FiJN2-0l8ZzwA36kx1puoYfjmmVa3ft7ky_dAEMhDzG2bh3MPgIiXeIntO27djoSgLV6hkJ1bmZRqZqfK0ElA-zIygBb_-sdS8GniVUf2P_WxkdKHbV2T7Q==",
+              "title": "united24media.com",
+              "tier": 4
+            },
+            {
+              "domain": "kyivindependent.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQFBqPzJ0rHJgdJU1VpO_c5UsAeoSAMMqOGYCX0-spAXnaCMAjDSsOg8WshB72U15TZrl1rTLP4qKHFPHUdqoo5_3bFm_LveKQ-F2Mjn85pOuS0VBd3HxDYG1hJ-DJ_Ky3ry4iMi2tsP0MYfj1sZS4c2goV_QE8w6EvsbVZym2SBh6qWOzPhm8tK9tA5nWbBEED7AFZrWkyslN0J422-o4n-whmryZnhLw3d0_Y=",
+              "title": "kyivindependent.com",
+              "tier": 4
+            }
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "timestamp": 487.555877,
+    "videoTime": "8:07",
+    "realTime": "2026-02-11T16:19:35.632Z",
+    "originalLength": 1140,
+    "cleanedLength": 501,
+    "tokenSavings": "56%",
+    "fullText": "[Context from previous 30 seconds: As before, they will play the main role in deterring an Englisch (automatisch erzeugt) Klicke auf , um die Einstellungen aufzurufen. in deterring an aggressor and maintaining the balance of power in the Today in Russia] New content to analyze: world. Today in Russia is the day of the strategic missile forces. Taking this opportunity, I want to congratulate the veterans, personnel and civilian staff of the strategic missile forces on their professional holiday. I",
+    "context": "[Context from previous 30 seconds: As before, they will play the main role in deterring an Englisch (automatisch erzeugt) Klicke auf , um die Einstellungen aufzurufen. in deterring an aggressor and maintaining the balance of power in the Today in Russia] New content to analyze: world. Today in Russia is the day of the strategic missile forces. Taking this opportunity, I want to congratulate the veterans, personnel and civilian staff of the strategic missile forces on their professional holiday. I",
+    "newContent": "[Context from previous 30 seconds: As before, they will play the main role in deterring an Englisch (automatisch erzeugt) Klicke auf , um die Einstellungen aufzurufen. in deterring an aggressor and maintaining the balance of power in the Today in Russia] New content to analyze: world. Today in Russia is the day of the strategic missile forces. Taking this opportunity, I want to congratulate the veterans, personnel and civilian staff of the strategic missile forces on their professional holiday. I",
+    "claims": [
+      {
+        "originalClaim": "Today is the day of the strategic missile forces in Russia.",
+        "cleanedClaim": "Today is the day of the strategic missile forces in Russia.",
+        "factual_core": "Today is the day of the strategic missile forces in Russia.",
+        "speaker": null,
+        "category": "POLITICS",
+        "checkability": 3,
+        "importance": 3,
+        "occurrences": [
+          {
+            "timestamp_hint": "N/A",
+            "rhetorical_framing": "Today in Russia is the day of the strategic missile forces.",
+            "raw_snippet": "world. Today in Russia is the day of the strategic missile forces."
+          }
+        ],
+        "phonetic_repairs": [],
+        "verification": {
+          "verdict": "false",
+          "explanation": "The Day of Strategic Missile Forces in Russia is celebrated annually on December 17th, not today.",
+          "confidence": 0.5,
+          "key_facts": [],
+          "sources": [
+            {
+              "domain": "topwar.ru",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQFXdQTwhBhhp3saJHs4NVej8QS_j1gZFIYPBLZfBfEh8Y3_i3I2qinoyiYdgxurR-Tt95vNz3jHqIHastIphJlwWALeb579q3sLTZ-YkvWGPUACeDx-uE1Odtc4Teey8OVuNie7nNI6ktHUojMRJZYT7xhXlaotsUV782EV-WhZjwbRZMjyR91KdVuMFNugXWH4aU0ebSTgrg==",
+              "title": "topwar.ru",
+              "tier": 4
+            },
+            {
+              "domain": "topwar.ru",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQFRjxNi2xRJNvmm9HsKzl-2mn9_ylGI7T4Qr83llk76Mzkjy2UPh1h4EL-fC2P8hUUbLAFbrRi2wyuj5ufJJi7dk3fomVufvz9Xo2o7z_UyKv0jvWBq3q84bPG_u-nr7U1pex845D7gT3MColpG-zNKhgTiofP7-9-dIhFVUSJ2IWwWVj_JWBmjCZ0lMpdrOcqqVR8K1vjh3fwVrb4PGK98WPXFng==",
+              "title": "topwar.ru",
+              "tier": 4
+            },
+            {
+              "domain": "rusevents.ru",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQE3xUnQyM_mBoPAY3bZBoqSWzl_PdXIJTb3JD1vm10pLuXWCcWhYPFCO1HjSlziOZQOVdmF68snyXGSPB1NRhX0uN0Zz3rda1jcQOvICOkjWzfMEJrurrvuMqWdrSUAs3kT7dEMXFZa9e-TbGJWGPNxhJ-Fahb7CZoJ",
+              "title": "rusevents.ru",
+              "tier": 4
+            },
+            {
+              "domain": "vpk.name",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQH0YMzmC0tlybSYR0Zk7i-x0wQ-uklqUAUZXIz-uVoE-zUhcL3H6eiToKQFTflVjGMFDlmbCpJmm0AUVxs1oWjUJtJKkTBWYaaWv5E7Rr3UOlivjR35HXz2UOcVuQzw5pyVzSbODQjXXS4PJV7KaTNsRgon0bplfqp87TpMT05tNjLv8fiCPfWspkxT_KDdINQ=",
+              "title": "vpk.name",
+              "tier": 4
+            },
+            {
+              "domain": "vpk.name",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQGOF_tLzparUnPoN_U9T_eFOArPrvW5p7YUYbEJjElPCtntvDM7jZdP7m0lfx7S9v72KsJO_6uyaPJYLAL1ylyCPhbO8aQRbXxbe2U60yOe85l-3oRPKljXEJOV2LwZeIiQ29mPPRCvykeLCPV1BhWjDABgxvl-XViGWrxrgT434PZgAUZ53ktdEa76Gb9x4GqhfiCX2og=",
+              "title": "vpk.name",
+              "tier": 4
+            }
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "timestamp": 503.134239,
+    "videoTime": "8:23",
+    "realTime": "2026-02-11T16:19:51.207Z",
+    "originalLength": 1422,
+    "cleanedLength": 526,
+    "tokenSavings": "63%",
+    "fullText": "[Context from previous 30 seconds: Today in Russia is the day of the strategic missile forces. Taking this opportunity, I want to congratulate the veterans, personnel and civilian staff of the strategic missile forces on professional holiday. I] New content to analyze: strategic missile forces on their professional holiday. I wish you success and all the best. Third, the Russian army must continue to remain at the forefront of technological progress. This means that troops need to accelerate the introduction of robotics,",
+    "context": "[Context from previous 30 seconds: Today in Russia is the day of the strategic missile forces. Taking this opportunity, I want to congratulate the veterans, personnel and civilian staff of the strategic missile forces on professional holiday. I] New content to analyze: strategic missile forces on their professional holiday. I wish you success and all the best. Third, the Russian army must continue to remain at the forefront of technological progress. This means that troops need to accelerate the introduction of robotics,",
+    "newContent": "[Context from previous 30 seconds: Today in Russia is the day of the strategic missile forces. Taking this opportunity, I want to congratulate the veterans, personnel and civilian staff of the strategic missile forces on professional holiday. I] New content to analyze: strategic missile forces on their professional holiday. I wish you success and all the best. Third, the Russian army must continue to remain at the forefront of technological progress. This means that troops need to accelerate the introduction of robotics,",
+    "claims": [
+      {
+        "originalClaim": "The Russian army must continue to remain at the forefront of technological progress.",
+        "cleanedClaim": "The Russian army must continue to remain at the forefront of technological progress.",
+        "factual_core": "The Russian army must continue to remain at the forefront of technological progress.",
+        "speaker": null,
+        "category": "POLITICS",
+        "checkability": 3,
+        "importance": 3,
+        "occurrences": [
+          {
+            "timestamp_hint": "N/A",
+            "rhetorical_framing": "The Russian army must continue to remain at the forefront of technological progress.",
+            "raw_snippet": "Third, the Russian army must continue to remain at the forefront of technological progress."
+          }
+        ],
+        "phonetic_repairs": [],
+        "verification": {
+          "verdict": "true",
+          "explanation": "The claim suggests that the Russian army should continue to be at the forefront of technological progress. Evidence indicates that Russia is actively investing in military technology, including aircraft, drones, directed energy weapons, AI, and machine learning.",
+          "confidence": 0.2,
+          "key_facts": [],
+          "sources": [
+            {
+              "domain": "understandingwar.org",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQE2e6yOE0_AfxnZPMv7TjqweQYqFJYcNxshdKJksM9rxfR4BAYhiD1dYnIeBtSn3ro62hIpl56cxCTpufz_WiKftmdi5koWWE9tvuIxvxJjfAlSmT_BkwAzr4FydJj1kOtTKkoardPHJ5uxzJatlJq9lD4A93n2s-CL49EoaOI__fV2Db_M04HVdx2J33M2V-djESoG6Q4Knerd70fNnU7c9-_CKksGkTnIoiupBebkVxYowqAc4uiqoPB9",
+              "title": "understandingwar.org",
+              "tier": 4
+            },
+            {
+              "domain": "csis.org",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQFTDiEkxqo5o7LCEXIqpBsHM6eq4EE0VR6IrGshk2M2o_oqNxwpa92b2dIZgIb1-z3h9nHZOZ7omxuLfCBRzRQFVM_9yzqLJKJHOmqkQrOLOnVhvYkfM7gQrsv_iXqPaDQ0xM4UahRgtiOEMCn5A-y9Tv4SelU87_E7YBmN3kOgxCvrYy8m",
+              "title": "csis.org",
+              "tier": 4
+            }
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "timestamp": 518.271905,
+    "videoTime": "8:38",
+    "realTime": "2026-02-11T16:20:06.345Z",
+    "originalLength": 1341,
+    "cleanedLength": 493,
+    "tokenSavings": "63%",
+    "fullText": "[Context from previous 30 seconds: and all the best. Third, the Russian army must continue to remain at the forefront of technological progress. This means that troops need to accelerate the introduction of] New content to analyze: accelerate the introduction of robotics, information technologies, new materials, expand the use of artificial intelligence technologies in control systems in autonomous combat complexes. Fourth, it is important to equip the orbital grouping with new generation",
+    "context": "[Context from previous 30 seconds: and all the best. Third, the Russian army must continue to remain at the forefront of technological progress. This means that troops need to accelerate the introduction of] New content to analyze: accelerate the introduction of robotics, information technologies, new materials, expand the use of artificial intelligence technologies in control systems in autonomous combat complexes. Fourth, it is important to equip the orbital grouping with new generation",
+    "newContent": "[Context from previous 30 seconds: and all the best. Third, the Russian army must continue to remain at the forefront of technological progress. This means that troops need to accelerate the introduction of] New content to analyze: accelerate the introduction of robotics, information technologies, new materials, expand the use of artificial intelligence technologies in control systems in autonomous combat complexes. Fourth, it is important to equip the orbital grouping with new generation",
+    "claims": [
+      {
+        "originalClaim": "The Russian army needs to accelerate the introduction of robotics.",
+        "cleanedClaim": "The Russian army needs to accelerate the introduction of robotics.",
+        "factual_core": "The Russian army needs to accelerate the introduction of robotics.",
+        "speaker": null,
+        "category": "SCIENCE",
+        "checkability": 3,
+        "importance": 3,
+        "occurrences": [
+          {
+            "timestamp_hint": "N/A",
+            "rhetorical_framing": "The Russian army must continue to remain at the forefront of technological progress. This means that troops need to accelerate the introduction of robotics",
+            "raw_snippet": "Third, the Russian army must continue to remain at the forefront of technological progress. This means that troops need to accelerate the introduction of robotics"
+          }
+        ],
+        "phonetic_repairs": [],
+        "verification": {
+          "verdict": "false",
+          "explanation": "The Russian military has been actively developing and integrating robotics into its forces since at least 2018. [Tier-1 Übersteuerung: Offizielle Quelle widerspricht der Behauptung.]",
+          "confidence": 0.85,
+          "key_facts": [],
+          "sources": [
+            {
+              "domain": "army.mil",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQF8SSLrN-s_A0lLz_rZEyfQKpzFhPCKb7_HZQTREqRyqT1x6siKjmOiGxUoP1zgUMAYiXXa6X-Yl5SFwZEy8dZQBNHPdxRP4LLTEc99kvQNqOyqshduySyKSF6seGWyzOHt3V9ZdI9bcojqWAAUYKN2i69MFcM8I5XKEkn0GCs0fh-vX2mrjB5BxdGBpfWWYwEChj4qRck34xnN",
+              "title": "army.mil",
+              "tier": 1
+            },
+            {
+              "domain": "nationalinterest.org",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQF8Tzff2LL-HtIYBAW6j33A1i3GXUfiZrSWuYoP0rZ-VHkBdUMPs4JrysHSGBzmBR132xe_WjBS3YNoo_B_wvLwMXJgLbkLP32PKIvWyO_dxXFVLBNXCfBboHgUG_QGusV3D2sgcBRw1p66VMUyeYBr_oIS9mLWNdVylIb-bFdPT02hUAsqQ252DiByQN6GyuOnQ0cLfPOwhtq8cwgQ3w==",
+              "title": "nationalinterest.org",
+              "tier": 4
+            },
+            {
+              "domain": "breakingdefense.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQH1wl53qg-r6RmjKOX7PoUs8xeXtsFq7ZhnD0pE1xtqjOIuyHv-18h_SGn8CS5orsosAr8Zx0cyp8_rM-o4ifpHh90XK0n5A0RnEdXN67k1i2RWsiUod06rf6L9iQL3375mBOxKq6qjFSjNEBLAsUHE9o0LGlf0t7I2J509kCT-JrNaDDEFoSibliaId_s=",
+              "title": "breakingdefense.com",
+              "tier": 4
+            }
+          ]
+        }
+      },
+      {
+        "originalClaim": "The Russian army needs to accelerate the introduction of information technologies.",
+        "cleanedClaim": "The Russian army needs to accelerate the introduction of information technologies.",
+        "factual_core": "The Russian army needs to accelerate the introduction of information technologies.",
+        "speaker": null,
+        "category": "SCIENCE",
+        "checkability": 3,
+        "importance": 3,
+        "occurrences": [
+          {
+            "timestamp_hint": "N/A",
+            "rhetorical_framing": "The Russian army must continue to remain at the forefront of technological progress. This means that troops need to accelerate the introduction of information technologies",
+            "raw_snippet": "Third, the Russian army must continue to remain at the forefront of technological progress. This means that troops need to accelerate the introduction of information technologies"
+          }
+        ],
+        "phonetic_repairs": [],
+        "verification": {
+          "verdict": "true",
+          "explanation": "The Russian army is actively working on introducing information technologies, including establishing a new military branch called Unmanned Systems Forces and planning to deploy brigades of unmanned systems in 2026.",
+          "confidence": 0.3,
+          "key_facts": [],
+          "sources": [
+            {
+              "domain": "militarnyi.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQHlLBjKTkTg0dNlwn_fLoMSYVteY45O0AfAFVttlmq_JcGgVJYJQjkeQGg4yk4aO3Yo1hbBsqoFWfRx27yVAUwa6Gbb2u8olj1XsrIIKA-nyn8c6uZ926VCeDZhQbCKvjHUclQuqPHqNPhry8Oe3nyFhf1rqYZrFbfBoJfYZGUpRx7UzyJEfUBAii7B1JFe-YtR7t5pgP7He5g89Q_cZP6aiLlOhZUX4YAKWH9uLrHv6uUiEi_g2OzC06ImPAOB4GoVRK0e7YyqanbTvp6b",
+              "title": "militarnyi.com",
+              "tier": 4
+            },
+            {
+              "domain": "tadviser.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQHlF7zcYdOa42h5_U62P1bID_sqC7dt_1uY4iOSlMnm_w9rme5asTn4GIQQzAzWOVzbtJ00pFJszDf3H6wIzxLqYyGwBqskm36bjH7KTZlN4nGT85c6VGSfRQN-VtMl4wpJ-LkMH2nIw0vqvNFDTRAFw65OkUARL2N8D0MvAQv0y8s0rw==",
+              "title": "tadviser.com",
+              "tier": 4
+            }
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "timestamp": 533.383609,
+    "videoTime": "8:53",
+    "realTime": "2026-02-11T16:20:21.458Z",
+    "originalLength": 1314,
+    "cleanedLength": 575,
+    "tokenSavings": "56%",
+    "fullText": "[Context from previous 30 seconds: accelerate the introduction of robotics, information technologies, new materials, expand the use of artificial intelligence technologies in control systems in autonomous combat complexes. Fourth, it is important to equip orbital grouping with new] New content to analyze: Fourth, it is important to equip the orbital grouping with new generation spacecraft. As a result, the troops should receive high-speed and protected communication channels. the quality of their provision with intelligence information and accurate navigation data will",
+    "context": "[Context from previous 30 seconds: accelerate the introduction of robotics, information technologies, new materials, expand the use of artificial intelligence technologies in control systems in autonomous combat complexes. Fourth, it is important to equip orbital grouping with new] New content to analyze: Fourth, it is important to equip the orbital grouping with new generation spacecraft. As a result, the troops should receive high-speed and protected communication channels. the quality of their provision with intelligence information and accurate navigation data will",
+    "newContent": "[Context from previous 30 seconds: accelerate the introduction of robotics, information technologies, new materials, expand the use of artificial intelligence technologies in control systems in autonomous combat complexes. Fourth, it is important to equip orbital grouping with new] New content to analyze: Fourth, it is important to equip the orbital grouping with new generation spacecraft. As a result, the troops should receive high-speed and protected communication channels. the quality of their provision with intelligence information and accurate navigation data will",
+    "claims": [
+      {
+        "originalClaim": "Russia is deploying Oreshnik missile systems.",
+        "cleanedClaim": "Russia is deploying Oreshnik missile systems.",
+        "factual_core": "Russia is deploying Oreshnik missile systems.",
+        "speaker": null,
+        "category": "POLITICS",
+        "checkability": 3,
+        "importance": 5,
+        "occurrences": [
+          {
+            "timestamp_hint": "0:00",
+            "rhetorical_framing": "Confirms Oreshnik Missile Deployment",
+            "raw_snippet": "Putin Addresses Army Generals, Confirms Oreshnik Missile Deployment LIVE"
+          }
+        ],
+        "phonetic_repairs": [],
+        "verification": {
+          "verdict": "true",
+          "explanation": "Multiple sources confirm that Russia is deploying Oreshnik missile systems, including reports of deployment to Belarus and combat use in Ukraine.",
+          "confidence": 0.7,
+          "key_facts": [],
+          "sources": [
+            {
+              "domain": "yahoo.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQFq50AbF_3yMkuU_VTQ7a7LHhAh9gvG6IBsFsMYkRPFDU41k_mPlz0ib9YzmC6dk2HIFj1VR4Vw22nZp6_pT9zHxEMUE_v2uWtq8F832Izy21X-XgJVQZqsi8hluAsz2Sfwfkv3Txal4AvhOukpF4jOyeIeSJsnbk65lVavkGv0oH6DjXirQHofFA==",
+              "title": "yahoo.com",
+              "tier": 4
+            },
+            {
+              "domain": "carnegieendowment.org",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQGU9gjXDXK7sp95Mrh1tD22DJZeAPk79LeGG7Dtm6HwgVkDGBUHw1lbI66c9Zylqj6fjUD2h3rJYRVrFvmasYF24oOrxciPT0qmwc41soQkHitBsN9OtXc3Vv6Vfo0LRk82cwG4SPmiavBrTqcg6Bgq3OpNBurZSeeSiepXS1YDG6T-HI8AEo71FdnSOo44smIwXcG5MQfM0GEB7wr--fQ=",
+              "title": "carnegieendowment.org",
+              "tier": 4
+            },
+            {
+              "domain": "kyivindependent.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQHF8b0c-PhT-vq3W4fnUuCi_AsoW6kuguyXhmJDWUjrWxImeTGMvoZfvkGhiawUTAZKxKBPPZkMbCre8kOu0-mFns9-9K9h92LmuOCwBGfAg6DQ1czVKkq1v9uuXW7QuJ1zjlCZkNO_UFzjo_sU0e8rtM2lq4iuikBwrVCyxk3A8eLZc1LzSLbxEvfM0gsBCnzwt3Xqv9yBB6jodCUnjAFTk_au6g32v955Wx8=",
+              "title": "kyivindependent.com",
+              "tier": 4
+            },
+            {
+              "domain": "kyivpost.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQHOUK8MuUQJjy1jsiJosYHODl-38YEHobLQaFtApbdREtleF6UOTS9a6dnsq6aMkY55ZvFZlAaM3MztkIqZ-mxn8R2N5bnWxdgdkBGcqO39RvSX2txXmnCs_b95kF8=",
+              "title": "kyivpost.com",
+              "tier": 4
+            },
+            {
+              "domain": "nv.ua",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQFVQxiWGk0YwXmKaHNF7iQ2O-D0jSoczi0CwNXZF3tw1hGtgiot17VGJjJDparoFA0dqbXDpFYolw63abNrwNVZZsO6ts8G_-XF2M7BqlRTrWUIn4fmXFpHw0_1u2vBox73ZJRiel-ILc0BAesq-u2wuKEOupStCKVcJFN3zdhzt8nTXQcDezMwn5okCh_iDA==",
+              "title": "nv.ua",
+              "tier": 4
+            },
+            {
+              "domain": "united24media.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQEswlipbCsuCyLNBEBh7ZWWe_zcahN0-tuHHrYUOEq5xaMFm1jBJrtmvi5_xGfUQoHFVsspuUsroZMxFUmNztpAxvsgmWZv-U1-rEboZk1Xd38WbvArQLwKdwVYXa1CZwVrBI2XJQXCXHduteIvQh1ltu3qS280xBOW4fZxoTehPXXCw3Hwf7tV0uUlhmlCgJ0DYU5BsFdStpBWqwzN3xM2HM0hEqeIEczB__0SmegOmB2ZlyyQ4xIBxkG8IN9ALzYnBQ==",
+              "title": "united24media.com",
+              "tier": 4
+            }
+          ]
+        }
+      }
+    ]
+  }
+]

@@ -1,0 +1,1143 @@
+[
+  {
+    "timestamp": 15.947475,
+    "videoTime": "0:15",
+    "realTime": "2026-02-11T21:06:05.642Z",
+    "originalLength": 403,
+    "cleanedLength": 155,
+    "tokenSavings": "62%",
+    "fullText": "Englisch (automatisch erzeugt) Klicke auf , um die Einstellungen aufzurufen. Dear participants of the collegium, we know that behind the Kiev regime is the",
+    "context": null,
+    "newContent": "Englisch (automatisch erzeugt) Klicke auf , um die Einstellungen aufzurufen. Dear participants of the collegium, we know that behind the Kiev regime is the",
+    "claims": []
+  },
+  {
+    "timestamp": 31.14753,
+    "videoTime": "0:31",
+    "realTime": "2026-02-11T21:06:20.841Z",
+    "originalLength": 651,
+    "cleanedLength": 286,
+    "tokenSavings": "56%",
+    "fullText": "Dear participants of the collegium, we know that behind the Kiev regime is the potential of the member countries of the world's largest military political block, NATO. Largecale military assistance is continuously flowing. Advisers, instructors, mercenaries are being sent. Intelligence",
+    "context": null,
+    "newContent": "Dear participants of the collegium, we know that behind the Kiev regime is the potential of the member countries of the world's largest military political block, NATO. Largecale military assistance is continuously flowing. Advisers, instructors, mercenaries are being sent. Intelligence",
+    "claims": [
+      {
+        "originalClaim": "The Kiev regime is backed by NATO member countries.",
+        "cleanedClaim": "The Kiev regime is backed by NATO member countries.",
+        "factual_core": "The Kiev regime is backed by NATO member countries.",
+        "speaker": null,
+        "category": "POLITICS",
+        "checkability": 3,
+        "importance": 4,
+        "occurrences": [
+          {
+            "timestamp_hint": "0:07",
+            "rhetorical_framing": "The Kiev regime is backed by NATO.",
+            "raw_snippet": "Dear participants of the collegium, we know that behind the Kiev regime is the potential of the member countries of the world's largest military political block, NATO."
+          }
+        ],
+        "phonetic_repairs": [],
+        "verification": {
+          "verdict": "true",
+          "explanation": "NATO member countries have provided substantial military aid to Ukraine and pledged long-term security assistance.",
+          "confidence": 0.4,
+          "key_facts": [],
+          "sources": [
+            {
+              "domain": "nato.int",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQHmPYdVfTviUUhTX6dvx-vsT1GurhcALuiOFjpxCYW_7Hdfa2XETZ99tYHP-uz_LZYbMhaLFdX6xeCRVsvcC_3uBx4S3DU2zJ1hJJNC5L0i8coQC9i68trdqroIcpPbqK14vvV5ShiTU6TqiK3Wg9SwwQtBgwhfWAdM2dbqf5UF5wSvPLqkhRXzbxHzapoZlWfc",
+              "title": "nato.int",
+              "tier": 4
+            },
+            {
+              "domain": "nato.int",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQGPjIUXfVtMCRFz3s18-xFd67S9SFnD4unyKXqVknVW-V2Kq6HapGmGH9S1pzXmXQFa2Vx8zXDl1znCrIQQgRVLN_HwaH_GOM_TAXKNU0HvpmZqCEmDiJtpM9fu-P4x0eAWWDlrbqayp5Fj9_7YWU8XKWl8HpwfcRiDh-MpO7lhgO7NkbTIC8d-Gk9mTZz2McfQFSHP",
+              "title": "nato.int",
+              "tier": 4
+            },
+            {
+              "domain": "atlantic-forum.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQHw9rSMx_q4uGTRGTkG4dnht4eKYV_BhcHtubnJoyOql-7wGy4Pum4Jy0P_9DY7wRuDeh_XxcXkOdOccUfucVLinAvpKyGUpUmrYdlu99ZumlxpYcIptmQxnX5j9gITrmFt4DzojVUwxQ3oEsXe1r4An0zwpd5MEYi2yEWBRqKb7AX_kn6NQwtOPGFcuz54f1tdGSdmJupG057JZGS-1Wk-yVMhjWDozFhnxmQ=",
+              "title": "atlantic-forum.com",
+              "tier": 4
+            }
+          ]
+        }
+      },
+      {
+        "originalClaim": "Large-scale military assistance is continuously flowing to Kiev.",
+        "cleanedClaim": "Large-scale military assistance is continuously flowing to Kiev.",
+        "factual_core": "Large-scale military assistance is continuously flowing to Kiev.",
+        "speaker": null,
+        "category": "POLITICS",
+        "checkability": 3,
+        "importance": 4,
+        "occurrences": [
+          {
+            "timestamp_hint": "0:12",
+            "rhetorical_framing": "Large-scale military assistance is continuously flowing.",
+            "raw_snippet": "Largecale military assistance is continuously flowing."
+          }
+        ],
+        "phonetic_repairs": [
+          {
+            "original": "Largecale",
+            "corrected": "Large-scale"
+          }
+        ],
+        "verification": {
+          "verdict": "true",
+          "explanation": "Multiple sources confirm that large-scale military assistance is being provided to Ukraine. The European Parliament approved a significant loan, and countries like the UK and Germany have pledged substantial military aid.",
+          "confidence": 0.7,
+          "key_facts": [],
+          "sources": [
+            {
+              "domain": "pravda.com.ua",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQF-cY-djVPgClyZGLehHrit5J0bEvjTJj8kGbhYFyhCaCFEeP7ga9Fo-TMLvs5MXyeZXU7FKBI6rixz8qFHZBYBO2KSrClnFBJzC9lZe6fVgK_4R7u_x_CMs7PxLHTvL1_0Ew8dSC434yWQEGyQC4D5ig==",
+              "title": "pravda.com.ua",
+              "tier": 4
+            },
+            {
+              "domain": "reneweuropegroup.eu",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQHbfYiamIKIAniRpZicuyloJvBSJl8lE9ruky-M-tKeeBeDhUvJbKHBmBmj5mHmuLHJfjrIhl5UwedTn0siI5uFHJmA1U42iMSz2p8rpbhxanzrHc6WqwmdI4eyF2TBWRQroAOYh98mKUVl8m9yOkk0ahT77UsBln2cACAcChUTilmGBZ7JVwBjWqjA5SJODzgSz5qKqulpl_1yu5k2OH3EVBgKn8wDMzglMPJWQk6-Yw==",
+              "title": "reneweuropegroup.eu",
+              "tier": 4
+            },
+            {
+              "domain": "trtworld.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQEA33H5MeWKbCvhNKkjk6G5dnaEg3PWKRkQhaPodZqwcDjLEVSrlDMNYJQPfkGRp5AeobrD0D7yG70f2htnap8VBCGoZ5LQK9GTEx8sKDj-PRTvpae_HOqqkGeW8cAkAvDElBVAGwoiTQ==",
+              "title": "trtworld.com",
+              "tier": 4
+            },
+            {
+              "domain": "globalbankingandfinance.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQG2Gpm5htzTX_XS_tDF3Olzjp2icDkZhOiktn8GWeKprAzJ3prJrLSH8xN3vyxw9IY-TzQ5vo4R72DC8ZMiSwKUsKm17ruj_-aBBZ35hCuUehcJX3ScdWJu6Mf0tkofvVVF3Sf4WSlOrhZ0p-C9La24k5Ted0FTRta_S9uvYAbuTW0F6wh_Ns6f6zB70fE-Yk4DNQ==",
+              "title": "globalbankingandfinance.com",
+              "tier": 4
+            },
+            {
+              "domain": "united24media.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQH3j4ZCvDxOyk4500OyQMATxKL3nK6in9zsNo0tyGUeynqRv1It1DnSykSQz3X4m7TVUSFEVcEKkybzISFZpwSMjV7xgrzIz8ICJKBwJM1RTR1uzxemWnMhBRen3OCNki81QAPljDNtc2YQvC9zmZdxq8xrvke2-0atXszF7HjiZHVA3HK-sQoQouECThSbm72RdMcUNU5qybRmwyQn4cJrVGVZ",
+              "title": "united24media.com",
+              "tier": 4
+            },
+            {
+              "domain": "straitstimes.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQFQo1Km21Fblz4JITcd1npjjqk_9SMEqziE2PrJygV_kq3h98Se3oNQID6ydbuLaIiNCr9ixTuHaWVzIDntTsQU3j7ln93OsK-SsE5t0UHejJcUcVBSL6ChN_ouack_0zqybi_7q3cU93T8i8bVL4pFS3Bl8fFb1iZv7yJdJmBUgkGvK88B9Kns-hdZVahIx0_-qAjWS6LuzMA=",
+              "title": "straitstimes.com",
+              "tier": 4
+            },
+            {
+              "domain": "yahoo.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQFVUZnhwlIc0AdQEMiTquifcKvqVYAXa25fHRAqkAb_JGQ2reBTOGle6T5au0IWLW_KZSuaWaFtl28cR9iOKJnm66YzDQDgBbNyyi15-TngP4LiYz_aS4ckQX1wv4-h2fotNpEZnWLLqVQ9OQFY5LwrJecTf0cFP12WOpjQd8I3K-Mdi4JZ",
+              "title": "yahoo.com",
+              "tier": 4
+            }
+          ]
+        }
+      },
+      {
+        "originalClaim": "Advisers, instructors, and mercenaries are being sent to Kiev.",
+        "cleanedClaim": "Advisers, instructors, and mercenaries are being sent to Kiev.",
+        "factual_core": "Advisers, instructors, and mercenaries are being sent to Kiev.",
+        "speaker": null,
+        "category": "POLITICS",
+        "checkability": 3,
+        "importance": 4,
+        "occurrences": [
+          {
+            "timestamp_hint": "0:15",
+            "rhetorical_framing": "Advisers, instructors, mercenaries are being sent.",
+            "raw_snippet": "Advisers, instructors, mercenaries are being sent."
+          }
+        ],
+        "phonetic_repairs": [],
+        "verification": {
+          "verdict": "true",
+          "explanation": "Multiple sources indicate the presence of foreign advisors, instructors, and mercenaries in Kiev/Ukraine.",
+          "confidence": 0.4,
+          "key_facts": [],
+          "sources": [
+            {
+              "domain": "voennoedelo.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQGgTzHTSUcHNf8nmA1LTQ3hSWEIzkNcgiQVxPnqz7eNt6mfiPgkQHpQSUhuMncyW_TDz4YKewCYJrBvrBdlHRrzwvOxDfldGKfgl2vGV-bpWFWLZCizLpaMuzDAWxwhI1F2jD4Y4Xp4dRcOHXaMIPX2lKOFgA1o85nZeDKo8e6xz08b4DbE_KL1cs44K9tqWRo7tx7G48V8ikzOKHhsG6PTlfU=",
+              "title": "voennoedelo.com",
+              "tier": 4
+            },
+            {
+              "domain": "agenzianova.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQFr2QvtOlmEleQhaFm2MHC_89rhbARhqd-p0YGpSeqvQJJ9RmcBFTrpxQkMZxYZVkvV7bv5YgA3_D8gH5IHz0pnDspmmWOJ2zWdQkfv6x0AYqNm-maqrIB-8kOsJtTMf25r5p5Jv31ozPDqPOAgwzC7WuA-1uaYHu4KWAQfzoiahZU9vcWdrc2gUXqy51wLdSPM_6aMWnaHM1y8M5172May--wv44JDUAXVNQ--z5fVPYCFGZzb6C8nRRLsJ_HDDwN5CYnw7BA_q5UogY_zH8loHym6UA==",
+              "title": "agenzianova.com",
+              "tier": 4
+            },
+            {
+              "domain": "agenzianova.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQHFTQQU-B4ys2agIk40HbFGqCGbRtXfRwrTZ6VU0Qmwj-YVhCcQK0lnmBHv3cWEjDu-oiwaHYyUDOZ4PZ2f4bi27YAq5-phiM22U3oBJ8jNrLDe8dA_02jOoq9t7AWdqzcDKYnNYlas6pUdeWVd_zC0pn5muA8DRKW2Nu8ZEGUkxNhLnHAHdmtd9x8XFsTWsOBUqp_Rr5Ro0mlfbk_Bnoi5Q2ALbz98UynRjXeq2hN4grbXmkxkwAyrpN5O6o8fz9MDCO-sbDBeFfol9XuJ1wY=",
+              "title": "agenzianova.com",
+              "tier": 4
+            }
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "timestamp": 46.994071,
+    "videoTime": "0:46",
+    "realTime": "2026-02-11T21:06:36.688Z",
+    "originalLength": 1299,
+    "cleanedLength": 551,
+    "tokenSavings": "58%",
+    "fullText": "[Context from previous 30 seconds: potential of the member countries of the world's largest military political block, NATO. Largecale military assistance is continuously flowing. Advisers, instructors, mercenaries being sent. Intelligence] New content to analyze: Advisers, instructors, mercenaries are being sent. Intelligence data is being transmitted. In such difficult conditions, our troops demonstrate high combat capability and training. The capabilities of the Russian army are constantly developing. Work on strengthening the armed forces has",
+    "context": "[Context from previous 30 seconds: potential of the member countries of the world's largest military political block, NATO. Largecale military assistance is continuously flowing. Advisers, instructors, mercenaries being sent. Intelligence] New content to analyze: Advisers, instructors, mercenaries are being sent. Intelligence data is being transmitted. In such difficult conditions, our troops demonstrate high combat capability and training. The capabilities of the Russian army are constantly developing. Work on strengthening the armed forces has",
+    "newContent": "[Context from previous 30 seconds: potential of the member countries of the world's largest military political block, NATO. Largecale military assistance is continuously flowing. Advisers, instructors, mercenaries being sent. Intelligence] New content to analyze: Advisers, instructors, mercenaries are being sent. Intelligence data is being transmitted. In such difficult conditions, our troops demonstrate high combat capability and training. The capabilities of the Russian army are constantly developing. Work on strengthening the armed forces has",
+    "claims": [
+      {
+        "originalClaim": "Advisers, instructors, and mercenaries are being sent.",
+        "cleanedClaim": "Advisers, instructors, and mercenaries are being sent.",
+        "factual_core": "Advisers, instructors, and mercenaries are being sent.",
+        "speaker": null,
+        "category": "POLITICS",
+        "checkability": 3,
+        "importance": 4,
+        "occurrences": [
+          {
+            "timestamp_hint": "Inferred from context",
+            "rhetorical_framing": "Advisers, instructors, mercenaries being sent",
+            "raw_snippet": "Advisers, instructors, mercenaries are being sent."
+          }
+        ],
+        "phonetic_repairs": [],
+        "verification": {
+          "verdict": "partially_true",
+          "explanation": "The claim is partially true. While the U.S. has denied sending military advisors or trainers to Ukraine (Jake Sullivan, June 4, 2024), reports indicate the presence of foreign mercenaries and instructors in Ukraine. Additionally, Romanian military instructors have been deployed to the Democratic Republic of Congo.",
+          "confidence": 0.3,
+          "key_facts": [],
+          "sources": [
+            {
+              "domain": "news.cn",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQG4EZzjVY8ucMAIlVzHK3SIIM3rJGo5skL9oMNI4utD7EWXilIDmNHeGVnPPH_nFLtp2BFMLpSYcAwnonPdFTm7Crxyq1AQPKfJK_NDm21DauqKyooA9XRTiHLiGX-dH_efqtctThuC0sKSheJ3Giyy_uSMJfvyx9LPlDdZZn4JnzUaH5WjWOD0jq5q42XFd4A=",
+              "title": "news.cn",
+              "tier": 4
+            },
+            {
+              "domain": "pravda.ru",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQF3QbeIQofN7X9ScxGCJfw3TV01zAoYNR-o93QrsEDDpL5k8iCbLSj4y-vYRdDGR1j0W_AJ6Z7ns2D_6-J2hH83Dav0tU5-0npZbOHD0JEy09YeDpb3N99Ed4wMRpWddk9Y9ARh2IeriRN62fiLIynuxsO56FKaXbMrypA6rhXAsyj59w6VMcfIT5gkmaXlRokmHcc=",
+              "title": "pravda.ru",
+              "tier": 4
+            },
+            {
+              "domain": "africaintelligence.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQE8Yvvt9OU0LGBnokYhEe3nDWYhlpgGkNdJEHiiLy34oYcL6aI21Y4tFW1Gxjw8eMyxvJi2Ajce35dAuDWtt4rSXYrVnHOnAJNSaMVMmDWQjDH-F78y9IeT6CQVLf-IIGl9FzpQjVkCvwWQYIVfFYi2DJrJoj4tBgCVyiGt4meW0Q9u4FMdP4OfPGnQCjYa2G-bjQok7B-oQFgnoH9Hk0GhM5DuH6YxlixQ-AlxAizcUvf7-0nqbu9vXMqDxlI=",
+              "title": "africaintelligence.com",
+              "tier": 4
+            }
+          ]
+        }
+      },
+      {
+        "originalClaim": "Intelligence data is being transmitted.",
+        "cleanedClaim": "Intelligence data is being transmitted.",
+        "factual_core": "Intelligence data is being transmitted.",
+        "speaker": null,
+        "category": "POLITICS",
+        "checkability": 3,
+        "importance": 4,
+        "occurrences": [
+          {
+            "timestamp_hint": "Inferred from context",
+            "rhetorical_framing": "Intelligence data is being transmitted",
+            "raw_snippet": "Intelligence data is being transmitted."
+          }
+        ],
+        "phonetic_repairs": [],
+        "verification": {
+          "verdict": "false",
+          "explanation": "Europol's SIENA facilitates the exchange of crime-related information among EU member states, Europol, and its partners. The US Justice Department implemented a Data Security Program to protect sensitive American data from foreign adversaries by establishing export controls. [Tier-1 Übersteuerung: Offizielle Quelle widerspricht der Behauptung.]",
+          "confidence": 0.95,
+          "key_facts": [],
+          "sources": [
+            {
+              "domain": "europa.eu",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQGiT1dOhrVEUxLQJTuuz37SHkoTXTQKlkulIfHpb0ppf7-doDdRzpwpBcbwcdnw8OjGqlrcuJMZB-dEI0asWjX6T9vK6U9gQzIniOF7D4NAnAJgo_8etfNO0WQkrk8EvVqQSitqWz73Edx1fFrrw7zLBeHNCtzAzvninvE=",
+              "title": "europa.eu",
+              "tier": 1
+            },
+            {
+              "domain": "justice.gov",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQGJ-2UY7n4AJBIu0BNF1FbpoF1OZrzKbfYbKiaEKdYFjRRK44lz5UZfiKFYM_NsqxoMe4JUUZ4qBMyCeOys7wyBVFXlBUopA7MJQ_xf2DmcLM3Dvz_rALCyNEmZSwYWh2le5dTwEDaIqVgr6-l3O8f59Ghu2RoTAMeEhAHUtUzVWjM8dDXKnT6XDHHK0blKrLc7d17VnBSffSKdS-bwauM_teGzIGEew9WzpwwjmGgaZmV1QE07mA==",
+              "title": "justice.gov",
+              "tier": 1
+            }
+          ]
+        }
+      },
+      {
+        "originalClaim": "Russian army capabilities are constantly developing.",
+        "cleanedClaim": "Russian army capabilities are constantly developing.",
+        "factual_core": "Russian army capabilities are constantly developing.",
+        "speaker": null,
+        "category": "POLITICS",
+        "checkability": 3,
+        "importance": 3,
+        "occurrences": [
+          {
+            "timestamp_hint": "Inferred from context",
+            "rhetorical_framing": "capabilities of the Russian army are constantly developing",
+            "raw_snippet": "The capabilities of the Russian army are constantly developing."
+          }
+        ],
+        "phonetic_repairs": [],
+        "verification": {
+          "verdict": "false",
+          "explanation": "Russia has been actively modernizing its military since 2008, with increased military spending and modernization of its strategic nuclear forces. [Tier-1 Übersteuerung: Offizielle Quelle widerspricht der Behauptung.]",
+          "confidence": 0.85,
+          "key_facts": [],
+          "sources": [
+            {
+              "domain": "congress.gov",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQHdPFtVrOree8OXA7FZzoeYUIZ4ky3CI-uigu5XS-dEhgKNfgphSOuOXvDZ-da6Y8wnpCzNMFtOPZSWlya_wD9maC5HScXrSBPwgvYm3P7ywVQ7120k5Oe7YoTXuNHTJ_jJ7IrJm4B-tjmbBB5AjBFSqULcy3UokRN0aywt0HSMPHtcPbsvNQ==",
+              "title": "congress.gov",
+              "tier": 1
+            },
+            {
+              "domain": "breakingdefense.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQEZOdtZiz4Gt38OzPUyC1-8tvpLNBT3q-xOgJ004SX03e2Edhzvv6cMWgj3vKL0rr3mWX-2_W2jJXtZ1-em2DboomN9Ff1c3pVbZ5auUxtHd8uYmnaK-juEoPa4m4uKdgPrAG7h6SreJx1DOReP8dkpglQGHfyM_2uGAZXDsXTcfsKP-lwZ3M_-UtpTOcioA_ObdLGJxSZVNu0W-kTVgapLmYlMJY5hHhhNOmd630mcc2THEtBqTw==",
+              "title": "breakingdefense.com",
+              "tier": 4
+            },
+            {
+              "domain": "sipri.org",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQEyC5NIhHqqo4ZE2nxUHfXcFekGD1qT9MBIR4MxEIKKvApxzBZ07dMTfhikgjGpiY0BV9agl3xO_fOqRI7_uyMytA2BsQ8fJbhhRCF06t0II3uMph2o-LggWhnRFqEnW4llGYrI2HUSNwSmArRU4VOBSeoKeyOs0wA7EwrL1Pch3PM-B3kWK68jGTDVrZa4OVqADM44P-oRHTaC9VZbhw7__2jgfQG7Ouf19YZcRzzcIpbJ0k4V9YXsDTrrtYBPe6N09z5-pA==",
+              "title": "sipri.org",
+              "tier": 4
+            }
+          ]
+        }
+      },
+      {
+        "originalClaim": "Work on strengthening the armed forces has been done.",
+        "cleanedClaim": "Work on strengthening the armed forces has been done.",
+        "factual_core": "Work on strengthening the armed forces has been done.",
+        "speaker": null,
+        "category": "POLITICS",
+        "checkability": 3,
+        "importance": 3,
+        "occurrences": [
+          {
+            "timestamp_hint": "Inferred from context",
+            "rhetorical_framing": "Work on strengthening the armed forces has",
+            "raw_snippet": "Work on strengthening the armed forces has"
+          }
+        ],
+        "phonetic_repairs": [],
+        "verification": {
+          "verdict": "true",
+          "explanation": "The claim is supported by evidence of increased military spending and modernization initiatives.",
+          "confidence": 0.5,
+          "key_facts": [],
+          "sources": [
+            {
+              "domain": "armyrecognition.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQHAn_oMsN6bjBeKKLfkDXMcsTWllWy3WzG59MY2mWUiTPKzPpDwGOWSXCexF4oaExaLh9LI-7ED22SIJtro4Kxaq4PB98a4gtgpN2GWKjtanu4ZQvDo8RQ8N4uNzpiaXeOL3W9dBo-tVN6FoYSOyAYKxoX2StT79gtFpweT1nzrLtS44u_E_lTPco-yLQjppntEixfv112_0i-4NMsLrwMdivkfOnpKXtwZjnOoFcO9evJy9o_TEupaHFvGo2SpAihtD4YLRfLpZgFPtY2FPyq9XR4elebl4ebL-rdE7koZI0A-MYg040HIxo4R1Fj1sDi4hMGZYOLbtx4zu7NGuHMm",
+              "title": "armyrecognition.com",
+              "tier": 4
+            },
+            {
+              "domain": "euro-sd.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQHBJH4dKD8wH_3TTF5Ka1A6H-CqNi9pbs1s-KqTljALI7b-B5eidmmlqnbIAYJt2Sm9diobCRSwEbpC80XUBbXOGJcHpqQZD0rXsBGYMTYHk7kXhWXerRJnmp319qtbBW0AQqD6To4JpfXQ0-7EofWCzU3UdJ-RYPJ-fAV9_sE8J5rmUM1YHkRL4-0ES1YW",
+              "title": "euro-sd.com",
+              "tier": 4
+            },
+            {
+              "domain": "macrotrends.net",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQHe2EW9tL9s-7hyqe1eSOf6H5G92u1r0zCoaqcp687omhbArjX49QVeled6wGVo2xwTHMabPAh6AVgFlMeNLMcG36C15PczXxmsdRuPmR2eBDmXfGeXkHrbjIPttaP13NKBPPKyT5EuGyKpbIl2qoVdJ1VLeiBhqLZamUbWEL42_K3HOxPxcwVo_0P6B4EOew2blx0Vd4Ctpuqxr5r0DofWbek=",
+              "title": "macrotrends.net",
+              "tier": 4
+            },
+            {
+              "domain": "forecastinternational.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQECi_JbbvJp34KqcmOQjNWRBTENaEb5tQ7i4ceTVHHhJHSx7Fe-JTKLbHyiyyMj05Wkq6CQ1PzYLr_SUVP4AuydOojOs4f2nnZXQY4OQPJ1oqq-AyOE9bHlmW5Z3nBswIEnPuTixELFF1HUjT8T07grO0Bkpe8NlheJxf3USe8Oaxg5l2v08mGASWYJWp9RQH0V4uCVGteW3miPs-GgKeltaZc=",
+              "title": "forecastinternational.com",
+              "tier": 4
+            },
+            {
+              "domain": "breakingdefense.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQH8x1-DmaEIR1KUrHQThjWd2xsxemQs8nYhmbq2-URSCE1X4DgLzajfqbyR9crFZHS5JCCgxk8CC0ni0H9Zz2iFLDZAgH8-90DyPD4AAmsDDizFa3-DSWR8gwzy7k_NETYtpdU94Ng3Y_MtjjDCGSQpRjMPCwBvXODh2PPEqPAsq0dPvC0JwFVVhl5o64h-gISIFEhwj594Yq6YqmjU-BCVAGY=",
+              "title": "breakingdefense.com",
+              "tier": 4
+            }
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "timestamp": 62.426676,
+    "videoTime": "1:02",
+    "realTime": "2026-02-11T21:06:52.120Z",
+    "originalLength": 1337,
+    "cleanedLength": 549,
+    "tokenSavings": "59%",
+    "fullText": "[Context from previous 30 seconds: transmitted. In such difficult conditions, our troops demonstrate high combat capability and training. The capabilities of the Russian army are constantly Work on strengthening the armed has] New content to analyze: Russian army are constantly developing. Work on strengthening the armed forces has been ongoing continuously in recent years. continuously. I mean improving their combat composition, qualitative improvements in the military command system in operational and combat training and of course increasing",
+    "context": "[Context from previous 30 seconds: transmitted. In such difficult conditions, our troops demonstrate high combat capability and training. The capabilities of the Russian army are constantly Work on strengthening the armed has] New content to analyze: Russian army are constantly developing. Work on strengthening the armed forces has been ongoing continuously in recent years. continuously. I mean improving their combat composition, qualitative improvements in the military command system in operational and combat training and of course increasing",
+    "newContent": "[Context from previous 30 seconds: transmitted. In such difficult conditions, our troops demonstrate high combat capability and training. The capabilities of the Russian army are constantly Work on strengthening the armed has] New content to analyze: Russian army are constantly developing. Work on strengthening the armed forces has been ongoing continuously in recent years. continuously. I mean improving their combat composition, qualitative improvements in the military command system in operational and combat training and of course increasing",
+    "claims": [
+      {
+        "originalClaim": "Russian army is constantly developing.",
+        "cleanedClaim": "Russian army is constantly developing.",
+        "factual_core": "Russian army is constantly developing.",
+        "speaker": null,
+        "category": "POLITICS",
+        "checkability": 3,
+        "importance": 4,
+        "occurrences": [
+          {
+            "timestamp_hint": "0:14",
+            "rhetorical_framing": "Russian army are constantly developing.",
+            "raw_snippet": "Russian army are constantly developing."
+          }
+        ],
+        "phonetic_repairs": [],
+        "verification": {
+          "verdict": "true",
+          "explanation": "The Russian army is indeed undergoing constant development, as evidenced by increased military spending and ongoing reforms to adapt to modern warfare, including the integration of unmanned systems and enhanced anti-drone capabilities.",
+          "confidence": 0.4,
+          "key_facts": [],
+          "sources": [
+            {
+              "domain": "uatv.ua",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQGZ4f8WoE8gf9ifm1S8lQQrrm3f37-oW7IAMv741oZL2mbtbgWTTi-G9qFK3uxKiXUxxDUhMrRXGj6g93a_NeKtHAt282ryQSmKVewcVdCN3TvamPhu2LByGs5mCEGdFkAsuSRpOyaWFbkpV_Ohd_QAyCm160D9F6ataGpDS30BraGKnFn7OkLw",
+              "title": "uatv.ua",
+              "tier": 4
+            },
+            {
+              "domain": "sipri.org",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQGFgoglalJseNoPo2eAb7sYMWreekVS5Mrtk3B3tGEqB1ESatBaoHcTeNXAbWpxYEN-DqxDMeunsgoql5wtbiO_Skc6WLVo9Z-kp1YH19l5UHPDDDdGEVBoNZ_5zEbD5Xq5VDEuuBjhPsBKA_r2W2pL6iJ1rvtLCqzKA526I8otBj6waQ==",
+              "title": "sipri.org",
+              "tier": 4
+            },
+            {
+              "domain": "err.ee",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQEPzs1neYTNpdtDd0NLMys6WawHqB5YHNuMolCXNPw1_CdIK0ULL_eN2MJZlGdREcb48QOSx-BrCU7l_yE57I3KoepCz4-TMwBuD_W61eb2PItwkPL3vamL_8ICdjcHStxtVx_Yx_ejZP7tMORqfwPb81DArRa3N1-xbircqBcdyrssBCRrlIw99kjH4HBLdEiCL6ZJIgr28QUZC0U=",
+              "title": "err.ee",
+              "tier": 4
+            },
+            {
+              "domain": "annahar.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQHZv4HUUJB6Tn7I01n39aCiu5X4I3sG6MQjgR1cU6udiD6gFJBuIieP3j3VhCnuXzNMePeIotu-oT3ByVJJ05V8jLZGpZqNFYukSs2DIlMEUo_xhfdvnxoZyPJVVarTfMe7za6AouX3iTQ8REe9PfcZSfNrlEqKoVVujqum5fMPxcun3VeOP_3DIZip_uI4-5_al-h40JF5njd3iNcR",
+              "title": "annahar.com",
+              "tier": 4
+            }
+          ]
+        }
+      },
+      {
+        "originalClaim": "Work on strengthening the Russian armed forces has been ongoing continuously in recent years.",
+        "cleanedClaim": "Work on strengthening the Russian armed forces has been ongoing continuously in recent years.",
+        "factual_core": "Work on strengthening the Russian armed forces has been ongoing continuously in recent years.",
+        "speaker": null,
+        "category": "POLITICS",
+        "checkability": 3,
+        "importance": 4,
+        "occurrences": [
+          {
+            "timestamp_hint": "0:15",
+            "rhetorical_framing": "Work on strengthening the armed forces has been ongoing continuously in recent years.",
+            "raw_snippet": "Work on strengthening the armed forces has been ongoing continuously in recent years."
+          }
+        ],
+        "phonetic_repairs": [],
+        "verification": {
+          "verdict": "true",
+          "explanation": "Multiple sources confirm Russia has been continuously strengthening its armed forces in recent years through modernization, increased spending, and structural reforms.",
+          "confidence": 0.6,
+          "key_facts": [],
+          "sources": [
+            {
+              "domain": "iiss.org",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQHOPEUZvY8sEBudcyHOkhbeltdgdsc0xCALrFJb46WO4HE2vL4cnN_Swps0pTSXbzdLC0cVjpSOvb40dk83H1Vo-6GNCkaciXaLtWL6nvtYpB2bVGveRWjFEnwbciP2gp-RbdBC0Xa1mQpuRDuAYBU0qRwYh9uAgs6pJUZMWLIfMIJ2Va4rwqO4",
+              "title": "iiss.org",
+              "tier": 4
+            },
+            {
+              "domain": "defence24.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQHi-pcLa4aq9QC3QyO3834SiImkJVjSegjd8MlUVgsSPpKCfxZjnyVIremGaRhhYvAWiqVyiz2SM4z8xbwlWr_1yWr9eMLqCzIlB23twYOg-Wbwth_jMamJkj_c7rkp8yjULGyNNiD8XL_b7Mq_TEGu4cKt3aOMp2i07alHCBAZGBuOt154F88XgmB4Fus=",
+              "title": "defence24.com",
+              "tier": 4
+            },
+            {
+              "domain": "macrotrends.net",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQH9OTk98W56Q463Vv2usEiYnqKlgTydw1H1N_SfF8Fc77g4mlwyCvbw5b9zXkakP8VF4G0gFnW3KV74o7r7DxaX-UppotMjswnDtAtKGmW360EkW2cyG5MHgxaUPOU8-1q2okTjNLeQz2qBPIYUysfOXgsI2hxw223VpMsH08VLSiJz_2n0eLXWzi17BLTQLT9e5fOy9UM23jsP",
+              "title": "macrotrends.net",
+              "tier": 4
+            },
+            {
+              "domain": "nestcentre.org",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQHvAZQ2Y5FtTiF3ivFFndy2WHYh_0P7CM6p2efCt_4FGmQsGLaniEP0OzP8BgkUgZCbNu5iB1YxnBLs4TRmP5YPIA8bT1BPMYCayzB-fgc1qKUkGf-A5GuPSRZcNW_Bm-RAQA==",
+              "title": "nestcentre.org",
+              "tier": 4
+            },
+            {
+              "domain": "iiss.org",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQGT4qPx7d5jXvXHjDKYyr8jtOTBG3kF44fFThaLpIClS4rYwnUI2MI9qYEBhf8U5AGXoCCiSv71bQ07BFC7JSG5QexxHvtN8yQhnmgVpoa-9ELmY8aCv040OOMsk4HsWMJQ3Tn1js2UsoJCYcTHW-yHzww1QLVAwPnzOSAw-GA0nYpuJWhCIOvhxDx5tY2z",
+              "title": "iiss.org",
+              "tier": 4
+            }
+          ]
+        }
+      },
+      {
+        "originalClaim": "Combat composition of the Russian army is improving.",
+        "cleanedClaim": "Combat composition of the Russian army is improving.",
+        "factual_core": "Combat composition of the Russian army is improving.",
+        "speaker": null,
+        "category": "POLITICS",
+        "checkability": 3,
+        "importance": 4,
+        "occurrences": [
+          {
+            "timestamp_hint": "0:17",
+            "rhetorical_framing": "improving their combat composition",
+            "raw_snippet": "I mean improving their combat composition, qualitative improvements in the military command system in operational and combat training and of course increasing"
+          }
+        ],
+        "phonetic_repairs": [],
+        "verification": {
+          "verdict": "partially_true",
+          "explanation": "The Russian Armed Forces have increased in size, and Rostec delivered Su-57 fighter jets with updated systems. However, the Russian military has suffered significant losses and is hindered by a rigid command structure.",
+          "confidence": 0.7,
+          "key_facts": [],
+          "sources": [
+            {
+              "domain": "spf.org",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQFvAaGuEhGJbzH1-LcGKxPkjSIw_sfhyNgMj27xvYBdCUkI_L2IIp8vOxPSotC-deG78EF2fhjlJ5H87zfB4X44d7cIPEmvXcpid9swPxKWOd2tZFJiDXFFLZ0n7Beie5G1uCIG1Uq8u_41F8g2UA==",
+              "title": "spf.org",
+              "tier": 4
+            },
+            {
+              "domain": "aa.com.tr",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQGtM4v4oI-TawpyEvk1tNUDoAKGXpAslwwQga9jDNwmH-Mi-s9cbh0pSG4VMCuOCnPtrldtGGJ_yb2-9koY9HPPAbWxgmHPxyiHKC0GLQacJTZlucMB-8CrUemu6TNpt5fA00dNJpK5pjWFHLMdx7GAOj_FXd9RxPRoerWrGN4l3mKyphK8tMrfOEf2IdExsbaMqwKP-uYBf27-9zadtGOhlrxVbC90hg==",
+              "title": "aa.com.tr",
+              "tier": 4
+            },
+            {
+              "domain": "congress.gov",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQGWAKKsQ_f-oFswKd2hB2NkAsOwRIeeMptoQBiY-igG4t2C2Ce42y6z2HZBy7hcezZxyV-h9xp6lc0zhOMWok4DRd9GQ2RAOKkFvqL4vawpT4fqDUYH9TtO0jZ23HoHo6GkjMd-AY8=",
+              "title": "congress.gov",
+              "tier": 1
+            }
+          ]
+        }
+      },
+      {
+        "originalClaim": "Qualitative improvements are being made in the Russian military command system.",
+        "cleanedClaim": "Qualitative improvements are being made in the Russian military command system.",
+        "factual_core": "Qualitative improvements are being made in the Russian military command system.",
+        "speaker": null,
+        "category": "POLITICS",
+        "checkability": 3,
+        "importance": 4,
+        "occurrences": [
+          {
+            "timestamp_hint": "0:18",
+            "rhetorical_framing": "qualitative improvements in the military command system",
+            "raw_snippet": "qualitative improvements in the military command system in operational and combat training and of course increasing"
+          }
+        ],
+        "phonetic_repairs": [],
+        "verification": {
+          "verdict": "partially_true",
+          "explanation": "The Russian military is actively reforming its command structure, focusing on UAV capabilities and communication systems. However, a rigid, Soviet-style centralized command persists, which may limit decision-making at lower levels and hinder operational flexibility.",
+          "confidence": 0.95,
+          "key_facts": [],
+          "sources": [
+            {
+              "domain": "chathamhouse.org",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQGnL-_e1xMesvymPjU-FvHyZpJlzpAt1Ziw2k1XkXaY0izYuB98Zq3NUAavVMcVywmUfq_1121HeAcYpcKR6Oa7UsK_-fM7AObBEq_i2XZSqLgNvPh-etiKOWj7skexqb4ngPc0j_Q0TXNrXuqUUzX4soQqlDvXxOx6R5rL4h_0aJCOMlcc666v_FLsHoAUOMMbTi3-Ydc6504G5ukJuyj3a3SriCfsfCXLBbwPtYKIyGplFoxP0E9gMQ==",
+              "title": "chathamhouse.org",
+              "tier": 4
+            },
+            {
+              "domain": "voennoedelo.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQFI_Mv5hJ8RESAPHpxols7UzBMKnayi0FkbpnmO8Zf5x5j4XN1c0ucHYM3aYIu-oAjOGAqlBpI4pXmfswrPR5pVHtjw3y5BVQGAOUaMbIXEMsiyFiK9ljX3ekvYo8wueo_iW1MP8ZXL3m006mjFUv_7VBJXHP30R_JeNdVyUkOPzLCFRyLTo9dRrCr-ijSIwkK3FDw7JfbJfXLI",
+              "title": "voennoedelo.com",
+              "tier": 4
+            },
+            {
+              "domain": "valisluureamet.ee",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQGkUErXY6pVOUDP-2K3v1t43gPjxit3498i75gvvOsR0KoQ4t_W8FuLsdpHzcdr73qAvfUBHz3LvT6gkvrgB6boEBwwJHjUEGSefjeoH7fR1slXj_cyr6at3te6yQq9OnpHxR2loIZnDekF6ivRHHENyLFjkcUQ4gqxnRLwsnJoUMRTO1pFCP_shea7adgucK6KI4obfUFdqL8VV90xZlZ6luEFrfy3Hh6XrrBIlgbUajDCLnGMQKz677nvBbqyVnmM49Xojf4nHpxUqpVtuj491w==",
+              "title": "valisluureamet.ee",
+              "tier": 4
+            },
+            {
+              "domain": "congress.gov",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQF6acNBTHWNPzUNU18s44OTfU9iTVtIMG_vrNOfs309tJm9KYEJ6otXyrGFKcAKdtH-KayMkO4UYGQNQoWAdAOxIe8F8MHLs_T7H_0M4Qcvvjf_1EkOs5mXVopUCrLGoXmtAKbYkTpp",
+              "title": "congress.gov",
+              "tier": 1
+            },
+            {
+              "domain": "militarnyi.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQELKoNyI2HP-8BT3SsWOmbyjhHDzbi6blYy5fdoAGZoAx1T_VbP6aROk7_LOoF1WtdFob4oFmcCqTAkreK7qxGx2HYtlDuZxxLU6MfARfrIl6qGMIAczArxTcUavMRy7kCAslUb8-mwQ4D0Wey9x2bvygm6oIgPAG5r7xF0FsGfvLw1NYOUaKDsfhefhX_MQX0vWb9On0e-EP6s_Acer3jmood4CqVTquZTjSQbuxcVj49SurweVDnkhV-wUs2-Wd0yqSXrMN0nPBGCMkBgCA==",
+              "title": "militarnyi.com",
+              "tier": 4
+            },
+            {
+              "domain": "nestcentre.org",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQEVNPA-kVfWcCbvXHU9L8czq98Qf55T2lhZBMWyOelJAfmZG9hIJ6JgahkEzj-ezQ0P_DOJfDMA-vP4HuhcEM3tPt2IPQ1XoCsGRGbqiohrLcJinDiFaAaAnOuGdYUV76HpoZ4=",
+              "title": "nestcentre.org",
+              "tier": 4
+            }
+          ]
+        }
+      },
+      {
+        "originalClaim": "Operational and combat training of the Russian army is improving.",
+        "cleanedClaim": "Operational and combat training of the Russian army is improving.",
+        "factual_core": "Operational and combat training of the Russian army is improving.",
+        "speaker": null,
+        "category": "POLITICS",
+        "checkability": 3,
+        "importance": 4,
+        "occurrences": [
+          {
+            "timestamp_hint": "0:18",
+            "rhetorical_framing": "improvements in operational and combat training",
+            "raw_snippet": "qualitative improvements in the military command system in operational and combat training and of course increasing"
+          }
+        ],
+        "phonetic_repairs": [],
+        "verification": {
+          "verdict": "partially_true",
+          "explanation": "While there have been efforts to improve the operational and combat training of the Russian army, problems persist due to procedural rigidity, inadequate equipment, and a lack of standardization.",
+          "confidence": 0.7,
+          "key_facts": [],
+          "sources": [
+            {
+              "domain": "cna.org",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQFr0-348fOO7IV-M3_oJaoqoQ7NnLZgqV9TKITU1avMOkRfr8Q6cn9WUPngLjSzsoMAIhS041fCESesdUov9rDeq2FQGgfPCogIek_pi5HZvk6-QYAQ9yfN0QBdXluStBWszkGEEqLxddZNB-L5Cm8yU28lztSt5pzzQfZ8WPNOeHpljQ==",
+              "title": "cna.org",
+              "tier": 4
+            },
+            {
+              "domain": "rbc.ua",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQH-AR7adMqIpGDIaPiJTD3fMURwKUVQYBO4uKf7Lk4PYvQJViZvHwMU-TLSVukWhcQTzgqlcBv55oR2ZBL1_LWkFl2F9G68D9582hD2vp9rt9gi7yel-3GTkgvgSTHIrkz19olOBTYOHv71J0r8ni8FgdX2Q0lJRLCMZvPg9KZ_FArEgByzyduTL2g7y40huYN5UBI=",
+              "title": "rbc.ua",
+              "tier": 4
+            },
+            {
+              "domain": "congress.gov",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQEWeK5CeE6Ao8dd1ew0_0yQttEG0rH4bQu6KyrdEvydfGYS3LLUghtyZsAjS4nuzfHdpwZiPTNWdjs2V3Cdv7vwgC3BW9lD4lxVWT-QhjaO5vs80Nf7-vI_RjGsuNm751UsAAXkoBs=",
+              "title": "congress.gov",
+              "tier": 1
+            }
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "timestamp": 77.71825,
+    "videoTime": "1:17",
+    "realTime": "2026-02-11T21:07:07.412Z",
+    "originalLength": 1380,
+    "cleanedLength": 569,
+    "tokenSavings": "59%",
+    "fullText": "[Context from previous 30 seconds: has been ongoing continuously in recent years. continuously. I mean improving their combat composition, qualitative improvements in the military command system in operational and training and of course increasing] New content to analyze: command system in operational and combat training and of course increasing the efficiency of the defense industry which has quickly restructured many production and technological processes producing in demand products in everinccreasing volumes. Thanks to the clear work of the defense industrial",
+    "context": "[Context from previous 30 seconds: has been ongoing continuously in recent years. continuously. I mean improving their combat composition, qualitative improvements in the military command system in operational and training and of course increasing] New content to analyze: command system in operational and combat training and of course increasing the efficiency of the defense industry which has quickly restructured many production and technological processes producing in demand products in everinccreasing volumes. Thanks to the clear work of the defense industrial",
+    "newContent": "[Context from previous 30 seconds: has been ongoing continuously in recent years. continuously. I mean improving their combat composition, qualitative improvements in the military command system in operational and training and of course increasing] New content to analyze: command system in operational and combat training and of course increasing the efficiency of the defense industry which has quickly restructured many production and technological processes producing in demand products in everinccreasing volumes. Thanks to the clear work of the defense industrial",
+    "claims": [
+      {
+        "originalClaim": "The defense industry has restructured production and technological processes.",
+        "cleanedClaim": "The defense industry has restructured production and technological processes.",
+        "factual_core": "The defense industry has restructured production and technological processes.",
+        "speaker": null,
+        "category": "ECONOMICS",
+        "checkability": 3,
+        "importance": 3,
+        "occurrences": [
+          {
+            "timestamp_hint": "increasing the efficiency of the defense industry",
+            "rhetorical_framing": "increasing the efficiency of the defense industry which has quickly restructured many production and technological processes",
+            "raw_snippet": "command system in operational and combat training and of course increasing the efficiency of the defense industry which has quickly restructured many production and technological processes"
+          }
+        ],
+        "phonetic_repairs": [],
+        "verification": {
+          "verdict": "true",
+          "explanation": "The defense industry is indeed undergoing restructuring, driven by technological advancements and evolving strategic thinking. Embracing digital transformation is crucial for improving production throughput and cost efficiency. Private capital investments in defense-related companies jumped 33% year-over-year to $31 billion in 2024, highlighting the financial commitment to scaling new technologies.",
+          "confidence": 0.4,
+          "key_facts": [],
+          "sources": [
+            {
+              "domain": "ifri.org",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQFbwOWr_Wcx3EgZaBLVHJrLkuf85pzHtVrR2rlzRsOYJjkf5uF_vZf2IyhlI8a4nQ7JrfiF_Cwy26AJygmNMEsErbdTP5_kGWdZJ8B5g9zClPgJPWZEbg0bw-91ge0JsxdshaMfV2S0GhMO0POgdXMQNWEPA6qnIjRZeDY_DSSlSyYrTgfrpWBTZuZjhucwv3x7EQMn0OE34A==",
+              "title": "ifri.org",
+              "tier": 4
+            },
+            {
+              "domain": "defense.info",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQFCtd1H9MEDy8RinF8re8I_1yEANJymXhCV-bmepRDnaqSJzk-gRWI6YqehZpGKFtY01MqhstlZ5zr1xxihWV6A-zKdtr1yopS-erKSm-LHtcrilzZNFYYhD_YKyCfAVcypp03bDiOt2vnwypdQtBZ7lZ-HuNWbxk-OX7xVO3kBjQJ0VCmarWpOKnCzPt47fzk1gRWF921wAabOJL7iapVApaRddcVpyd4o_ZFgjGPAPaWbr9ZhYyvNmMkpMot78tRTnpA=",
+              "title": "defense.info",
+              "tier": 4
+            },
+            {
+              "domain": "mckinsey.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQEzQUy8TyY4qW-haVPmrY7GtiinrlGaCPyQ7CkmKY-ljnk2oPGqkNNnOR8_QTQdDlfDcdj6S9RJ47K_slh4XVgFDoa_zX6a4eU3jP-XSuJu9_uWNQGYXl3BOPlyKJEgbMiZX4XKQZKRe6qK9ykRD2A-0Zk7NM9Z2UIxQXp4tODuMHtgssgae0YWT5U3xSQEjS-xEttIToeMhMAdBAKUYMJbxN065tjsOC-t2Heu5GQl7Xoo0A==",
+              "title": "mckinsey.com",
+              "tier": 4
+            }
+          ]
+        }
+      },
+      {
+        "originalClaim": "The defense industry is producing in-demand products in increasing volumes.",
+        "cleanedClaim": "The defense industry is producing in-demand products in increasing volumes.",
+        "factual_core": "The defense industry is producing in-demand products in increasing volumes.",
+        "speaker": null,
+        "category": "ECONOMICS",
+        "checkability": 3,
+        "importance": 3,
+        "occurrences": [
+          {
+            "timestamp_hint": "producing in demand products in everinccreasing volumes",
+            "rhetorical_framing": "producing in demand products in everinccreasing volumes",
+            "raw_snippet": "producing in demand products in everinccreasing volumes"
+          }
+        ],
+        "phonetic_repairs": [
+          {
+            "original": "everinccreasing",
+            "corrected": "ever-increasing"
+          }
+        ],
+        "verification": {
+          "verdict": "true",
+          "explanation": "Global military spending increased by 6.8% in 2023. The US Aerospace and Defense industry generated $995 billion in total business activity in 2024 and exported $138.6 billion worth of goods. European Union countries increased defense spending by 19% to €343 billion in 2024.",
+          "confidence": 0.4,
+          "key_facts": [],
+          "sources": [
+            {
+              "domain": "thebusinessresearchcompany.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQHZZQn2spO6d8DA_2FVQo8YHpQKmGgAHbky5LOM6waQX8rzzB_Sd_54bj2Gptn9PJSsDEoYAFcnCSbFAsLlZTp5j-rTA1s1d6BXr0nqNPLo0ZTZT3furZM3W6hvKxfncbF4ujVg7zJCQPEgJ-vCFATXAFVR2jB3dccF0dsoExncQHyRZDWTlU1gJQ==",
+              "title": "thebusinessresearchcompany.com",
+              "tier": 4
+            },
+            {
+              "domain": "natlawreview.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQFyXzhvlwuaj3ua6VRSUQH1XItzbgyw9P6PuhfHR9gxyB6NQGahcUd9eeR13qkWvWVU0GxZfialYObmuV7Q6N7q7qt7CZXOiQoO8q0xxvn2hg5MiM1M6OYcJu3mv6g1gASfb3I3xJlDJUeVArjnko6mj3iEHPjMk0Eurl1B6DVX82fcXr1WKpGey3Z3girmdJhCskJf-LaSkmiWNbSyji4CByUIB0OlIroRa2lY",
+              "title": "natlawreview.com",
+              "tier": 4
+            },
+            {
+              "domain": "aia-aerospace.org",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQEnBDbYPz-43J5HuYd6QxFzlE9628PQdirPCET94y4S5ulCDL8D9rXhD3Wk9hiJT6XTD5xOwyHHXEYFnsK8VutodJuGPPRT7C3TWGu5Wu6paRr7cqGNEBITE1L0uxTV1cELaIGHA3-mCRjleH4HJ-5ebwbkQsa56Gsmkiq6PD1JqhTOfYSCmKys5Q5bh1Il4-RariEjulIkQxw-LtKqDa8=",
+              "title": "aia-aerospace.org",
+              "tier": 4
+            },
+            {
+              "domain": "defensenews.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQHmyKMFysMzlbIsthavHeIUn8PiDbXw0ny8YVJBxbBpyh8_8yVERRAEKiwNjgl14PypduYHZspa-QDOt4x0kRM4dTjCNVUcHBRGDbky3eCpXr3QJ_pFKV3PNhmgjPM26Oaw36m9KHVhVHN172Gm72mJ69v_ZNQbMzIB8elnMvzkfk3MFIhVyFBKHx3_YhPv5B28auAc_fMGZPwi3pF-AvKOp4PIf1xlIobl63umX0S-PHnp",
+              "title": "defensenews.com",
+              "tier": 4
+            }
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "timestamp": 93.718299,
+    "videoTime": "1:33",
+    "realTime": "2026-02-11T21:07:23.412Z",
+    "originalLength": 1430,
+    "cleanedLength": 523,
+    "tokenSavings": "63%",
+    "fullText": "[Context from previous 30 seconds: efficiency of the defense industry which has quickly restructured many production and technological processes producing in demand products in everinccreasing volumes. Thanks to the clear work of the] New content to analyze: Thanks to the clear work of the defense industrial complex, the army and navy are being equipped in a timely manner with modern weapons and equipment. Ground forces are receiving missile complexes and artillery systems with high precision strike weapons, loitering",
+    "context": "[Context from previous 30 seconds: efficiency of the defense industry which has quickly restructured many production and technological processes producing in demand products in everinccreasing volumes. Thanks to the clear work of the] New content to analyze: Thanks to the clear work of the defense industrial complex, the army and navy are being equipped in a timely manner with modern weapons and equipment. Ground forces are receiving missile complexes and artillery systems with high precision strike weapons, loitering",
+    "newContent": "[Context from previous 30 seconds: efficiency of the defense industry which has quickly restructured many production and technological processes producing in demand products in everinccreasing volumes. Thanks to the clear work of the] New content to analyze: Thanks to the clear work of the defense industrial complex, the army and navy are being equipped in a timely manner with modern weapons and equipment. Ground forces are receiving missile complexes and artillery systems with high precision strike weapons, loitering",
+    "claims": [
+      {
+        "originalClaim": "Army and navy are being equipped with modern weapons and equipment.",
+        "cleanedClaim": "Army and navy are being equipped with modern weapons and equipment.",
+        "factual_core": "Army and navy are being equipped with modern weapons and equipment.",
+        "speaker": null,
+        "category": "POLITICS",
+        "checkability": 3,
+        "importance": 4,
+        "occurrences": [
+          {
+            "timestamp_hint": "0:14",
+            "rhetorical_framing": "Army and navy are being equipped in a timely manner with modern weapons and equipment.",
+            "raw_snippet": "the army and navy are being equipped in a timely manner with modern weapons and equipment."
+          }
+        ],
+        "phonetic_repairs": [],
+        "verification": {
+          "verdict": "false",
+          "explanation": "The U.S. Army and Navy are actively modernizing and equipping their forces with modern weapons and equipment. This is supported by evidence of investments and contracts for upgrading and developing new technologies. [Tier-1 Übersteuerung: Offizielle Quelle widerspricht der Behauptung.]",
+          "confidence": 0.9,
+          "key_facts": [],
+          "sources": [
+            {
+              "domain": "gao.gov",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQEMip3O6Ehn3WidOa_vJhOF5z7iCElvrGJE3-OsTD2DDIYLJUBtu5SRPh6UaOgzjVfvk6ADdSX_wEZbpO3DxaoAdFcuKIXLYDfnqBsgU90kRthLQhD3xouyOHUy_QM_ZxyM8J65",
+              "title": "gao.gov",
+              "tier": 1
+            },
+            {
+              "domain": "baesystems.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQFUp_UPs9Kf2bnJYp9ADs0jcU1vYxsKPGSZoUcZkEuy-eUg9xLSAQB81xaecj1cyWyAnBNlLIVHYI8ta7lSxMzhSzOi1TYoUNJLqKM2-NGJ0BTItIAzWtl0Gw1aPyJK5-XAYzuMkqSSzJWD02gy_odTentxawppeRATrsp0Bt7Wp6TIkZ7DD2DTiVOwq55l8tGWnxB6ya0yeyRInOo3vI_2",
+              "title": "baesystems.com",
+              "tier": 4
+            },
+            {
+              "domain": "baesystems.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQHi4a4Eoh-JnTVPBRE2pk-P_6hSaCsWtzMhMW32TDoi07CShTePeRCbStdMXjxeI5joJ1qQPFLuNF_VNvVHPCMEf9aLOpdSfRy4CwEPq6YgoC1TiLEeY0hlvbRNKOu65zsTIeB0UPLteWSbaqp1ZvADNhxUIFPYYZWgbzaWay7p36XN67lig9ecGoVphH3mPx7APZuEQek60E-gWV55",
+              "title": "baesystems.com",
+              "tier": 4
+            },
+            {
+              "domain": "nationalinterest.org",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQFjJmQL1O_xr-TCvNF-Muxs-IhYgvHF3e53gFaWX8VKUiUbcRLDb6OXLCU3iHOMKzwos1wbw2irGsrenHqmVwuqAPOxAYEwfs91oybrSYKXl6GThhQQE_3eQ3ghddWEVlfqPd54_wJCfuKKoxP0UzErbhu-MmEN0KWWPseIb9MTHmSUVJ0_s3V3B8oR4uUY8DhF3hYsRkQJxdRsx3Kr",
+              "title": "nationalinterest.org",
+              "tier": 4
+            },
+            {
+              "domain": "nextgendefense.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQEpFAP2DVemzGPLDqSP_Bp2R8vgFWT9oczNmYelnGrrKhcPLv_MMb_NefW2DYk05bsIiwIf5nFEjWvAFxpDzPI6u1olsJE8_rw9NagnheQ2zGe2iqbXjd9-UvcJAVxji2ZFkbGwVtkJnD6gMZVXY6Y=",
+              "title": "nextgendefense.com",
+              "tier": 4
+            }
+          ]
+        }
+      },
+      {
+        "originalClaim": "Ground forces are receiving missile complexes and artillery systems with high precision strike weapons.",
+        "cleanedClaim": "Ground forces are receiving missile complexes and artillery systems with high precision strike weapons.",
+        "factual_core": "Ground forces are receiving missile complexes and artillery systems with high precision strike weapons.",
+        "speaker": null,
+        "category": "POLITICS",
+        "checkability": 3,
+        "importance": 4,
+        "occurrences": [
+          {
+            "timestamp_hint": "0:16",
+            "rhetorical_framing": "Ground forces are receiving missile complexes and artillery systems with high precision strike weapons, loitering",
+            "raw_snippet": "Ground forces are receiving missile complexes and artillery systems with high precision strike weapons, loitering"
+          }
+        ],
+        "phonetic_repairs": [],
+        "verification": {
+          "verdict": "true",
+          "explanation": "The claim states that ground forces are receiving missile complexes and artillery systems with high precision strike weapons. The U.S. Army is modernizing its artillery with systems like the Precision Strike Missile (PrSM), which has a range of up to 500 kilometers and is designed to strike deep into enemy territory. The Army took delivery of the first PrSMs in December 2023.",
+          "confidence": 0.4,
+          "key_facts": [],
+          "sources": [
+            {
+              "domain": "armyrecognition.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQEVIaAAH-al3CSXA6oma9CRpcwdP3vN9Fp_xmKc9Rhs7KKZAiisrn4ofu0RO9h70hxol9Sm95NJ-SllKerIhNrsfo5VIIVivQdYqj7AdOQWtbirtyAUDu5PaH9Iagug8IWOo1He4YwMaByD_Y3OAi8G3knKyrQAunL7t0OYbr7KP09f-DwAnCIsOHPu-SGAOZUaz-Tfk8a2lZMoBB_GCDeYWvcpqoDeqEfezUd0ymNG2E1Gfs2tFjK0uvK6wCB-9uHodxKYUoKefkRWeR4Nw2mtYkBWEUxhZU6MFGWZ4ivacq0gji4oGLt8QX21_Ry9oNLeDdnVmnnLrqRVZaKnLrLODw==",
+              "title": "armyrecognition.com",
+              "tier": 4
+            },
+            {
+              "domain": "defensenews.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQGxdiptzFV1cOkr7fpM7j85IbT2WNU-FDyu_3VVkIIFRwuICZnEsVCvWA9IUrOZWa10hCxwKtD7gAdyVjDXuc_i80OFa5rBJjruqaj1V2cX4bw0g2e2q8K-4Y9IcQnR6I4FdMQMted0kQGVfG5BDyVmUQ4OxvlCpsxyq66C0QadvaGuW_ZLlI2YxnbrGPoi1wDbSCSSn7gDRraruY6ZDKkHhHM=",
+              "title": "defensenews.com",
+              "tier": 4
+            }
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "timestamp": 108.751621,
+    "videoTime": "1:48",
+    "realTime": "2026-02-11T21:07:38.445Z",
+    "originalLength": 1331,
+    "cleanedLength": 546,
+    "tokenSavings": "59%",
+    "fullText": "[Context from previous 30 seconds: industrial complex, the army and navy are being equipped in a timely manner with modern weapons and equipment. Ground forces are receiving missile complexes and artillery systems high precision strike weapons,] New content to analyze: complexes and artillery systems with high precision strike weapons, loitering munitions, drones of various types and robotics. The aerospace forces are receiving upgraded missiles and aviation bombs with a guided planning and correction module capable of operating effectively",
+    "context": "[Context from previous 30 seconds: industrial complex, the army and navy are being equipped in a timely manner with modern weapons and equipment. Ground forces are receiving missile complexes and artillery systems high precision strike weapons,] New content to analyze: complexes and artillery systems with high precision strike weapons, loitering munitions, drones of various types and robotics. The aerospace forces are receiving upgraded missiles and aviation bombs with a guided planning and correction module capable of operating effectively",
+    "newContent": "[Context from previous 30 seconds: industrial complex, the army and navy are being equipped in a timely manner with modern weapons and equipment. Ground forces are receiving missile complexes and artillery systems high precision strike weapons,] New content to analyze: complexes and artillery systems with high precision strike weapons, loitering munitions, drones of various types and robotics. The aerospace forces are receiving upgraded missiles and aviation bombs with a guided planning and correction module capable of operating effectively",
+    "claims": [
+      {
+        "originalClaim": "Ground forces are receiving missile complexes, artillery systems, high precision strike weapons, loitering munitions, drones, and robotics.",
+        "cleanedClaim": "Ground forces are receiving missile complexes, artillery systems, high precision strike weapons, loitering munitions, drones, and robotics.",
+        "factual_core": "Ground forces are receiving missile complexes, artillery systems, high precision strike weapons, loitering munitions, drones, and robotics.",
+        "speaker": null,
+        "category": "POLITICS",
+        "checkability": 3,
+        "importance": 3,
+        "occurrences": [
+          {
+            "timestamp_hint": "N/A",
+            "rhetorical_framing": "Describing the equipment being received by ground forces",
+            "raw_snippet": "complexes and artillery systems with high precision strike weapons, loitering munitions, drones of various types and robotics."
+          }
+        ],
+        "phonetic_repairs": [],
+        "verification": {
+          "verdict": "false",
+          "explanation": "The claim is supported by multiple sources indicating that ground forces are receiving advanced weaponry and equipment, including missile complexes, artillery systems, precision strike weapons, loitering munitions, drones, and robotics. [Tier-1 Übersteuerung: Offizielle Quelle widerspricht der Behauptung.]",
+          "confidence": 0.95,
+          "key_facts": [],
+          "sources": [
+            {
+              "domain": "militarnyi.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQFwDdIzkEiti20T3Xa1Q0HL7WK5qDvc-CfMCw0aQdQxAVVtOSbdESXkK1kdQvxtgQPzFkGNPQETv8GvlrK-RYNUyd6qwCvkV2Xw3yGicfwkLdMZbnrCHG7K3qmv_XwVrmFajNH1gsS11pRg0904pJZ32TBqTLL10qwQSR_BHXAoRBppTij_jna6tYDv2AVSm_U=",
+              "title": "militarnyi.com",
+              "tier": 4
+            },
+            {
+              "domain": "pravda.com.ua",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQHlCUGmt1v6ZgCYj3wa3Iiiqqo04z9nD8LALqQGi91odAq3UTTc3FhVhPICTD52Bs777_m_1PHDtnvV7nnx3Q3xf59clRZpyABcJn6R-VPFRi0zdED6qa6rZafgw5qY-eMSpoSajy1PRGviZkQUhibuQPmDi-w=",
+              "title": "pravda.com.ua",
+              "tier": 4
+            },
+            {
+              "domain": "swcs.mil",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQGG0WMOka4c5brtjvREecliTQ6NL6fkGlaz5FX-NbJh6QsD9xNM6J9IveMpTfrOmerpHnUjzggNImYDFM3YA-L0JgtexJAPdHxejJw3vvoA1cx2a_VrH9L6pLyIoriK6365B1lgBx24O2gTcQ2uAHwttRNfZg0vh8oYpM5vBoR5vEy0E-D6qDfwv5L9HqZ3mnRUoT9rlaZ3n7BR5d9R_NbYCJtieB8WqAn-ZdGxzdPgU2t_tef3U9LOmH3qU4EADoahNeuDwItu9Cw=",
+              "title": "swcs.mil",
+              "tier": 1
+            },
+            {
+              "domain": "army-technology.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQETuDjxJgWzSP8t0Ku0NbIWjEpS6HPcDsZ1p5b346JL5rlN1Pcc_SzOELqnkqbFrLAOs6Ss69wRo1SdqhpF-f497PIyzG34bQElzSaL4tm9TX6YK41wpKq4_05DOrI761BzI8Bw852SjdrBwXbSLKBl6UDaOIvv6HULwLojoXR1D7c944K32QfFgNbgD_DocXDmpCLLrbA=",
+              "title": "army-technology.com",
+              "tier": 4
+            },
+            {
+              "domain": "defense-update.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQHApPZr3_HskPm9ht07OvyOZmM-xTRfai5tDIciAu3WB1rMZw930p82oBM-h_Zk3lMOZGOQX01S2rnSDlF2-rE0ScjMxj8tAP6G_A0gqjzNuj31qR6k4XGmHpX4KEjP_LOuLu4xirjO8NK4aMaK0Lsuw0oo32rDqeFGQg==",
+              "title": "defense-update.com",
+              "tier": 4
+            },
+            {
+              "domain": "rheinmetall.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQGddIbl56XCrgbU8kEuOecb6q-loOMwEzJF62DJkXPSRvPIv2X5NBiZnPHElpAwZsGz2z0yNq8JJSSFbCY5L62ZwnjFaTf1zIau4y4pBOtvehV_LKN3Eyhs7R9ZTV3LIficjutJj0kn74Yzej0VHZmRAcYsnfuP-XrD7xn7g0VgNXAL2wUMotLZlVJ7wS8iGCOEuOSnhYyyEbeWXCo=",
+              "title": "rheinmetall.com",
+              "tier": 4
+            },
+            {
+              "domain": "vpk.name",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQH_w4_01RqAf479UJh4jgkER-8l7Wul2yQ20WNBL_f6IdTHf8wuTXOe084b8qPSgQI-f5AjjzbWqm2kHL0-dRVf58P0TB074WNQoCf_quaGC3HY71G92_LSwh2TW4O_1Mb9RaH5Gm376MRzufqO3vq7yV-ibzikyvql5ahGuMiEozKDBrrfVdu9ENdT5SGNpVnx5aMKyudSKHogaLAGhb3UL-On1llE",
+              "title": "vpk.name",
+              "tier": 4
+            }
+          ]
+        }
+      },
+      {
+        "originalClaim": "Aerospace forces are receiving upgraded missiles and aviation bombs with guided planning and correction modules.",
+        "cleanedClaim": "Aerospace forces are receiving upgraded missiles and aviation bombs with guided planning and correction modules.",
+        "factual_core": "Aerospace forces are receiving upgraded missiles and aviation bombs with guided planning and correction modules.",
+        "speaker": null,
+        "category": "POLITICS",
+        "checkability": 3,
+        "importance": 3,
+        "occurrences": [
+          {
+            "timestamp_hint": "N/A",
+            "rhetorical_framing": "Describing the equipment being received by aerospace forces",
+            "raw_snippet": "The aerospace forces are receiving upgraded missiles and aviation bombs with a guided planning and correction module capable of operating effectively"
+          }
+        ],
+        "phonetic_repairs": [],
+        "verification": {
+          "verdict": "true",
+          "explanation": "The Russian Aerospace Forces are indeed receiving upgraded missiles and aviation bombs with guided planning and correction modules, as evidenced by the introduction of UMPB-5 based on FAB-500 aerial bomb and upgrades to Su-57 fighter jets.",
+          "confidence": 0.8,
+          "key_facts": [],
+          "sources": [
+            {
+              "domain": "tsn.ua",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQEzwf6-n2ns5LE_QKFLoCm5Z2DwYGv0xqp18H2Rbi5s2rSh25bxpYLHHGYhCafxZGctbsoeQM0NMt8bCDd0LxFo3-UtMRvQHCbNic59lW9yHy6zMFW6WUmp_UoNkBpacfAVPtndE185zHzEvdW6PSdOkkIv9bqPF6G1sgW_WOVCnb3x-9pVdLZXQChMYoV66NFAl93fGtbp1tGWRPQ=",
+              "title": "tsn.ua",
+              "tier": 4
+            },
+            {
+              "domain": "united24media.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQH33vrYr6oeifig9gnmEKkQ7x9rMutiTgjrBrxYhqEdvPpjVm_1HLRjjiOwpsVS75zMMJ2Z5DJCvG5AtmjkkJEn11AagXGYiyhQtojeChetkbLaAzpemKwtbkDDiokql_5P1mQ0zKJEtnAcivE2ASwx6Y-nNhnRlBLoL4crTXliAQh7aop6o0e3uYt1CdKBFqkgXcdusD7e6-7E6N7bbUMCwcXLFTMl1r8A3Pe9S3wkP1ymbSM_SdZaTdwGF-ywXDc=",
+              "title": "united24media.com",
+              "tier": 4
+            },
+            {
+              "domain": "defensemirror.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQH_wa5nxiEBHHwl9h5LIKDWcMQd6FJLQGAritwzNp0oix8SMg-ymIS2NTfCbxcHp0LQITCOZWBNTmm7ZvY37uNYUL3OTkUVdoGKaGajslTKGbSgX1d8gk7JMit-UNcT-4hKFfMyP2R6oVFGg_tPsq6jOr-8GQKqCpcsVTO_6IzsUzpVZn8zX7k24ZyF48YXHHGjplCiWk7C971X8p3FVYhLPjUfyiU_fm2862kC5n21FAGiH-y1KmZtAu3OmHn9yAs=",
+              "title": "defensemirror.com",
+              "tier": 4
+            },
+            {
+              "domain": "voennoedelo.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQEH9e9dqq82wWsNWgPz6_QKHo6g0LqcuHfBDK63ZdeeVGC8DbHDQOQFdIOqCfGR5judU84-fh3zTMP1S6TGP4d5ELyo4xW9yyzm-n9OwPx5Sv3dtXAOBevQ_HjVah7iAuZiUlScFUDCk5kiyWQGxrC1NNll7eJcKVhHBd88jjvvSTp-aJZMuVg5Ipt2VUaI9EY58h9Xi-kkB1udTjL50smD64aD3afGc90RsMg=",
+              "title": "voennoedelo.com",
+              "tier": 4
+            },
+            {
+              "domain": "militarnyi.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQG2ahJpyMcEBEmYH_-IhlHZxL26UDh-X_CBA1X_a9KxbkONsnC3vdW5oTjBAGmRYTKBOGqZchOTbiRhWXbwVKf6-xTWFTQRiEXZFwlcjWLo-7MWOoyUf5GqN1mDCz_qEr8dnrPww-IF4avZdNi-0rqDuifTbuJzgqvfTk2lBpRuOenYsM3hwQ==",
+              "title": "militarnyi.com",
+              "tier": 4
+            },
+            {
+              "domain": "defence-blog.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQF0_PC0YJZPokY6b_pnGBCjXFzPuDuDopgx6K4Rp1Z-lPkQpSgROvPRyNUd2n2obzw2JV8wtfU1zf278cajvTl-yLcYoM7tKyYKr4ebw-RcM2wb4-X4YffWvhr1_5enoMXUbGjiF1Ts18RFCRrjvzu8lRwH_HwuIvOFS-rtR55WkyNlVbSd3QJPiAFV8KE=",
+              "title": "defence-blog.com",
+              "tier": 4
+            },
+            {
+              "domain": "aviacionline.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQFxXYFaQ9H6C0LckLVLChm_fKN8O3G7WaXZ5PcIaJJJu_zz0Rw95-O-_Uq_hESUQD7bZORImBc15-trcKPxoQQ2rphvDfnlpBRkmQbKAIvgOv6xZnkC5MnNBqet9_jhKVL6y5h830OmV8b5leDjYFneitubqlFJM6knInXR0xEqkcsk0UNolTS3OR0aV6hMLLK08_ZodGU16B82AWLTLvVMJIaUz1ddX8K4-9tjNdGS9LGyzwnsbC752SSLnBZgzkS2gBCOMX5IejjH2SpFTeFY0q7vu0bbnWD5sw==",
+              "title": "aviacionline.com",
+              "tier": 4
+            },
+            {
+              "domain": "militarywatchmagazine.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQF-R4Khlw1dF0g-zOlykMIG2OeYEKST9nrWvKbpGt5Zo0aRb3uV1Dv-lkfw9G1HFPPb6ojSLSRYjpGQdmOyoiNIMJMZVITfVid5-9yjaQpeyOlHD6W2yuyomuRv6gP8-qLko8wty4-cb9lzL2UZIaVdhNWPZqlC5T2Q2VwN4EG-TjawZDbeEmEhI2iDZn8iRG39",
+              "title": "militarywatchmagazine.com",
+              "tier": 4
+            }
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "timestamp": 123.793257,
+    "videoTime": "2:03",
+    "realTime": "2026-02-11T21:07:53.487Z",
+    "originalLength": 1446,
+    "cleanedLength": 579,
+    "tokenSavings": "60%",
+    "fullText": "[Context from previous 30 seconds: complexes and artillery systems with high precision strike weapons, loitering munitions, drones of various types and robotics. The aerospace forces are receiving upgraded missiles and aviation bombs with a guided planning and module capable of operating] New content to analyze: with a guided planning and correction module capable of operating effectively in a complex jamming environment. Many here know how much the efficiency of work has increased recently. Over 80% is now achieved. I want to thank those who are engaged in this. This real",
+    "context": "[Context from previous 30 seconds: complexes and artillery systems with high precision strike weapons, loitering munitions, drones of various types and robotics. The aerospace forces are receiving upgraded missiles and aviation bombs with a guided planning and module capable of operating] New content to analyze: with a guided planning and correction module capable of operating effectively in a complex jamming environment. Many here know how much the efficiency of work has increased recently. Over 80% is now achieved. I want to thank those who are engaged in this. This real",
+    "newContent": "[Context from previous 30 seconds: complexes and artillery systems with high precision strike weapons, loitering munitions, drones of various types and robotics. The aerospace forces are receiving upgraded missiles and aviation bombs with a guided planning and module capable of operating] New content to analyze: with a guided planning and correction module capable of operating effectively in a complex jamming environment. Many here know how much the efficiency of work has increased recently. Over 80% is now achieved. I want to thank those who are engaged in this. This real",
+    "claims": [
+      {
+        "originalClaim": "Efficiency of work has increased recently, achieving over 80%.",
+        "cleanedClaim": "Efficiency of work has increased recently, achieving over 80%.",
+        "factual_core": "Efficiency of work has increased recently, achieving over 80%.",
+        "speaker": null,
+        "category": "ECONOMICS",
+        "checkability": 3,
+        "importance": 4,
+        "occurrences": [
+          {
+            "timestamp_hint": "0:18",
+            "rhetorical_framing": "Efficiency of work has increased recently. Over 80% is now achieved.",
+            "raw_snippet": "with a guided planning and correction module capable of operating effectively in a complex jamming environment. Many here know how much the efficiency of work has increased recently. Over 80% is now achieved. I want to thank those who are engaged in this. This real"
+          }
+        ],
+        "phonetic_repairs": [],
+        "verification": {
+          "verdict": "false",
+          "explanation": "The claim states that efficiency of work has increased recently, achieving over 80%. However, the evidence suggests productivity increases are far below 80%. The highest increase reported is 4.9% in the US in Q3 2025. Global productivity growth across 40 OECD countries was only 0.4% in 2024. Therefore, the claim of efficiency achieving over 80% is not supported by the evidence.",
+          "confidence": 0.8,
+          "key_facts": [],
+          "sources": [
+            {
+              "domain": "bls.gov",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQEqCLPrit90k0ruYv9N6wYnOfo90cldaW0VuyluTQfwmi3hGyjynqtDDT2mpovTmx2w0U8XZVtpwOQfZE82v11hsgI4kBfa4eEey_lmZNWvhLqcFUnbM_hxLWswrA==",
+              "title": "bls.gov",
+              "tier": 1
+            },
+            {
+              "domain": "tradingeconomics.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQETQ1R8bzU74w5f-DlLL660Au3Ry9gtEkp5J0GJyLBnEbtUxCGL10fzDsLA-qRpLcRr0WLMCMJaX1xm8817qB4mSuiVvVQmWlOHnt02e90FcL_BYnJa7iTItJiGvQy1UJvey3PFDciSt3xECP09--bwJJ4=",
+              "title": "tradingeconomics.com",
+              "tier": 4
+            },
+            {
+              "domain": "high5test.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQEav_8ruxCCoiu6qpuALWVeUYl7YFWff2kBcIvyQLSyQ0fCzxjY3zkoru0192W3oFzlNC701PevXh_vLENl1ZiU0co5Z8cVuQcmMULzG9VLmKdu2aW-NM37aOlDC856IsqtQP9bWCph1WBVwuO33XSme9Y=",
+              "title": "high5test.com",
+              "tier": 4
+            },
+            {
+              "domain": "archieapp.co",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQEaADZHJsRTF6LXLMeX4QO9JldqCLiomlkePAsPDgJqtuuni7WY6OOKV32mG6ymsA8hwsyPez5csoW-mbUrPYQcvRFp7oODM7Nt_bF2e2bgLNndnQ0ILFO2Br3jU_VE3iL5YD0M49e3t-83UVeTaVcXFB9dEOXE",
+              "title": "archieapp.co",
+              "tier": 4
+            }
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "timestamp": 139.625868,
+    "videoTime": "2:19",
+    "realTime": "2026-02-11T21:08:09.319Z",
+    "originalLength": 1439,
+    "cleanedLength": 572,
+    "tokenSavings": "60%",
+    "fullText": "[Context from previous 30 seconds: with a guided planning and correction module capable of operating effectively in a complex jamming environment. Many here know how much the efficiency of work has increased recently. Over 80% is now achieved. I want to thank those are engaged in this. This real] New content to analyze: now achieved. I want to thank those who are engaged in this. This real help. Real. This year the naval fleet was replenished with new submarines including the strategic missile carrier Prince Parski as well as 19 surface ships and vessels. Successful",
+    "context": "[Context from previous 30 seconds: with a guided planning and correction module capable of operating effectively in a complex jamming environment. Many here know how much the efficiency of work has increased recently. Over 80% is now achieved. I want to thank those are engaged in this. This real] New content to analyze: now achieved. I want to thank those who are engaged in this. This real help. Real. This year the naval fleet was replenished with new submarines including the strategic missile carrier Prince Parski as well as 19 surface ships and vessels. Successful",
+    "newContent": "[Context from previous 30 seconds: with a guided planning and correction module capable of operating effectively in a complex jamming environment. Many here know how much the efficiency of work has increased recently. Over 80% is now achieved. I want to thank those are engaged in this. This real] New content to analyze: now achieved. I want to thank those who are engaged in this. This real help. Real. This year the naval fleet was replenished with new submarines including the strategic missile carrier Prince Parski as well as 19 surface ships and vessels. Successful",
+    "claims": [
+      {
+        "originalClaim": "The naval fleet was replenished with new submarines including the strategic missile carrier Prince Vladimir as well as 19 surface ships and vessels this year.",
+        "cleanedClaim": "The naval fleet was replenished with new submarines including the strategic missile carrier Prince Vladimir as well as 19 surface ships and vessels this year.",
+        "factual_core": "The naval fleet was replenished with new submarines including the strategic missile carrier Prince Vladimir as well as 19 surface ships and vessels this year.",
+        "speaker": null,
+        "category": "MILITARY",
+        "checkability": 3,
+        "importance": 5,
+        "occurrences": [
+          {
+            "timestamp_hint": "This year the naval fleet was replenished with new submarines including the strategic missile carrier Prince Parski as well as 19 surface ships and vessels. Successful",
+            "rhetorical_framing": "Naval fleet replenishment",
+            "raw_snippet": "This year the naval fleet was replenished with new submarines including the strategic missile carrier Prince Parski as well as 19 surface ships and vessels. Successful"
+          }
+        ],
+        "phonetic_repairs": [
+          {
+            "original": "Prince Parski",
+            "corrected": "Prince Vladimir"
+          }
+        ],
+        "verification": {
+          "verdict": "partially_true",
+          "explanation": "The claim mentions the replenishment of the naval fleet with new submarines, including the strategic missile carrier Prince Vladimir, as well as 19 surface ships and vessels this year. According to President Vladimir Putin, in 2025, the Russian Navy received three submarines and 19 surface ships and vessels. However, the Knyaz Vladimir was commissioned in 2020, not in the current year.",
+          "confidence": 0.6,
+          "key_facts": [],
+          "sources": [
+            {
+              "domain": "vpk.name",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQG4fufAGXSBS1rKaWi9ydto0xM35_SjBaquAZEIBnSdu2V-xuFUaRGBgia1wiqkYoqNzvAqCdS16WlpLmoiteq3qC7PuCwMTgHj3nc941u817s8C_umxHLsfKkHM6uTz2Mj4qlYh_cGDcPQKY1y8Hofxov_ac-dOGvHvZRuQP7FChV4Xa1cUAI5JpN1PcQI8jZCHJuuj9X5MVgU",
+              "title": "vpk.name",
+              "tier": 4
+            },
+            {
+              "domain": "armyrecognition.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQFQGfj1RvRxxpks56Xx99-7xG5Dtj9iznKWElqp51kZEXZdM4_6eLR8opkqQ8wyKzyJ3l_qZNkIkYWTPPXu1pOIleVN9u3hatAl23RYBbXAaRtLcTJPYPa4xAz8Ns32-A95HUEODHNX3CgcIypZ27y0i0r-3k0oL1LUrnyV0WJrKqZ1kfafcTh5eoB4XoeZrRBjErTMvP-CFs4Ma6FczpsTNsQMSl8DsF7WHN02Po_k_QZusn22RY4zVhd18ubuv7rVT9nALYf9P9xXqSuwUGE3",
+              "title": "armyrecognition.com",
+              "tier": 4
+            },
+            {
+              "domain": "thedefensewatch.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQFnhKj7qhpLzZT2--BCRrW5uu5aRRhSVDoB0Vi2kKaChpWW_y7CYLmnomwu9uAVKldgQBhs4b056_bq1XTJVMlhreA6g6EfILRKS_iFY-IVboemYMYhF939UmyCewBhFmOmugZ_QgmNPhhTPvAJW1wgTXGfyWulV8sbqmkAxB2p2PTCrOS_UvriUtuBzFVBsNnMxq11psqDLLFGES8=",
+              "title": "thedefensewatch.com",
+              "tier": 4
+            },
+            {
+              "domain": "militarywatchmagazine.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQEn2JmkAtFPHFr4tII3-Nz_WUSF4Er_6EhlzeW-QtABx5VFEcnQSUMBdlR-i2rGoc2uxY3q2AnEN0D-ATRxwt8L11k2hqEuzbA9V-_f865_seBHkxazjfecic7QKrH7c3WR8KhmoyMxvrxd7_TVSbhh64qPW0eAp8V0AqsbiEz11mHmGitf-ytYjAB2",
+              "title": "militarywatchmagazine.com",
+              "tier": 4
+            },
+            {
+              "domain": "militaryleak.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQH2tQFxpToVoKh7OjtGtmkwqX4isH2UXx6vg1qbtZbOBe5f8xm9DrFlEqeUOV8lWkUY4zmlLRZsybQTI444VvKo0wQIRvKNJZo8e62K2YVr5kDBUIbYGkcT2vN5h5Mg4ZvajeyrWz87Usr_EhJjw6lLoX0XQn32WDNSU0fu0CMq3CsoW5rIo-ARETMnucQcSp2OxH7yrs70xT-BEeL59Dst_9CI9Oxl7eWJB9w=",
+              "title": "militaryleak.com",
+              "tier": 4
+            }
+          ]
+        }
+      }
+    ]
+  }
+]

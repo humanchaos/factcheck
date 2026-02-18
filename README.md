@@ -1,10 +1,11 @@
 # 📑 FAKTCHECK LIVE
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/version-2.2.0-blue.svg)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-2.3.0-blue.svg)](CHANGELOG.md)
 [![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://github.com/humanchaos/factcheck/graphs/commit-activity)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](http://makeapullrequest.com)
 [![Golden Tests](https://img.shields.io/badge/Golden_Tests-22%2F22_(100%25)-brightgreen.svg)](TESTING.md)
+[![Quality Gate](https://img.shields.io/badge/Quality_Gate-98.3%2F100_[A]-brightgreen.svg)](TESTING.md#faktcheck-quality-gate-v230)
 [![Quality Score](https://img.shields.io/badge/Quality_Score-62%2F100-orange.svg)](CHANGELOG.md)
 [![Buy Me A Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-ffdd00?style=for-the-badge&logo=buy-me-a-coffee&logoColor=black)](https://www.buymeacoffee.com/humanchaos)
 
@@ -184,7 +185,7 @@ For the complete API schema including JSON output format and tier definitions, s
 
 ## 🧪 Testing
 
-FAKTCHECK uses a **22 Golden Test** suite that must pass before any release. The **Assessment Ratio** (≥90%) is our Definition of Done.
+FAKTCHECK uses a **22 Golden Test** suite and a **20-check Quality Gate** that must pass before any release.
 
 ```bash
 # Golden Tests
@@ -192,9 +193,15 @@ GEMINI_API_KEY=AIza... node test-dryrun.js
 
 # Stage 2 Stripping Validation
 node test-stage2-validation.js
+
+# Unit Tests
+npx jest --no-coverage
+
+# Quality Gate (zero-LLM, deterministic)
+python3 faktcheck_quality_gate.py tests/golden/sample_clean.json --strict
 ```
 
-Current status: **22/22 (100%)** — see [TESTING.md](TESTING.md) for the full test matrix, pass criteria, and kill switch rules.
+Current status: **22/22 Golden Tests (100%)** · **Quality Gate: 98.3/100 [A]** — see [TESTING.md](TESTING.md) for the full test matrix, Quality Gate categories, and release criteria.
 
 ---
 
@@ -216,6 +223,7 @@ Current status: **22/22 (100%)** — see [TESTING.md](TESTING.md) for the full t
 - **Debate Mode** — 🟢/🔴 split view for conflicting evidence
 - **Feedback System** — 👍/👎 + 🚩 Source Report per quote
 - **v5.4 "The Ground Truth"** — Semantic Stripping, Entity Hydration, Reality-First Judging
+- **v5.5 "Quality Gate"** — 20 deterministic output checks, CI/CD integration, Grammar of Truth filter
 - **22 Golden Tests** — 100% pass rate, automated stability checks
 
 ### 🟡 Phase 3: The Trust Engine (Next)

@@ -1,0 +1,320 @@
+[
+  {
+    "timestamp": 616.995401,
+    "videoTime": "10:16",
+    "realTime": "2026-02-11T16:25:21.594Z",
+    "originalLength": 437,
+    "cleanedLength": 191,
+    "tokenSavings": "56%",
+    "fullText": "much to improve the quality of medical care, assistance to wounded warriors, to resolve issues of their rehabilitation and employment, to ensure timely payments, and implement other including",
+    "context": null,
+    "newContent": "much to improve the quality of medical care, assistance to wounded warriors, to resolve issues of their rehabilitation and employment, to ensure timely payments, and implement other including",
+    "claims": [
+      {
+        "originalClaim": "Russia deployed Oreshnik missile systems.",
+        "cleanedClaim": "Russia deployed Oreshnik missile systems.",
+        "factual_core": "Russia deployed Oreshnik missile systems.",
+        "speaker": null,
+        "category": "POLITICS",
+        "checkability": 3,
+        "importance": 7,
+        "occurrences": [
+          {
+            "timestamp_hint": "0:00",
+            "rhetorical_framing": "Putin Confirms Oreshnik Missile Deployment",
+            "raw_snippet": "Putin Addresses Army Generals, Confirms Oreshnik Missile Deployment LIVE"
+          }
+        ],
+        "phonetic_repairs": [],
+        "verification": {
+          "verdict": "true",
+          "explanation": "Multiple sources indicate the deployment of the Oreshnik missile system by Russia. Specifically, reports suggest its combat use in Dnipro in November 2024, Putin's statement about its entry into production and service in August 2025, and satellite imagery indicating potential deployment in Belarus in February 2026.",
+          "confidence": 0.4,
+          "key_facts": [],
+          "sources": [
+            {
+              "domain": "kyivpost.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQFmw2gDobv50jgUBAIIP9rt9M-w9pQsyaewR8xw8fogwas2i4mL9mgQg_2Lwes0KerYv4zqD7HgcRc-IlnXxqiu69NlQhgT4ZetxPxC_XyzBh3VdimGLF80bStOvmA=",
+              "title": "kyivpost.com",
+              "tier": 4
+            },
+            {
+              "domain": "united24media.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQF2GAhMywGeux4vXAztzosGoH4a6rs1aWWS3W8bCyrb8juz6x7dJSbw26MsLBWSNtIrYsxgv3mtJMaG0ojmnwBrH9BHA4WjCJnG-l_HGMhXDlTLSrW1LcMWv7a-Dx104ICd-ZTIij8XAcKvTiL1jsHK7K1_W-YgA5YmtxTiEYPTa4O3OvYcPOH7SQTsLLj4F0fL7Wt8Po9_ajkrvujc3p375R5D8eno84aXfiBBwGFnMdrPzrGpM-SyQoe5Zk9MDOEX-g==",
+              "title": "united24media.com",
+              "tier": 4
+            },
+            {
+              "domain": "nv.ua",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQEDVsqBsjxYequXHBI86J46Mrp6tNfzVobLo-iL4ifGa3OIiKgMmi1DMajxfdvJK_GrMQ0060hzSgWI_NDFKSCQg21QI0dRNdGANT9V4g377VI__q7pSK9UOhFBIQWGIo8kcPFb7f85tCiw73SI7-IZep758nVuCEScx3caktCRCJL1k9gKrTOyTq2kQ9kOGA==",
+              "title": "nv.ua",
+              "tier": 4
+            }
+          ]
+        },
+        "timestamps": [
+          "10:16"
+        ]
+      }
+    ]
+  },
+  {
+    "timestamp": 632.11179,
+    "videoTime": "10:32",
+    "realTime": "2026-02-11T16:25:36.711Z",
+    "originalLength": 1262,
+    "cleanedLength": 501,
+    "tokenSavings": "60%",
+    "fullText": "[Context from previous 30 seconds: much to improve the quality of medical care, assistance to wounded warriors, to resolve issues of their rehabilitation and employment, to ensure payments, and implement other] New content to analyze: and employment, to ensure timely payments, and implement other including additional measures of social support for families, children, and parents of fallen servicemen. I draw your attention to the fact that there is still work to be done here. Now, in the course of",
+    "context": "[Context from previous 30 seconds: much to improve the quality of medical care, assistance to wounded warriors, to resolve issues of their rehabilitation and employment, to ensure payments, and implement other] New content to analyze: and employment, to ensure timely payments, and implement other including additional measures of social support for families, children, and parents of fallen servicemen. I draw your attention to the fact that there is still work to be done here. Now, in the course of",
+    "newContent": "[Context from previous 30 seconds: much to improve the quality of medical care, assistance to wounded warriors, to resolve issues of their rehabilitation and employment, to ensure payments, and implement other] New content to analyze: and employment, to ensure timely payments, and implement other including additional measures of social support for families, children, and parents of fallen servicemen. I draw your attention to the fact that there is still work to be done here. Now, in the course of",
+    "claims": [
+      {
+        "originalClaim": "Additional measures of social support are being implemented for families, children, and parents of fallen servicemen.",
+        "cleanedClaim": "Additional measures of social support are being implemented for families, children, and parents of fallen servicemen.",
+        "factual_core": "Additional measures of social support are being implemented for families, children, and parents of fallen servicemen.",
+        "speaker": null,
+        "category": "POLITICS",
+        "checkability": 3,
+        "importance": 3,
+        "occurrences": [
+          {
+            "timestamp_hint": "N/A",
+            "rhetorical_framing": "implement other including additional measures of social support for families, children, and parents of fallen servicemen",
+            "raw_snippet": "and employment, to ensure timely payments, and implement other including additional measures of social support for families, children, and parents of fallen servicemen."
+          }
+        ],
+        "phonetic_repairs": [],
+        "verification": {
+          "verdict": "true",
+          "explanation": "[C5 AUTO-FIX: verdict flipped to match evidence] The claim is supported by multiple sources indicating that social support measures are in place for families, children, and parents of fallen servicemen, including financial compensation, survivor's pensions, and long-term support services. [Tier-1 Übersteuerung: Offizielle Quelle widerspricht der Behauptung.]",
+          "confidence": 0.5,
+          "key_facts": [],
+          "sources": [
+            {
+              "domain": "sbcounty.gov",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQG7kfAC5WEh7HFtq1GvFqzM02wamTakYKslF-63ORa5tWmBBTtti-Ke70el1emUk9dL3fVyiiVqdiTlzZkdQbaoVWpwy33kXlYCxp1VdmKVZNNsELPTkdkebAzCu2xI0MNVpH3PB4AFM9tyEPkAfzXEAs_X2qkRtqJvDDQX7uiPEfRhtUzp6qg=",
+              "title": "sbcounty.gov",
+              "tier": 1
+            },
+            {
+              "domain": "army.mil",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQECwp3BpHSegQhQB4FXFedhap4D15r4qfEgexrt3ezkAbhz6XXn77KA31F7J2d2QYu-4St9NaHu0MYBoChjhdp6xEGKAB9s-3CUY2TY6NR-0XJvSyDtvJIf6DXW-MlnQosies8PoT7SBcqcMkqJBVDWXnCbA_nHesKcokMVepcceEZhQbPgX4IYYOrKvUu7",
+              "title": "army.mil",
+              "tier": 1
+            },
+            {
+              "domain": "military.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQGnhzuX_yDWb9pQYmnNVwW_4qQ7u0MMf3bbGy4HBDf8q3ouKXP9NB1HooEOD0zP-VqDH87yUEOevHGIIKVfW64P61hx9iofCQ6ZeG-ok97jL7oU5ZG-yXAcbWN68FN2GKjEwJVnv8J5k59dPdfgr4fRNSIt-6DP5XUMycpCqH4_gHO7Bl7UU5SDyKWELhE=",
+              "title": "military.com",
+              "tier": 4
+            },
+            {
+              "domain": "armymwr.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQFqulZWQUZejZ2QiDGfu9_ABzp7FWW-kIb68YsQuahkHJKmfCU_eL0LopaEOQI1ul9FbUnZZCmd18_iFhKwwm9xq1ZBY7NcExxq23vcISiKX2x4h2uEuZdI7Ib8PNBDvz2BMiujHdaqs6mT_zQgHKsoPT6idWcFWFw9QmL1NVjjYWuz1paDG9661XpQ-TUu",
+              "title": "armymwr.com",
+              "tier": 4
+            },
+            {
+              "domain": "army.mil",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQE2lMJnsmsiAROUik42C8MUrTEiOjI7aHM48VZaW6cO9O9HyR5ITCKfthog17altUjYN315eTSsACB9_qrVgdRxX8L36tCKU4LOZByB9-lKwq7yKudWkymhB5qZ8-eDML0ZXbwjpvZBTDmLiWFo1fLMpwyVsNs4c_BSgUnylH7HUjbCFI8=",
+              "title": "army.mil",
+              "tier": 1
+            }
+          ]
+        },
+        "timestamps": [
+          "10:32"
+        ]
+      }
+    ]
+  },
+  {
+    "timestamp": 647.635911,
+    "videoTime": "10:47",
+    "realTime": "2026-02-11T16:25:52.235Z",
+    "originalLength": 1735,
+    "cleanedLength": 566,
+    "tokenSavings": "67%",
+    "fullText": "[Context from previous 30 seconds: additional measures of social support for families, children, and parents of fallen servicemen. I draw your attention to the fact that there is still work be done here. Now, in the course] New content to analyze: to the fact that there is still work to be done here. Now, in the course of preparing for the direct line, it is clear that many questions are coming in on these topics, but with the leadership of the Ministry of Defense, we will of course return to this. I especially note the heroic work of military doctors, medical",
+    "context": "[Context from previous 30 seconds: additional measures of social support for families, children, and parents of fallen servicemen. I draw your attention to the fact that there is still work be done here. Now, in the course] New content to analyze: to the fact that there is still work to be done here. Now, in the course of preparing for the direct line, it is clear that many questions are coming in on these topics, but with the leadership of the Ministry of Defense, we will of course return to this. I especially note the heroic work of military doctors, medical",
+    "newContent": "[Context from previous 30 seconds: additional measures of social support for families, children, and parents of fallen servicemen. I draw your attention to the fact that there is still work be done here. Now, in the course] New content to analyze: to the fact that there is still work to be done here. Now, in the course of preparing for the direct line, it is clear that many questions are coming in on these topics, but with the leadership of the Ministry of Defense, we will of course return to this. I especially note the heroic work of military doctors, medical",
+    "claims": []
+  },
+  {
+    "timestamp": 663.395347,
+    "videoTime": "11:03",
+    "realTime": "2026-02-11T16:26:07.995Z",
+    "originalLength": 1647,
+    "cleanedLength": 569,
+    "tokenSavings": "65%",
+    "fullText": "[Context from previous 30 seconds: preparing for the direct line, it is clear that many questions are coming in on these topics, but with the leadership of the Ministry of Defense, we will of course return to this. I especially note the heroic work military doctors, medical] New content to analyze: I especially note the heroic work of military doctors, medical workers who sometimes do the impossible to save our fighters and return them to service after treatment. Unique, simply unique experience has been gained in providing medical and psychological assistance to",
+    "context": "[Context from previous 30 seconds: preparing for the direct line, it is clear that many questions are coming in on these topics, but with the leadership of the Ministry of Defense, we will of course return to this. I especially note the heroic work military doctors, medical] New content to analyze: I especially note the heroic work of military doctors, medical workers who sometimes do the impossible to save our fighters and return them to service after treatment. Unique, simply unique experience has been gained in providing medical and psychological assistance to",
+    "newContent": "[Context from previous 30 seconds: preparing for the direct line, it is clear that many questions are coming in on these topics, but with the leadership of the Ministry of Defense, we will of course return to this. I especially note the heroic work military doctors, medical] New content to analyze: I especially note the heroic work of military doctors, medical workers who sometimes do the impossible to save our fighters and return them to service after treatment. Unique, simply unique experience has been gained in providing medical and psychological assistance to",
+    "claims": [
+      {
+        "originalClaim": "Unique experience has been gained in providing medical and psychological assistance to fighters after treatment.",
+        "cleanedClaim": "Unique experience has been gained in providing medical and psychological assistance to fighters after treatment.",
+        "factual_core": "Unique experience has been gained in providing medical and psychological assistance to fighters after treatment.",
+        "speaker": null,
+        "category": "HEALTH",
+        "checkability": 3,
+        "importance": 2,
+        "occurrences": [
+          {
+            "timestamp_hint": "N/A",
+            "rhetorical_framing": "heroic work of military doctors, medical workers who sometimes do the impossible to save our fighters and return them to service after treatment. Unique, simply unique experience has been gained in providing medical and psychological assistance to",
+            "raw_snippet": "I especially note the heroic work military doctors, medical workers who sometimes do the impossible to save our fighters and return them to service after treatment. Unique, simply unique experience has been gained in providing medical and psychological assistance to"
+          }
+        ],
+        "phonetic_repairs": [],
+        "verification": {
+          "verdict": "false",
+          "explanation": "The claim suggests that there is experience in providing medical and psychological assistance to fighters after treatment. The VA in the US provides comprehensive healthcare services, including mental health care, to eligible veterans. [Tier-1 Übersteuerung: Offizielle Quelle widerspricht der Behauptung.]",
+          "confidence": 0.85,
+          "key_facts": [],
+          "sources": [
+            {
+              "domain": "allveteran.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQGtSnidUO4uNJ7M3UCx5MSMbyU84W85WfNBTYu6PF5bV6nGHV_2hDACPmpz3vleVpMNpeWa_r5SW39ZsNUtYEhRdt51WmDG036be1xSJKLm8HLTKz9Uwk1Qdj33_MXQHKOFVa32BBqz8SeY00OTGdpynBXNo3iKvxI-M_9PKY_T0NNvls5YdTFVxg==",
+              "title": "allveteran.com",
+              "tier": 4
+            },
+            {
+              "domain": "va.gov",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQFnUxVMQZdoNKVqW1ANnNc4pvgrjESlpAO_3WKlrsNThXJRYMK7We81b4PHszBzkjPutAcaEYAQKmDCibVBODxpLnbyGmgw1tsMSsaRmwLIjoa6PxM5_LxiHu75aj9ZyW20gOYcGkYZBeqxs8i2DLbRgxufLwU-WbIovb_TfvwqmA==",
+              "title": "va.gov",
+              "tier": 1
+            },
+            {
+              "domain": "dav.org",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQH22DDFdKds6fWbeAo4rxToAy8Kb9HRQLiBS5F2yADJw9LJrqq9rDZ3xk1VE7qSSdThpFLJMS8Y8NsS2mvXBkdhWHs85nS7mO1tN6X_SrnEJNE7hlZtaIf_UhvREbkwN0GF9kwbP3MbyEMalfZDC6g4tAGLOkx4NhXCvehjd7QddNVtm7wQIwJ8yn0ShDzwOlUhPt_4_3OK5gHCMkRcwpS3IQ==",
+              "title": "dav.org",
+              "tier": 4
+            }
+          ]
+        },
+        "timestamps": [
+          "11:03",
+          "11:18"
+        ]
+      }
+    ]
+  },
+  {
+    "timestamp": 678.511219,
+    "videoTime": "11:18",
+    "realTime": "2026-02-11T16:26:23.110Z",
+    "originalLength": 1363,
+    "cleanedLength": 523,
+    "tokenSavings": "62%",
+    "fullText": "[Context from previous 30 seconds: sometimes do the impossible to save our fighters and return them to service after treatment. Unique, simply unique experience has been gained in medical and psychological assistance] New content to analyze: experience has been gained in providing medical and psychological assistance to servicemen with wounds, injuries and diseases related to combat operations. Such experience should be implemented not only in the activities of military medical institutions but also in civilian health",
+    "context": "[Context from previous 30 seconds: sometimes do the impossible to save our fighters and return them to service after treatment. Unique, simply unique experience has been gained in medical and psychological assistance] New content to analyze: experience has been gained in providing medical and psychological assistance to servicemen with wounds, injuries and diseases related to combat operations. Such experience should be implemented not only in the activities of military medical institutions but also in civilian health",
+    "newContent": "[Context from previous 30 seconds: sometimes do the impossible to save our fighters and return them to service after treatment. Unique, simply unique experience has been gained in medical and psychological assistance] New content to analyze: experience has been gained in providing medical and psychological assistance to servicemen with wounds, injuries and diseases related to combat operations. Such experience should be implemented not only in the activities of military medical institutions but also in civilian health",
+    "claims": []
+  },
+  {
+    "timestamp": 694.827626,
+    "videoTime": "11:34",
+    "realTime": "2026-02-11T16:26:39.425Z",
+    "originalLength": 1472,
+    "cleanedLength": 527,
+    "tokenSavings": "64%",
+    "fullText": "[Context from previous 30 seconds: servicemen with wounds, injuries and diseases related to combat operations. Such experience should be implemented not only in the activities of military medical institutions but also civilian health] New content to analyze: medical institutions but also in civilian health care enshrining this at the legislative level. Of course, work must continue on indexing the monetary allowance for servicemen and the pace of providing them with permanent and service housing must not be reduced. Every",
+    "context": "[Context from previous 30 seconds: servicemen with wounds, injuries and diseases related to combat operations. Such experience should be implemented not only in the activities of military medical institutions but also civilian health] New content to analyze: medical institutions but also in civilian health care enshrining this at the legislative level. Of course, work must continue on indexing the monetary allowance for servicemen and the pace of providing them with permanent and service housing must not be reduced. Every",
+    "newContent": "[Context from previous 30 seconds: servicemen with wounds, injuries and diseases related to combat operations. Such experience should be implemented not only in the activities of military medical institutions but also civilian health] New content to analyze: medical institutions but also in civilian health care enshrining this at the legislative level. Of course, work must continue on indexing the monetary allowance for servicemen and the pace of providing them with permanent and service housing must not be reduced. Every",
+    "claims": [
+      {
+        "originalClaim": "Indexing of monetary allowance for servicemen continues.",
+        "cleanedClaim": "Indexing of monetary allowance for servicemen continues.",
+        "factual_core": "Indexing of monetary allowance for servicemen continues.",
+        "speaker": null,
+        "category": "ECONOMICS",
+        "checkability": 3,
+        "importance": 3,
+        "occurrences": [
+          {
+            "timestamp_hint": "0:25",
+            "rhetorical_framing": "work must continue on indexing the monetary allowance for servicemen",
+            "raw_snippet": "Of course, work must continue on indexing the monetary allowance for servicemen"
+          }
+        ],
+        "phonetic_repairs": [],
+        "verification": {
+          "verdict": "false",
+          "explanation": "Evidence confirms that monetary allowances for servicemen are indexed and continue to increase. For example, in 2025, there was an average increase in Basic Allowance for Housing (BAH) rates. [Tier-1 Übersteuerung: Offizielle Quelle widerspricht der Behauptung.]",
+          "confidence": 0.85,
+          "key_facts": [],
+          "sources": [
+            {
+              "domain": "military.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQEu1nWIxOpJovCqzjjp0ofBWqK-mlcsD98N47SeyoSfltFwP9v0qwH_OOqxVnsErhIBf1zNrvWoEwoR3zfn27T4qawWAl5ntbD3wIt7RqVk0SqgkPbb5avQKhU0_bhbnavkG6tetW3mdMJWbI3N2cZe5-6lHm2--9Q_mhTHu3RMVuo_WeC1d7h9xbL5cnc=",
+              "title": "military.com",
+              "tier": 4
+            },
+            {
+              "domain": "army.mil",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQGaY0DwyyN821evr1BtidMw54wfhfxa_g4J5SjvMoGs3B1LzKUDI-f4x8sPnTAEW4ivurM-wZEdNkNq9zJieofET4oY_no9hexE090IbT7VFsn__o5LJbRcCYMjR9nQKY6AC_umyo5n8vdv-NDaz0NzJISUjnIux9EtGyvx-Ve3WMiM5dpgIQ2qo38p1cVF8EE_cA==",
+              "title": "army.mil",
+              "tier": 1
+            }
+          ]
+        },
+        "timestamps": [
+          "11:34"
+        ]
+      },
+      {
+        "originalClaim": "Pace of providing servicemen with permanent and service housing is not reduced.",
+        "cleanedClaim": "Pace of providing servicemen with permanent and service housing is not reduced.",
+        "factual_core": "Pace of providing servicemen with permanent and service housing is not reduced.",
+        "speaker": null,
+        "category": "POLITICS",
+        "checkability": 3,
+        "importance": 3,
+        "occurrences": [
+          {
+            "timestamp_hint": "0:25",
+            "rhetorical_framing": "pace of providing them with permanent and service housing must not be reduced",
+            "raw_snippet": "the pace of providing them with permanent and service housing must not be reduced."
+          }
+        ],
+        "phonetic_repairs": [],
+        "verification": {
+          "verdict": "unverifiable",
+          "explanation": "The claim is that the pace of providing servicemen with housing is not reduced. There is no Tier 1 or Tier 2 data available to verify this claim. The available sources discuss challenges with affordable housing and problems with privatized military housing, but do not directly address the pace of providing housing. [Ground Truth: Keine unabhängigen externen Quellen.]",
+          "confidence": 0.1,
+          "key_facts": [],
+          "sources": []
+        },
+        "timestamps": [
+          "11:34"
+        ]
+      }
+    ]
+  },
+  {
+    "timestamp": 710.995368,
+    "videoTime": "11:50",
+    "realTime": "2026-02-11T16:26:55.593Z",
+    "originalLength": 1689,
+    "cleanedLength": 557,
+    "tokenSavings": "67%",
+    "fullText": "[Context from previous 30 seconds: the legislative level. Of course, work must continue on indexing the monetary allowance for servicemen and the pace of providing them with permanent service housing must not be Every] New content to analyze: providing them with permanent and service housing must not be reduced. Every defender of the motherland must know firmly that the state will provide him and his loved ones with all necessary social support. And in conclusion, I want to once again thank the soldiers and officers who are now on the front lines. All",
+    "context": "[Context from previous 30 seconds: the legislative level. Of course, work must continue on indexing the monetary allowance for servicemen and the pace of providing them with permanent service housing must not be Every] New content to analyze: providing them with permanent and service housing must not be reduced. Every defender of the motherland must know firmly that the state will provide him and his loved ones with all necessary social support. And in conclusion, I want to once again thank the soldiers and officers who are now on the front lines. All",
+    "newContent": "[Context from previous 30 seconds: the legislative level. Of course, work must continue on indexing the monetary allowance for servicemen and the pace of providing them with permanent service housing must not be Every] New content to analyze: providing them with permanent and service housing must not be reduced. Every defender of the motherland must know firmly that the state will provide him and his loved ones with all necessary social support. And in conclusion, I want to once again thank the soldiers and officers who are now on the front lines. All",
+    "claims": []
+  },
+  {
+    "timestamp": 726.112091,
+    "videoTime": "12:06",
+    "realTime": "2026-02-11T16:27:10.710Z",
+    "originalLength": 1645,
+    "cleanedLength": 578,
+    "tokenSavings": "65%",
+    "fullText": "[Context from previous 30 seconds: Every defender of the motherland must know firmly that the state will provide him and his loved ones with all necessary social support. And in conclusion, I want to once again thank the soldiers and officers who are now the front lines. All] New content to analyze: the soldiers and officers who are now on the front lines. All participants in the special military operation for their heroism and selflessness. I wish the leadership, all personnel and civilian staff of the Ministry of Defense new achievements in service to the motherland and",
+    "context": "[Context from previous 30 seconds: Every defender of the motherland must know firmly that the state will provide him and his loved ones with all necessary social support. And in conclusion, I want to once again thank the soldiers and officers who are now the front lines. All] New content to analyze: the soldiers and officers who are now on the front lines. All participants in the special military operation for their heroism and selflessness. I wish the leadership, all personnel and civilian staff of the Ministry of Defense new achievements in service to the motherland and",
+    "newContent": "[Context from previous 30 seconds: Every defender of the motherland must know firmly that the state will provide him and his loved ones with all necessary social support. And in conclusion, I want to once again thank the soldiers and officers who are now the front lines. All] New content to analyze: the soldiers and officers who are now on the front lines. All participants in the special military operation for their heroism and selflessness. I wish the leadership, all personnel and civilian staff of the Ministry of Defense new achievements in service to the motherland and",
+    "claims": []
+  }
+]

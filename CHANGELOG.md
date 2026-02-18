@@ -5,6 +5,37 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.3.0] - 2026-02-10 — "Quality Gate" ✅
+
+### Added
+- **FAKTCHECK Quality Gate:** 20 deterministic checks across 4 categories (structural, semantic, consistency, extraction) — zero-LLM output validation for CI/CD. Run via `python3 faktcheck_quality_gate.py <file>`.
+- **CI/CD Workflow:** `.github/workflows/faktcheck-quality-gate.yml` runs the Quality Gate on every push to core files and nightly against the golden test corpus.
+- **Golden Test Corpus:** `tests/golden/` directory with real extension outputs for automated regression testing.
+- **Quality Gate Source Registry:** `quality-gate-sources.json` with 56 classified domains (22 tier-1, 26 tier-2, 8 banned).
+- **Grammar of Truth Filter (v5.5):** New extraction constraints in `extractClaims()`:
+  - **Falsifiability Constraint:** Only extract claims that can be proven true or false.
+  - **Mood Discard Rule:** Modal verbs (`müssen`, `sollen`, `wollen`) → SKIP (desires, not facts).
+  - **Self-Referential Filter:** Speaker actions/emotions never become claims.
+  - **Kernel Rule:** "Extract ONLY if the claim remains true even if the speaker never existed."
+- **Anti-Tautology Filter:** Sarcasm/irony detection in `extractClaims()` — political satire (e.g., "Witzekanzler") flagged before extraction.
+- **Cross-Chunk Deduplication:** Jaccard word-overlap (>85% threshold) prevents the same claim from appearing in multiple chunks.
+- **`cleanedClaim` Field:** Phonetic repairs (ASR corrections like "BIOS" → "Pius") now applied to produce a cleaned version alongside `originalClaim` in the export JSON.
+
+### Fixed
+- **YouTube Circular References:** Sources in the export JSON now filter `youtube.com` and `wikipedia.org` — eliminates circular evidence when analyzing YouTube videos.
+- **Bare String Sources:** Export JSON `sources` field now uses structured `{domain, url, title, tier}` objects instead of bare strings.
+- **`missing_context` Verdict:** Added to `VALID_VERDICTS` in the Quality Gate to prevent false positives on whataboutism claims.
+- **German Explanations:** Judge prompt now explicitly requires German-language explanations when the transcript is German.
+- **ASR Name Correction:** Post-extraction name fidelity check fixes hallucinated first names (e.g., "Christopher Stocker" → "Christian Stocker") using video metadata.
+
+### Quality Gate Results (v2.3.0)
+| Corpus | Score | Grade | Critical | Warnings |
+|--------|:-----:|:-----:|:--------:|:--------:|
+| `sample_clean.json` (synthetic) | 98.3 | A | 0 | 1 |
+| `faktcheck_chunks_*.json` (real) | 73.5 | C | 51 | 374 |
+
+**Key insight:** Synthetic tests pass easily — the real-world golden corpus exposed 426 violations. This is now the regression baseline.
+
 ## [2.2.0] - 2026-02-08 — "v5.4 Stable" ✅
 
 ### Added

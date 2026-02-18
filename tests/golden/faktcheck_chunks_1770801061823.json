@@ -1,0 +1,1838 @@
+[
+  {
+    "timestamp": 192.597823,
+    "videoTime": "3:12",
+    "realTime": "2026-02-11T08:49:27.779Z",
+    "originalLength": 430,
+    "cleanedLength": 224,
+    "tokenSavings": "48%",
+    "fullText": "They wanted the world to sympathize with these bastards and child killers. Englisch (automatisch erzeugt) Klicke auf , um die Einstellungen aufzurufen. Back in the day, we found it hard to defend the truth in the information",
+    "context": null,
+    "newContent": "They wanted the world to sympathize with these bastards and child killers. Englisch (automatisch erzeugt) Klicke auf , um die Einstellungen aufzurufen. Back in the day, we found it hard to defend the truth in the information",
+    "claims": []
+  },
+  {
+    "timestamp": 24.590997,
+    "videoTime": "0:24",
+    "realTime": "2026-02-11T08:49:42.923Z",
+    "originalLength": 966,
+    "cleanedLength": 443,
+    "tokenSavings": "54%",
+    "fullText": "[Context from previous 30 seconds: They wanted the world to sympathize with these bastards and child killers. Englisch (automatisch erzeugt) Klicke auf , um die Einstellungen aufzurufen. Back in the day, we found it hard to defend the truth in the information] New content to analyze: colleagues, friends, I am very glad to greet you here in this wonderful hall of the Bolshoy Theater to celebrate the 20th anniversary of Russia Today channel.",
+    "context": "[Context from previous 30 seconds: They wanted the world to sympathize with these bastards and child killers. Englisch (automatisch erzeugt) Klicke auf , um die Einstellungen aufzurufen. Back in the day, we found it hard to defend the truth in the information] New content to analyze: colleagues, friends, I am very glad to greet you here in this wonderful hall of the Bolshoy Theater to celebrate the 20th anniversary of Russia Today channel.",
+    "newContent": "[Context from previous 30 seconds: They wanted the world to sympathize with these bastards and child killers. Englisch (automatisch erzeugt) Klicke auf , um die Einstellungen aufzurufen. Back in the day, we found it hard to defend the truth in the information] New content to analyze: colleagues, friends, I am very glad to greet you here in this wonderful hall of the Bolshoy Theater to celebrate the 20th anniversary of Russia Today channel.",
+    "claims": []
+  },
+  {
+    "timestamp": 41.556349,
+    "videoTime": "0:41",
+    "realTime": "2026-02-11T08:49:59.895Z",
+    "originalLength": 1489,
+    "cleanedLength": 616,
+    "tokenSavings": "59%",
+    "fullText": "[Context from previous 30 seconds: They wanted the world to sympathize with these bastards and child killers. Englisch (automatisch erzeugt) Klicke auf , um die Einstellungen aufzurufen. Back in the day, we found it hard to defend the truth in the information colleagues, friends, I am very glad to greet you here wonderful hall of the Bolshoy Theater to celebrate the 20th anniversary of Russia Today channel.] New content to analyze: Today I congratulate from my whole heart all those who worked and continue to work on the channel and of course Margarita Simonyan your leader the one and only editor-inchief. Dear",
+    "context": "[Context from previous 30 seconds: They wanted the world to sympathize with these bastards and child killers. Englisch (automatisch erzeugt) Klicke auf , um die Einstellungen aufzurufen. Back in the day, we found it hard to defend the truth in the information colleagues, friends, I am very glad to greet you here wonderful hall of the Bolshoy Theater to celebrate the 20th anniversary of Russia Today channel.] New content to analyze: Today I congratulate from my whole heart all those who worked and continue to work on the channel and of course Margarita Simonyan your leader the one and only editor-inchief. Dear",
+    "newContent": "[Context from previous 30 seconds: They wanted the world to sympathize with these bastards and child killers. Englisch (automatisch erzeugt) Klicke auf , um die Einstellungen aufzurufen. Back in the day, we found it hard to defend the truth in the information colleagues, friends, I am very glad to greet you here wonderful hall of the Bolshoy Theater to celebrate the 20th anniversary of Russia Today channel.] New content to analyze: Today I congratulate from my whole heart all those who worked and continue to work on the channel and of course Margarita Simonyan your leader the one and only editor-inchief. Dear",
+    "claims": [
+      {
+        "originalClaim": "Margarita Simonyan is the editor-in-chief of Russia Today channel.",
+        "cleanedClaim": "Margarita Simonyan is the editor-in-chief of Russia Today channel.",
+        "factual_core": "Margarita Simonyan is the editor-in-chief of Russia Today channel.",
+        "speaker": null,
+        "category": "POLITICS",
+        "checkability": 3,
+        "importance": 3,
+        "occurrences": [
+          {
+            "timestamp_hint": "0:17",
+            "rhetorical_framing": "Margarita Simonyan your leader the one and only editor-inchief",
+            "raw_snippet": "Today I congratulate from my whole heart all those who worked and continue to work on the channel and of course Margarita Simonyan your leader the one and only editor-inchief. Dear"
+          }
+        ],
+        "phonetic_repairs": [],
+        "verification": {
+          "verdict": "true",
+          "explanation": "Multiple sources confirm that Margarita Simonyan is the editor-in-chief of Russia Today (RT).",
+          "confidence": 0.4,
+          "key_facts": [],
+          "sources": [
+            {
+              "domain": "vertexaisearch.cloud.google.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQECniyn7Fb9vKObeIZAlJWRngBROArOsV3m17BTD5AjNiHERgQFIt6rLqMMlJFKWYsrt70NG09Vuq1wiVjvLrx9pYejN_vqxu-9ZMNExot-Mjcc3Jajw9GLfwbrFll196bci-PwLuAyICZcIA==",
+              "title": "wikipedia.org",
+              "tier": 4
+            },
+            {
+              "domain": "vertexaisearch.cloud.google.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQElgkjpvDfTjljfOn6qCcJJuFFvPWdtUNarnHKwJBDNzWk2RU_87fAizaf7J-dJ_DXSZJLQWkRGh8vdQQS3SK73nxiGnQcE1sYs6pYVYrhSA4f9Zg9SqAqygf5isPzEo3wPbTT6sNTeioI4_g==",
+              "title": "wikiquote.org",
+              "tier": 4
+            },
+            {
+              "domain": "vertexaisearch.cloud.google.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQEwH33LIS-9N9sB3pnO27FIEnJeHgZ37kH0cBod5UptivS7ghpPcgPFxwX2OX4pe6eoalP4ihmDqFqCsAFKrtxUJZg8tqJThnm9rREJn4vawHZXqqUiE7qg9uxiP-2iZbivF1zWxDB35ebZm6_p7hVI5O32HtujVW_FWmhe2abyNYwWwG4Q_Nj4Of-pPjRaso3kyvTVZd69_iSgN4--H6s=",
+              "title": "state.gov",
+              "tier": 4
+            },
+            {
+              "domain": "vertexaisearch.cloud.google.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQEf60imBI5MnFjU-0Qohry_bVKqlcmuhl90zpTiHga1iid4q56jVOb1gTTI5HjXK4kdyCrPKJtg0Y2YRiRG_uX2A_oBOgbJnzqkI9yt_pg_jQ7Gik20SmQIu5ttNYWGSYG44keQWSe5nEX9UNcRjLw79Oqe6T41ZBzPDABg5LI2",
+              "title": "meduza.io",
+              "tier": 4
+            }
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "timestamp": 57.392628,
+    "videoTime": "0:57",
+    "realTime": "2026-02-11T08:50:15.732Z",
+    "originalLength": 1709,
+    "cleanedLength": 663,
+    "tokenSavings": "61%",
+    "fullText": "[Context from previous 30 seconds: They wanted the world to sympathize with these bastards and child killers. Englisch (automatisch erzeugt) Klicke auf , um die Einstellungen aufzurufen. Back in the day, we found it hard to defend the truth in the information colleagues, friends, I am very glad to greet you here from my whole heart all those who worked and continue to work on the channel and of course Margarita Simonyan your leader the one and only editor-inchief. Dear] New content to analyze: Dear Margarita, we all know and your team definitely knows how hard it is for you now and what a turbulent period you and your family are going through. [Music] But",
+    "context": "[Context from previous 30 seconds: They wanted the world to sympathize with these bastards and child killers. Englisch (automatisch erzeugt) Klicke auf , um die Einstellungen aufzurufen. Back in the day, we found it hard to defend the truth in the information colleagues, friends, I am very glad to greet you here from my whole heart all those who worked and continue to work on the channel and of course Margarita Simonyan your leader the one and only editor-inchief. Dear] New content to analyze: Dear Margarita, we all know and your team definitely knows how hard it is for you now and what a turbulent period you and your family are going through. [Music] But",
+    "newContent": "[Context from previous 30 seconds: They wanted the world to sympathize with these bastards and child killers. Englisch (automatisch erzeugt) Klicke auf , um die Einstellungen aufzurufen. Back in the day, we found it hard to defend the truth in the information colleagues, friends, I am very glad to greet you here from my whole heart all those who worked and continue to work on the channel and of course Margarita Simonyan your leader the one and only editor-inchief. Dear] New content to analyze: Dear Margarita, we all know and your team definitely knows how hard it is for you now and what a turbulent period you and your family are going through. [Music] But",
+    "claims": []
+  },
+  {
+    "timestamp": 72.432049,
+    "videoTime": "1:12",
+    "realTime": "2026-02-11T08:50:30.772Z",
+    "originalLength": 1534,
+    "cleanedLength": 628,
+    "tokenSavings": "59%",
+    "fullText": "[Context from previous 30 seconds: They wanted the world to sympathize with these bastards and child killers. Englisch (automatisch erzeugt) Klicke auf , um die Einstellungen aufzurufen. Back in the day, we found it hard to defend the truth in the information colleagues, friends, I am very glad to greet you here Dear Margarita, we all know and your team definitely knows how hard it is for you now and what a turbulent period you and your family are going But] New content to analyze: going through. [Music] But in your work, you have always expressed courage, boldness, and I am confident that you will cope with it now, too.",
+    "context": "[Context from previous 30 seconds: They wanted the world to sympathize with these bastards and child killers. Englisch (automatisch erzeugt) Klicke auf , um die Einstellungen aufzurufen. Back in the day, we found it hard to defend the truth in the information colleagues, friends, I am very glad to greet you here Dear Margarita, we all know and your team definitely knows how hard it is for you now and what a turbulent period you and your family are going But] New content to analyze: going through. [Music] But in your work, you have always expressed courage, boldness, and I am confident that you will cope with it now, too.",
+    "newContent": "[Context from previous 30 seconds: They wanted the world to sympathize with these bastards and child killers. Englisch (automatisch erzeugt) Klicke auf , um die Einstellungen aufzurufen. Back in the day, we found it hard to defend the truth in the information colleagues, friends, I am very glad to greet you here Dear Margarita, we all know and your team definitely knows how hard it is for you now and what a turbulent period you and your family are going But] New content to analyze: going through. [Music] But in your work, you have always expressed courage, boldness, and I am confident that you will cope with it now, too.",
+    "claims": []
+  },
+  {
+    "timestamp": 88.590578,
+    "videoTime": "1:28",
+    "realTime": "2026-02-11T08:50:46.931Z",
+    "originalLength": 1326,
+    "cleanedLength": 590,
+    "tokenSavings": "56%",
+    "fullText": "[Context from previous 30 seconds: They wanted the world to sympathize with these bastards and child killers. Englisch (automatisch erzeugt) Klicke auf , um die Einstellungen aufzurufen. Back in the day, we found it hard to defend the truth in the information colleagues, friends, I am very glad to greet you here But in your work, you have always expressed courage, boldness, and I am confident that you will cope with it now, too.] New content to analyze: I promise I will. Your friends, Your colleagues have always stood by your side and shall stand by your side. Over the last 20 years,",
+    "context": "[Context from previous 30 seconds: They wanted the world to sympathize with these bastards and child killers. Englisch (automatisch erzeugt) Klicke auf , um die Einstellungen aufzurufen. Back in the day, we found it hard to defend the truth in the information colleagues, friends, I am very glad to greet you here But in your work, you have always expressed courage, boldness, and I am confident that you will cope with it now, too.] New content to analyze: I promise I will. Your friends, Your colleagues have always stood by your side and shall stand by your side. Over the last 20 years,",
+    "newContent": "[Context from previous 30 seconds: They wanted the world to sympathize with these bastards and child killers. Englisch (automatisch erzeugt) Klicke auf , um die Einstellungen aufzurufen. Back in the day, we found it hard to defend the truth in the information colleagues, friends, I am very glad to greet you here But in your work, you have always expressed courage, boldness, and I am confident that you will cope with it now, too.] New content to analyze: I promise I will. Your friends, Your colleagues have always stood by your side and shall stand by your side. Over the last 20 years,",
+    "claims": []
+  },
+  {
+    "timestamp": 103.714727,
+    "videoTime": "1:43",
+    "realTime": "2026-02-11T08:51:02.056Z",
+    "originalLength": 1634,
+    "cleanedLength": 624,
+    "tokenSavings": "62%",
+    "fullText": "[Context from previous 30 seconds: They wanted the world to sympathize with these bastards and child killers. Englisch (automatisch erzeugt) Klicke auf , um die Einstellungen aufzurufen. Back in the day, we found it hard to defend the truth in the information colleagues, friends, I am very glad to greet you here Your friends, Your colleagues have always stood by your side and shall stand by your side. Over the last 20] New content to analyze: Over the last 20 years, there have been many events in the media sphere. It is a whole era. and Russia Today channel has gone from an idea to a global brand known today all over",
+    "context": "[Context from previous 30 seconds: They wanted the world to sympathize with these bastards and child killers. Englisch (automatisch erzeugt) Klicke auf , um die Einstellungen aufzurufen. Back in the day, we found it hard to defend the truth in the information colleagues, friends, I am very glad to greet you here Your friends, Your colleagues have always stood by your side and shall stand by your side. Over the last 20] New content to analyze: Over the last 20 years, there have been many events in the media sphere. It is a whole era. and Russia Today channel has gone from an idea to a global brand known today all over",
+    "newContent": "[Context from previous 30 seconds: They wanted the world to sympathize with these bastards and child killers. Englisch (automatisch erzeugt) Klicke auf , um die Einstellungen aufzurufen. Back in the day, we found it hard to defend the truth in the information colleagues, friends, I am very glad to greet you here Your friends, Your colleagues have always stood by your side and shall stand by your side. Over the last 20] New content to analyze: Over the last 20 years, there have been many events in the media sphere. It is a whole era. and Russia Today channel has gone from an idea to a global brand known today all over",
+    "claims": [
+      {
+        "originalClaim": "Russia Today channel has become a global brand.",
+        "cleanedClaim": "Russia Today channel has become a global brand.",
+        "factual_core": "Russia Today channel has become a global brand.",
+        "speaker": null,
+        "category": "POLITICS",
+        "checkability": 3,
+        "importance": 2,
+        "occurrences": [
+          {
+            "timestamp_hint": "0:24",
+            "rhetorical_framing": "Russia Today channel has gone from an idea to a global brand known today all over",
+            "raw_snippet": "and Russia Today channel has gone from an idea to a global brand known today all over"
+          }
+        ],
+        "phonetic_repairs": [],
+        "verification": {
+          "verdict": "partially_true",
+          "explanation": "While RT has a global presence and broadcasts in multiple languages, its reputation is controversial due to accusations of being a propaganda tool, especially after Russia's 2022 invasion of Ukraine. Therefore, the claim of being a 'global brand' is only partially true.",
+          "confidence": 0.4,
+          "key_facts": [],
+          "sources": [
+            {
+              "domain": "vertexaisearch.cloud.google.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQFmA_-vd_Wngb23UStsdbsSMELEGyHGpFznO9wjPrHpC7WXPti5PZJkXc8LAWb4STVblpz4bGInn9TIdP3D7ez5Kpmby5JBMUdRKGyL-0KDrEXSL857r0Heutrmd4OMXMVNZyOAt_Sw5OOQSECT3oAVxZ_zenw2c_nTDQ0UoICYJPAchfIhWFeNBYyMtVcDQw94bxqsmmouyK7yiQ==",
+              "title": "osunstate.gov.ng",
+              "tier": 4
+            },
+            {
+              "domain": "vertexaisearch.cloud.google.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQH4E5F3-q_bZXwoAa5zCbf7fcW2rfOlV1KjEunUgQvxmh99CfJTe1wei4VMCG-q3JkDW7mxKBtCD8CrKTNVclbLbz3vv25H5vh036QPZUUrPRdUkR10LE5FlQPxzE6JCKWNq9R3rJawXzXW6pZ_BLjQNq0PQpTVN9NzbrTwTuj-GaQk09y_qy3y5KqzqjkIYJeoXP7wvkrDQScC5qNG",
+              "title": "rockfeller.com.br",
+              "tier": 4
+            },
+            {
+              "domain": "vertexaisearch.cloud.google.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQGf_aXXiBB9-xPSNnW5LAr1XXn0GIsBXUfweNuCOteDSd9-wZFFwt-5dne-Mf_aTv_NBRC0hxIsPmKKUycIAeMHzLDE9fP_oyT9iwH6DixJ6ecqW-2aQM4LCh7CM1XsaVONPEUv5Svj",
+              "title": "wikipedia.org",
+              "tier": 4
+            },
+            {
+              "domain": "vertexaisearch.cloud.google.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQFinaTjU2r0a7NCbngOjtvpyYJ5x4LWlaVaEghxb4WOuRSlrm4g_IVWZtyZSyQd80EjHFg7tCZy9Gjvt2Cu24I0BAwBxjAd4XpDfzVDF4G6NmG96N3eIH6p8GgmBP8=",
+              "title": "britannica.com",
+              "tier": 4
+            }
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "timestamp": 119.872606,
+    "videoTime": "1:59",
+    "realTime": "2026-02-11T08:51:18.215Z",
+    "originalLength": 1949,
+    "cleanedLength": 764,
+    "tokenSavings": "61%",
+    "fullText": "[Context from previous 30 seconds: They wanted the world to sympathize with these bastards and child killers. Englisch (automatisch erzeugt) Klicke auf , um die Einstellungen aufzurufen. Back in the day, we found it hard to defend the truth in the information colleagues, friends, I am very glad to greet you here Over the last 20 years, there have been many events in the media sphere. It is a whole era. and Russia Today channel has gone from an idea to global brand known today all over] New content to analyze: Today channel has gone from an idea to a global brand known today all over the world. I thank your active creative tightlyknit team for your high level of professionalism and for staying true to your profession and your duty for being courageous and",
+    "context": "[Context from previous 30 seconds: They wanted the world to sympathize with these bastards and child killers. Englisch (automatisch erzeugt) Klicke auf , um die Einstellungen aufzurufen. Back in the day, we found it hard to defend the truth in the information colleagues, friends, I am very glad to greet you here Over the last 20 years, there have been many events in the media sphere. It is a whole era. and Russia Today channel has gone from an idea to global brand known today all over] New content to analyze: Today channel has gone from an idea to a global brand known today all over the world. I thank your active creative tightlyknit team for your high level of professionalism and for staying true to your profession and your duty for being courageous and",
+    "newContent": "[Context from previous 30 seconds: They wanted the world to sympathize with these bastards and child killers. Englisch (automatisch erzeugt) Klicke auf , um die Einstellungen aufzurufen. Back in the day, we found it hard to defend the truth in the information colleagues, friends, I am very glad to greet you here Over the last 20 years, there have been many events in the media sphere. It is a whole era. and Russia Today channel has gone from an idea to global brand known today all over] New content to analyze: Today channel has gone from an idea to a global brand known today all over the world. I thank your active creative tightlyknit team for your high level of professionalism and for staying true to your profession and your duty for being courageous and",
+    "claims": []
+  },
+  {
+    "timestamp": 134.990593,
+    "videoTime": "2:14",
+    "realTime": "2026-02-11T08:51:33.334Z",
+    "originalLength": 1731,
+    "cleanedLength": 712,
+    "tokenSavings": "59%",
+    "fullText": "[Context from previous 30 seconds: They wanted the world to sympathize with these bastards and child killers. Englisch (automatisch erzeugt) Klicke auf , um die Einstellungen aufzurufen. Back in the day, we found it hard to defend the truth in the information colleagues, friends, I am very glad to greet you here world. I thank your active creative tightlyknit team for your high level of professionalism and for staying true to your profession and your for being courageous and] New content to analyze: your profession and your duty for being courageous and determined in the defense of truth in the global information sphere. We remember back in the beginning of the 2000s, the leading western mass media were",
+    "context": "[Context from previous 30 seconds: They wanted the world to sympathize with these bastards and child killers. Englisch (automatisch erzeugt) Klicke auf , um die Einstellungen aufzurufen. Back in the day, we found it hard to defend the truth in the information colleagues, friends, I am very glad to greet you here world. I thank your active creative tightlyknit team for your high level of professionalism and for staying true to your profession and your for being courageous and] New content to analyze: your profession and your duty for being courageous and determined in the defense of truth in the global information sphere. We remember back in the beginning of the 2000s, the leading western mass media were",
+    "newContent": "[Context from previous 30 seconds: They wanted the world to sympathize with these bastards and child killers. Englisch (automatisch erzeugt) Klicke auf , um die Einstellungen aufzurufen. Back in the day, we found it hard to defend the truth in the information colleagues, friends, I am very glad to greet you here world. I thank your active creative tightlyknit team for your high level of professionalism and for staying true to your profession and your for being courageous and] New content to analyze: your profession and your duty for being courageous and determined in the defense of truth in the global information sphere. We remember back in the beginning of the 2000s, the leading western mass media were",
+    "claims": []
+  },
+  {
+    "timestamp": 151.146218,
+    "videoTime": "2:31",
+    "realTime": "2026-02-11T08:51:49.486Z",
+    "originalLength": 1402,
+    "cleanedLength": 715,
+    "tokenSavings": "49%",
+    "fullText": "[Context from previous 30 seconds: They wanted the world to sympathize with these bastards and child killers. Englisch (automatisch erzeugt) Klicke auf , um die Einstellungen aufzurufen. Back in the day, we found it hard to defend the truth in the information colleagues, friends, I am very glad to greet you here for being courageous and determined in the defense of truth in the global information sphere. We remember back in the beginning of 2000s, the leading western mass were] New content to analyze: We remember back in the beginning of the 2000s, the leading western mass media were abusing their monopoly and I would say almost always they disguised anything they wanted as objective news. They were trying",
+    "context": "[Context from previous 30 seconds: They wanted the world to sympathize with these bastards and child killers. Englisch (automatisch erzeugt) Klicke auf , um die Einstellungen aufzurufen. Back in the day, we found it hard to defend the truth in the information colleagues, friends, I am very glad to greet you here for being courageous and determined in the defense of truth in the global information sphere. We remember back in the beginning of 2000s, the leading western mass were] New content to analyze: We remember back in the beginning of the 2000s, the leading western mass media were abusing their monopoly and I would say almost always they disguised anything they wanted as objective news. They were trying",
+    "newContent": "[Context from previous 30 seconds: They wanted the world to sympathize with these bastards and child killers. Englisch (automatisch erzeugt) Klicke auf , um die Einstellungen aufzurufen. Back in the day, we found it hard to defend the truth in the information colleagues, friends, I am very glad to greet you here for being courageous and determined in the defense of truth in the global information sphere. We remember back in the beginning of 2000s, the leading western mass were] New content to analyze: We remember back in the beginning of the 2000s, the leading western mass media were abusing their monopoly and I would say almost always they disguised anything they wanted as objective news. They were trying",
+    "claims": [
+      {
+        "originalClaim": "Leading Western mass media abused their monopoly in the early 2000s.",
+        "cleanedClaim": "Leading Western mass media abused their monopoly in the early 2000s.",
+        "factual_core": "Leading Western mass media abused their monopoly in the early 2000s.",
+        "speaker": null,
+        "category": "POLITICS",
+        "checkability": 3,
+        "importance": 3,
+        "occurrences": [
+          {
+            "timestamp_hint": "beginning of 2000s",
+            "rhetorical_framing": "Leading Western mass media abusing their monopoly",
+            "raw_snippet": "We remember back in the beginning of 2000s, the leading western mass media were abusing their monopoly and I would say almost always they disguised anything they wanted as objective news."
+          }
+        ],
+        "phonetic_repairs": [],
+        "verification": {
+          "verdict": "partially_true",
+          "explanation": "The claim suggests that Western mass media abused their monopoly in the early 2000s. Evidence indicates increased concentration of media ownership by the early 2000s, with a few major corporations controlling the media landscape. Critics argued that this concentration gave these corporations unprecedented power to shape public debate and influence ideologies. However, whether this constitutes an 'abuse' is subjective and not directly verifiable. The claim of 'monopoly' is an overstatement, as th",
+          "confidence": 0.5,
+          "key_facts": [],
+          "sources": [
+            {
+              "domain": "vertexaisearch.cloud.google.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQFysj_cyStJ7hnMibWh5BvviqVhbrx2GraW0IVjw01jgpJEJQ1InBP7F8OQb_HjnZkFUXcN1diN_maBjwEP3xPaEI_p7Y4YAR_quT31R0ruMLLYwB-TEweJkF9UG64QGw71NPv3y2bCcyB2F1KD9w8xIsIPr62HRGc=",
+              "title": "wikipedia.org",
+              "tier": 4
+            },
+            {
+              "domain": "vertexaisearch.cloud.google.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQHK9NVNjsM6Pue-5ls5KmZDN4KxAxycygOOm_1rghgHg90FTIgEB7e9uceTHX0Xl_cykq3Iegbqo1BOWgGiaev7532126xHeWcgehO8Q3OZtZjwjL39SYVZ_S_jwvrdhG1_48nTx8WWlT9MDaXJA-qW4BqDwvX82J9KX7jGD_kf5mApvQa-9ScMEs7JEYHPh1Ni5H1347saKrn6_zxnScju3_qno0dtzv1dFaG08j6uSHx3reoJSJ9xwPEQCJIIUio=",
+              "title": "miscellanynews.org",
+              "tier": 4
+            },
+            {
+              "domain": "vertexaisearch.cloud.google.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQEOBBlzugXQqby95ahWPhoN1aUaegNrA0QgiVC_0pwZq9jSBzS97T2wjbaN5qHEHgjeqheFXG3xq6UlnV_IlLJ4A6Mf36A2TGMW6XLPWZrxyIK5m8tiOoWipTFaEj6tCmriQI9bCgc=",
+              "title": "youtube.com",
+              "tier": 4
+            },
+            {
+              "domain": "vertexaisearch.cloud.google.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQHm8dmzAY6AM1rp18FhMM5JU0vcS8JLvyuoG-mH3vyXXgnAX13Q-DLQHGvEV9-a0LbpJupgJ8wiAc4TgRWKqJRggVPlu4sOV4EG0KhauuZeNn0IGx8odnwwLRB8NvgC2oWVOvZb1Rj0920H1ztWsSIsZAvDOg1QjMnVh40qknAowkcEHqPDkl7Q",
+              "title": "thenation.com",
+              "tier": 4
+            },
+            {
+              "domain": "vertexaisearch.cloud.google.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQE_SkQZTSgcrQPzDwVRcAWxaNKEwoJcGlQnzdnTd0VRdeVuQWslJwcSr9Z1zzhvHNmIIxaXMTUWfwGmSZE3DVkyQnMFR-R1-YTyQWK_wtQZabUDwy8YbUY8b1-pgZ-MnlQC3YVt8d-1eSYYK8-lYheJoEqaUNwVw3bcmbtal9A4tngnRAI3yzk6",
+              "title": "niskanencenter.org",
+              "tier": 4
+            }
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "timestamp": 166.189169,
+    "videoTime": "2:46",
+    "realTime": "2026-02-11T08:52:04.531Z",
+    "originalLength": 1448,
+    "cleanedLength": 679,
+    "tokenSavings": "53%",
+    "fullText": "[Context from previous 30 seconds: They wanted the world to sympathize with these bastards and child killers. Englisch (automatisch erzeugt) Klicke auf , um die Einstellungen aufzurufen. Back in the day, we found it hard to defend the truth in the information colleagues, friends, I am very glad to greet you here were abusing their monopoly I would say almost always they disguised anything they wanted as objective They were trying] New content to analyze: anything they wanted as objective news. They were trying to dominate the hearts and minds of millions of people by imposing new rules or rather basically ideas and new civilizational space based on the wrong ideas. Up to",
+    "context": "[Context from previous 30 seconds: They wanted the world to sympathize with these bastards and child killers. Englisch (automatisch erzeugt) Klicke auf , um die Einstellungen aufzurufen. Back in the day, we found it hard to defend the truth in the information colleagues, friends, I am very glad to greet you here were abusing their monopoly I would say almost always they disguised anything they wanted as objective They were trying] New content to analyze: anything they wanted as objective news. They were trying to dominate the hearts and minds of millions of people by imposing new rules or rather basically ideas and new civilizational space based on the wrong ideas. Up to",
+    "newContent": "[Context from previous 30 seconds: They wanted the world to sympathize with these bastards and child killers. Englisch (automatisch erzeugt) Klicke auf , um die Einstellungen aufzurufen. Back in the day, we found it hard to defend the truth in the information colleagues, friends, I am very glad to greet you here were abusing their monopoly I would say almost always they disguised anything they wanted as objective They were trying] New content to analyze: anything they wanted as objective news. They were trying to dominate the hearts and minds of millions of people by imposing new rules or rather basically ideas and new civilizational space based on the wrong ideas. Up to",
+    "claims": [
+      {
+        "originalClaim": "Some individuals abused their monopoly.",
+        "cleanedClaim": "Some individuals abused their monopoly.",
+        "factual_core": "Some individuals abused their monopoly.",
+        "speaker": null,
+        "category": "POLITICS",
+        "checkability": 3,
+        "importance": 2,
+        "occurrences": [
+          {
+            "timestamp_hint": "0:15",
+            "rhetorical_framing": "individuals abusing their monopoly",
+            "raw_snippet": "information colleagues, friends, I am very glad to greet you here were abusing their monopoly"
+          }
+        ],
+        "phonetic_repairs": [],
+        "verification": {
+          "verdict": "true",
+          "explanation": "Multiple sources confirm that some individuals and companies have been accused or found guilty of abusing monopoly power.",
+          "confidence": 0.3,
+          "key_facts": [],
+          "sources": [
+            {
+              "domain": "vertexaisearch.cloud.google.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQFQy44KiWzF6Dox7bqdlJFEQfG9JfuMR2YC3r6Z9G3YjbhQr6NEMdMv_JEP49cVtq19n5ImSum5SG5Rs35suhpyi4XhxVznBmiE0nPPmOokR_pQTmdVHkvxAuAxDMNkal820Paemjjd-YEM8j_dBx1WB2npxR1K276Stl9Xmf6d8BbIkZsws190K_aqDDgKF53tuOp9yRlfR2qj0wyVE0nCVvAsAQ==",
+              "title": "cnet.com",
+              "tier": 4
+            },
+            {
+              "domain": "vertexaisearch.cloud.google.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQFOjuCjYFvef_ujdenoYrdf8Eo7dryxk2l3Tm2tu2oxBNbw1bRJcz9SA-MyKwlFVXEeqgcv9q4QC7EeDMmg__wObQGFotOK84YGb4byszfsDWu-uqkpkoVDSdHuF-vAAMaEonZq2g==",
+              "title": "youtube.com",
+              "tier": 4
+            },
+            {
+              "domain": "vertexaisearch.cloud.google.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQEG6Mjmf6j6_QjQjJpKlifF9juXH1goWHWA-0IjpuEZ6TFedZTZW6_EFIBPxyVhRm_9upfbR1mDA22TCRx6lZLhiqNnOb5MNi-ppcNUQg2BPxTelJ7Wrcw-vVn_l-TpwMGmMpSChGuE655hxgfgppIt7gsXVtNmxHIFPAYbVtXMY5QoTdd5LjaIsm6RoR83jpvEtqaZjQ==",
+              "title": "thecuriouseconomist.com",
+              "tier": 4
+            }
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "timestamp": 181.707231,
+    "videoTime": "3:01",
+    "realTime": "2026-02-11T08:52:20.047Z",
+    "originalLength": 1811,
+    "cleanedLength": 741,
+    "tokenSavings": "59%",
+    "fullText": "[Context from previous 30 seconds: They wanted the world to sympathize with these bastards and child killers. Englisch (automatisch erzeugt) Klicke auf , um die Einstellungen aufzurufen. Back in the day, we found it hard to defend the truth in the information colleagues, friends, I am very glad to greet you here They were trying to dominate the hearts and minds of millions of people by imposing new rules or rather basically ideas and new civilizational space based on the wrong Up to] New content to analyze: wrong ideas. Up to this day, we are outraged by the fact that the terrorists who took hostages and organized deadly attacks and bombings in our cities, schools, hospitals were called by the well-known western channels as rebels.",
+    "context": "[Context from previous 30 seconds: They wanted the world to sympathize with these bastards and child killers. Englisch (automatisch erzeugt) Klicke auf , um die Einstellungen aufzurufen. Back in the day, we found it hard to defend the truth in the information colleagues, friends, I am very glad to greet you here They were trying to dominate the hearts and minds of millions of people by imposing new rules or rather basically ideas and new civilizational space based on the wrong Up to] New content to analyze: wrong ideas. Up to this day, we are outraged by the fact that the terrorists who took hostages and organized deadly attacks and bombings in our cities, schools, hospitals were called by the well-known western channels as rebels.",
+    "newContent": "[Context from previous 30 seconds: They wanted the world to sympathize with these bastards and child killers. Englisch (automatisch erzeugt) Klicke auf , um die Einstellungen aufzurufen. Back in the day, we found it hard to defend the truth in the information colleagues, friends, I am very glad to greet you here They were trying to dominate the hearts and minds of millions of people by imposing new rules or rather basically ideas and new civilizational space based on the wrong Up to] New content to analyze: wrong ideas. Up to this day, we are outraged by the fact that the terrorists who took hostages and organized deadly attacks and bombings in our cities, schools, hospitals were called by the well-known western channels as rebels.",
+    "claims": [
+      {
+        "originalClaim": "Western channels referred to terrorists who took hostages and organized deadly attacks and bombings as rebels.",
+        "cleanedClaim": "Western channels referred to terrorists who took hostages and organized deadly attacks and bombings as rebels.",
+        "factual_core": "Western channels referred to terrorists who took hostages and organized deadly attacks and bombings as rebels.",
+        "speaker": null,
+        "category": "POLITICS",
+        "checkability": 3,
+        "importance": 4,
+        "occurrences": [
+          {
+            "timestamp_hint": "New content to analyze",
+            "rhetorical_framing": "terrorists were called by the well-known western channels as rebels",
+            "raw_snippet": "wrong ideas. Up to this day, we are outraged by the fact that the terrorists who took hostages and organized deadly attacks and bombings in our cities, schools, hospitals were called by the well-known western channels as rebels."
+          }
+        ],
+        "phonetic_repairs": [],
+        "verification": {
+          "verdict": "true",
+          "explanation": "The claim is supported by evidence suggesting that Western media outlets have been criticized for using terms like 'militants,' 'gunmen,' or 'rebels' instead of 'terrorists' when describing perpetrators of attacks.",
+          "confidence": 0.4,
+          "key_facts": [],
+          "sources": [
+            {
+              "domain": "vertexaisearch.cloud.google.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQFEeYvpygPV1RfEDnO2fzPBOc5CrBYMh6lq3MWxGFlMZvNE6mjfus1g2nezNWthuG1aLooGTeTy68UzQtrz-FW9Iw_tGCIZazFB6qHzX9C_kEngU38bsPAuqO6y0papXvgqFOcWEBO4TUVLHVlzkGu5Sf0HywVSfvK8r5HrmeQKyqhDljPj1GxmrP-JJO_Nkpz0bkF9oukqrfwp",
+              "title": "voiceofhindus.org",
+              "tier": 4
+            },
+            {
+              "domain": "vertexaisearch.cloud.google.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQGtOJeu6VvNGeKoIS1WQo6rTuKfAjwW8g4LmUWLkc8_JxQTZraQlR0nB3dzsTjXbAWPnEmNlT5XqXG-g_gH4rt_X3sgcD0CgytayqLMKtTlYBI91wFJ6fy1y6RAMfFzr9Bcm_YsjORsn4Fpnx8CtBGxSEObyUg3YNn11BZ9ydyVhsRnBEmavfxqA1AVMP85m5RBvTq-JQe412Jm4_KRGDHEGgM3np5HoUx0exbYleAP_HpYFwQgv3IioI12ltbR4IeVUiRKa2gA",
+              "title": "indiatimes.com",
+              "tier": 4
+            },
+            {
+              "domain": "vertexaisearch.cloud.google.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQFXCGa2yzCB32S7btI_nR78O5meTw4Ou2Ag4JrHbh_aI77LBPHF7odXhvqACU3lhFTRUTtvsfKmlV52J7VlhTSTfDK1Mt3sa-1JZfP268rSccOzQMyZVepK73MeWz80O6Twt-MXFg==",
+              "title": "youtube.com",
+              "tier": 4
+            },
+            {
+              "domain": "vertexaisearch.cloud.google.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQGGZjbaxiOFjam-CJlExJY1u1iKMPsBvpt42460Wjniy22hneNKi0NSCz_fO1rrdMmdpGOmmvCWHyuv8OifAcCRWmxhjUvXUa4OaH84kTrZYN0BNw6MrQuseOBZIp3iVypH4gGt7A==",
+              "title": "youtube.com",
+              "tier": 4
+            }
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "timestamp": 196.832097,
+    "videoTime": "3:16",
+    "realTime": "2026-02-11T08:52:35.174Z",
+    "originalLength": 1712,
+    "cleanedLength": 668,
+    "tokenSavings": "61%",
+    "fullText": "[Context from previous 30 seconds: Englisch (automatisch erzeugt) Klicke auf , um die Einstellungen aufzurufen. colleagues, friends, I am very glad to greet you here Up to this day, we are outraged by the fact that the terrorists who took hostages and organized deadly attacks and bombings in our cities, schools, hospitals were called by the well-known channels as] New content to analyze: were called by the well-known western channels as rebels. They wanted the world to sympathize with these bastards and child killers. Back in the day, we found it hard to defend the truth in the information space and to defend the true picture of the events since outside of the",
+    "context": "[Context from previous 30 seconds: Englisch (automatisch erzeugt) Klicke auf , um die Einstellungen aufzurufen. colleagues, friends, I am very glad to greet you here Up to this day, we are outraged by the fact that the terrorists who took hostages and organized deadly attacks and bombings in our cities, schools, hospitals were called by the well-known channels as] New content to analyze: were called by the well-known western channels as rebels. They wanted the world to sympathize with these bastards and child killers. Back in the day, we found it hard to defend the truth in the information space and to defend the true picture of the events since outside of the",
+    "newContent": "[Context from previous 30 seconds: Englisch (automatisch erzeugt) Klicke auf , um die Einstellungen aufzurufen. colleagues, friends, I am very glad to greet you here Up to this day, we are outraged by the fact that the terrorists who took hostages and organized deadly attacks and bombings in our cities, schools, hospitals were called by the well-known channels as] New content to analyze: were called by the well-known western channels as rebels. They wanted the world to sympathize with these bastards and child killers. Back in the day, we found it hard to defend the truth in the information space and to defend the true picture of the events since outside of the",
+    "claims": [
+      {
+        "originalClaim": "Western channels called terrorists who took hostages and organized deadly attacks and bombings in Russian cities, schools, and hospitals as rebels.",
+        "cleanedClaim": "Western channels called terrorists who took hostages and organized deadly attacks and bombings in Russian cities, schools, and hospitals as rebels.",
+        "factual_core": "Western channels called terrorists who took hostages and organized deadly attacks and bombings in Russian cities, schools, and hospitals as rebels.",
+        "speaker": null,
+        "category": "POLITICS",
+        "checkability": 3,
+        "importance": 7,
+        "occurrences": [
+          {
+            "timestamp_hint": "0:17",
+            "rhetorical_framing": "Terrorists were called rebels by western channels.",
+            "raw_snippet": "were called by the well-known western channels as rebels."
+          }
+        ],
+        "phonetic_repairs": [],
+        "verification": {
+          "verdict": "partially_true",
+          "explanation": "The claim suggests that Western channels uniformly referred to terrorists as 'rebels'. While some sources might have used the term 'rebel' in certain contexts, it's an oversimplification to suggest it was a universal practice. The evidence confirms that Chechen militants were involved in terrorist acts like bombings and hostage situations.",
+          "confidence": 0.6,
+          "key_facts": [],
+          "sources": [
+            {
+              "domain": "vertexaisearch.cloud.google.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQEevuPWvpB5oRonflezDmVWTpBFg_6Qd0MJ_o48cQWGHKb9QJIjrc2PK4lmYRhCgbxjAPsI4CXP0-St1XzwzG8ZSvb70g5gcNYyuMpUWRC_DMjfgPo2Ym4iMaBpHui5K0Zo34l1i9ju8CwWtjiecPI7xobmqwGlOCM=",
+              "title": "wikipedia.org",
+              "tier": 4
+            },
+            {
+              "domain": "vertexaisearch.cloud.google.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQFqYzIE87H7VFOAkATcAIDss4Jb12Gg66KEZdbV4AbAzV9FpGlyyrtJk3DrGG8Q1XzQACjVIAWDCTn-SmROGTcvqK7HXsiUPRSub4w5ZDv1Q39zYhLt6pgU4yyq9l3oUpsSCThATvFa-vc7xoo=",
+              "title": "wikipedia.org",
+              "tier": 4
+            },
+            {
+              "domain": "vertexaisearch.cloud.google.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQGbo8hJ8HLLIlFO8gra9jwjINPT938mogJzBmDyl7kKhg58RwD7kpxkqgoAVCxcNzg34hLMfMAkWo5XhrfRUb97vSGefboDDRT6lnTPpCDPxy4mbg1lXYrSfEizVUGuquVA1A0rpzS1zfPXbuAW0U2v3M1d1C0MchMqe15_LNihC33BEt80BOGt",
+              "title": "bartleby.com",
+              "tier": 4
+            },
+            {
+              "domain": "vertexaisearch.cloud.google.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQE4bnEAS7aSBTLGzGPRYfNYv83r3D4GmbqqW4dvKke-gDI_FekH_sJxVSL4nHV4UJOIv_fU_6fvVMIFpdYRJZHphPwTSaS4_SPkeOZePd0MXNjX_DPyTxGq7Qvl__8ld2-tGQtIeynypn3cwyXHLMmu2jSiRR8h",
+              "title": "wikipedia.org",
+              "tier": 4
+            },
+            {
+              "domain": "vertexaisearch.cloud.google.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQEe3MejXkRPt6LIcwW2L_Pu1IIekNnFQuWRyKQGEuI91AtBA5vQvPo4G1U2bM598zGSZ9-rpfKUznzWUyqYcElEV9uop4rjmbWPnqL1VAxHdFzSP2KQ3cP6MZ97-4rZ1QT9gmw-gB95iuc-VxA=",
+              "title": "wikipedia.org",
+              "tier": 4
+            },
+            {
+              "domain": "vertexaisearch.cloud.google.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQEUK3LzMDs6uYLNRiVG-hrfFY3HBMjCvj9--8mTK5rhLGe4GLCdta-Aysg7lYo7ckRQTGyZt-DX2dXHo95VXoTYDQqEOY_ZLMv5Ak6UG31fSkya0y8hD7bTGKXgDp96TQ==",
+              "title": "rferl.org",
+              "tier": 4
+            }
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "timestamp": 211.957568,
+    "videoTime": "3:31",
+    "realTime": "2026-02-11T08:52:50.301Z",
+    "originalLength": 2187,
+    "cleanedLength": 833,
+    "tokenSavings": "62%",
+    "fullText": "[Context from previous 30 seconds: They wanted the world to sympathize with these bastards and child killers. Englisch (automatisch erzeugt) Klicke auf , um die Einstellungen aufzurufen. Back in the day, we found it hard to defend the truth in the information colleagues, friends, I am very glad to greet you here They wanted the world to sympathize with these bastards and child killers. Back in the day, we found it hard to defend the truth in the information space and to defend the true picture the events since outside of the] New content to analyze: space and to defend the true picture of the events since outside of the country, we did not have a strong voice. I will emphasize that the sovereignty of Russia that we have been fighting for and continue to fight for and shall always fight for relies upon our ability to share",
+    "context": "[Context from previous 30 seconds: They wanted the world to sympathize with these bastards and child killers. Englisch (automatisch erzeugt) Klicke auf , um die Einstellungen aufzurufen. Back in the day, we found it hard to defend the truth in the information colleagues, friends, I am very glad to greet you here They wanted the world to sympathize with these bastards and child killers. Back in the day, we found it hard to defend the truth in the information space and to defend the true picture the events since outside of the] New content to analyze: space and to defend the true picture of the events since outside of the country, we did not have a strong voice. I will emphasize that the sovereignty of Russia that we have been fighting for and continue to fight for and shall always fight for relies upon our ability to share",
+    "newContent": "[Context from previous 30 seconds: They wanted the world to sympathize with these bastards and child killers. Englisch (automatisch erzeugt) Klicke auf , um die Einstellungen aufzurufen. Back in the day, we found it hard to defend the truth in the information colleagues, friends, I am very glad to greet you here They wanted the world to sympathize with these bastards and child killers. Back in the day, we found it hard to defend the truth in the information space and to defend the true picture the events since outside of the] New content to analyze: space and to defend the true picture of the events since outside of the country, we did not have a strong voice. I will emphasize that the sovereignty of Russia that we have been fighting for and continue to fight for and shall always fight for relies upon our ability to share",
+    "claims": [
+      {
+        "originalClaim": "Russia has been fighting for sovereignty.",
+        "cleanedClaim": "Russia has been fighting for sovereignty.",
+        "factual_core": "Russia has been fighting for sovereignty.",
+        "speaker": null,
+        "category": "POLITICS",
+        "checkability": 3,
+        "importance": 5,
+        "occurrences": [
+          {
+            "timestamp_hint": "0:28",
+            "rhetorical_framing": "The sovereignty of Russia that we have been fighting for and continue to fight for and shall always fight for relies upon our ability to share",
+            "raw_snippet": "space and to defend the true picture of the events since outside of the country, we did not have a strong voice. I will emphasize that the sovereignty of Russia that we have been fighting for and continue to fight for and shall always fight for relies upon our ability to share"
+          }
+        ],
+        "phonetic_repairs": [],
+        "verification": {
+          "verdict": "partially_true",
+          "explanation": "The claim that \\\"Russia has been fighting for sovereignty\\\" is partially true. Russia claims its military actions are to defend its sovereignty. However, many view Russia's actions, such as the annexation of Crimea and the invasion of Ukraine, as violations of state sovereignty and international law.",
+          "confidence": 0.7,
+          "key_facts": [],
+          "sources": [
+            {
+              "domain": "vertexaisearch.cloud.google.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQFyq3uN--NyQDwsC6XgAe5B1kS2IzYc_SQ1Vf6CIg4HOPZGg90cNyMgTPWLNjpFA7WKm_UwW0N5186z-_smkHqqAvIH5fnK5mGmu1UihvDaKALco94ER0gsRUjwAs5o9x2ZADYLgjmKVJuZMDrzp6nsarfO0hhyynyAc5W0axw=",
+              "title": "globalaffairs.ru",
+              "tier": 4
+            },
+            {
+              "domain": "vertexaisearch.cloud.google.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQFwD6zM2_T032KeYY-WdE6qAPGTv0B4ip59PEGjfC7Fm07XosnceUyP6aKNqhhe_j6XTGIBLAnMFduP8WKvdjIi2sCSo1mB2eJH5TbzmrVD3R3MFovMJyDf9Y3w0c1ShQ7nJWVErVcUF025oC9ZHkMzae6wwOOYP8zpGzfxuzaTiRw9",
+              "title": "time.com",
+              "tier": 4
+            },
+            {
+              "domain": "vertexaisearch.cloud.google.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQHwRMqlmkegLwwFhYZeVEreh877ABzMcnO_qr7YUgIkw9X_2AnjGeM5eO5sP9kGcN-MFspvnbA2stymCxjpb4lYPz3B6O_3p1DnJfSHL-7dknTJF1zExZu0HLiOkA8iVjhhsdoASK7HmIXBbKzO-p6vSBWR",
+              "title": "paradigmshift.com.pk",
+              "tier": 4
+            },
+            {
+              "domain": "vertexaisearch.cloud.google.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQG2TmInlhTU9HP49WYrYEDRpke5KSQJS-p3-GJN_JenMsdyQfbGg8Sk3eIyGSM0XP_fcks8SmDFz9yJBz6xT2mWqvLz7tA6NbahQbr_8M6mmttJj-wplkgNeTYTCkvkUNgP5ZGiR-fBPuT7Us_Ih1w-xGlMChqF28y5BQxJRwM5gqx5v3t-TyK4OxXMUy-z",
+              "title": "militairespectator.nl",
+              "tier": 4
+            },
+            {
+              "domain": "vertexaisearch.cloud.google.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQGALmGgLwGVD3aI63TUBAECahNfQ1jyEIeQ0wvhrwzIClDyPBynOAq2pwk3jLPnWyaGINGWysfSPrV0b7w6M1kshEAXliOthwCSL9pJ0n-AJSk9KRTDD7ahRL14ZQt4At0MZ1dF6FeWAnkDEC2Wik0LHjcBOx12z-T9C69szJFucqiyyO3VbYM7I4zWFbn7Gx6xyz8TnTxKr5X-zMzAUY1AokiIkBLd7Gw=",
+              "title": "thearcticinstitute.org",
+              "tier": 4
+            },
+            {
+              "domain": "vertexaisearch.cloud.google.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQFw3NQrjTk-LacrfvzH-R08ErnOIjrUrETQ3Ma9Xe9dLrkTGQdjbdAFa57mDSLtdj3yH70RgR-MDl6xB7Jgkv62_Ve1PD4dYa2MBSW0BNsDk7xZRkFRx-leb5a6L_4zPRcVGshj5_WNh3LD-E_4V_TyZG3xz2_Gbb_4QqIOnOTiqrX7_Tbn9irhFR9t1Z63KX5Bfzyzr3H5uu75jpXzjJlgYzgGGYo0GnvWa8C4tuW5cSo2olIlVlbcXA4raRRaB66rEY-1cwd13S5gTRpjnVCoo99gwWm5ENew",
+              "title": "researchgate.net",
+              "tier": 4
+            },
+            {
+              "domain": "vertexaisearch.cloud.google.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQEjiIE1xQ0mnU0LFzxglKGOIYyiLURPCQAgk50HuViAhi7J-xFIDcEvf3LJnq7x_iLB9SXTinoKRXuYZZTBTjYahGxlx1jZJBVs-_HuIJmq9QzWOnqe1lB8bX_M9q9j0zTKW4orj65BX6ULHtGEkIKL9VZrMbLEcNWWor6TL1qxmMJr8P0cRA14RJc2hRhDnMt23CPGEFGO3O8K5g==",
+              "title": "laodong.vn",
+              "tier": 4
+            }
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "timestamp": 227.158047,
+    "videoTime": "3:47",
+    "realTime": "2026-02-11T08:53:05.498Z",
+    "originalLength": 1473,
+    "cleanedLength": 466,
+    "tokenSavings": "68%",
+    "fullText": "[Context from previous 30 seconds: we did not have a strong voice. I will emphasize that the sovereignty of Russia that we have been fighting for and continue to fight for and shall always fight for relies upon our to share] New content to analyze: fight for relies upon our ability to share with the people on the planet an objective picture and impartial information. That is why RT had to appear which is exactly what happened 20 years ago. The company was facing",
+    "context": "[Context from previous 30 seconds: we did not have a strong voice. I will emphasize that the sovereignty of Russia that we have been fighting for and continue to fight for and shall always fight for relies upon our to share] New content to analyze: fight for relies upon our ability to share with the people on the planet an objective picture and impartial information. That is why RT had to appear which is exactly what happened 20 years ago. The company was facing",
+    "newContent": "[Context from previous 30 seconds: we did not have a strong voice. I will emphasize that the sovereignty of Russia that we have been fighting for and continue to fight for and shall always fight for relies upon our to share] New content to analyze: fight for relies upon our ability to share with the people on the planet an objective picture and impartial information. That is why RT had to appear which is exactly what happened 20 years ago. The company was facing",
+    "claims": [
+      {
+        "originalClaim": "RT was founded 20 years ago.",
+        "cleanedClaim": "RT was founded 20 years ago.",
+        "factual_core": "RT was founded 20 years ago.",
+        "speaker": null,
+        "category": "POLITICS",
+        "checkability": 3,
+        "importance": 3,
+        "occurrences": [
+          {
+            "timestamp_hint": "approximate position in transcript",
+            "rhetorical_framing": "That is why RT had to appear which is exactly what happened 20 years ago.",
+            "raw_snippet": "That is why RT had to appear which is exactly what happened 20 years ago. The company was facing"
+          }
+        ],
+        "phonetic_repairs": [],
+        "verification": {
+          "verdict": "false",
+          "explanation": "RT was founded in April 2005, making it less than 20 years old.",
+          "confidence": 0.4,
+          "key_facts": [],
+          "sources": [
+            {
+              "domain": "vertexaisearch.cloud.google.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQHvTbhJbwCmVDA5uRpzuuBuA2Uz7Kz-1hjh45j0yZqYi4Lr8rnsZ6p0Xf0dHYjeHtrYjmVEJgyyB1WGwN7pDGRz7PnRIoteRYozdBSrMbFU94u6IzpN9L4JCNsLuz12OoPOcTqlyEJD",
+              "title": "wikipedia.org",
+              "tier": 4
+            },
+            {
+              "domain": "vertexaisearch.cloud.google.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQHWLoEufXoWhVH7y33e3KoSA_0vwZ2-eGwtvaFGC2w5BgyUHNLwZiJ9XNeA9ZjTcqDsoT7bhVAB4TxCsDJU0-KLlkb3ipdzKt4ffam8zbs7L_14zsViJfC3SIpbpTgAF_TcBTCGThjCWAE=",
+              "title": "fandom.com",
+              "tier": 4
+            },
+            {
+              "domain": "vertexaisearch.cloud.google.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQH5XFR0f1uXOq_NGyM_PzSYCDbivufIrhOZiBq_XqS7-pLAW8RkZNX_zpkYqVqumLdXIYTZHQiPeTKhGigAc187_VHlQ0cRZhLUGFQTNY5xmlYrp8KaUnNsVU9PD78=",
+              "title": "britannica.com",
+              "tier": 4
+            },
+            {
+              "domain": "vertexaisearch.cloud.google.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQE2qhadtDHdsFxMrCUTExKCvjYDTq9Vc-Y2WFTTkE5jrXspD8vtPf1Z3wKKCBbN41ttnLZ2Z_RStM8sITOCPqkbKxJpxXdL10Y2KrVMgD4HMnF4Pvc0ybhE2rGMYpkKRVCnx6OiCg==",
+              "title": "grokipedia.com",
+              "tier": 4
+            }
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "timestamp": 242.357264,
+    "videoTime": "4:02",
+    "realTime": "2026-02-11T08:53:20.698Z",
+    "originalLength": 1416,
+    "cleanedLength": 445,
+    "tokenSavings": "69%",
+    "fullText": "[Context from previous 30 seconds: to share with the people on the planet an objective picture and impartial information. That is why RT had to appear which is exactly what happened 20 years The company was facing] New content to analyze: years ago. The company was facing a challenging task. to build a work on a new level of quality content and technology. And I am sincerely glad that we and you have succeeded and succeeded at a great level.",
+    "context": "[Context from previous 30 seconds: to share with the people on the planet an objective picture and impartial information. That is why RT had to appear which is exactly what happened 20 years The company was facing] New content to analyze: years ago. The company was facing a challenging task. to build a work on a new level of quality content and technology. And I am sincerely glad that we and you have succeeded and succeeded at a great level.",
+    "newContent": "[Context from previous 30 seconds: to share with the people on the planet an objective picture and impartial information. That is why RT had to appear which is exactly what happened 20 years The company was facing] New content to analyze: years ago. The company was facing a challenging task. to build a work on a new level of quality content and technology. And I am sincerely glad that we and you have succeeded and succeeded at a great level.",
+    "claims": []
+  },
+  {
+    "timestamp": 257.390278,
+    "videoTime": "4:17",
+    "realTime": "2026-02-11T08:53:35.730Z",
+    "originalLength": 1187,
+    "cleanedLength": 392,
+    "tokenSavings": "67%",
+    "fullText": "[Context from previous 30 seconds: years ago. The company was facing a challenging task. to build a work on a new level of quality content and technology. And I am sincerely glad that we and you have succeeded and succeeded at a great level.] New content to analyze: Millions of citizens of different countries believed you. Moreover, it turned out that there is a great demand for news which",
+    "context": "[Context from previous 30 seconds: years ago. The company was facing a challenging task. to build a work on a new level of quality content and technology. And I am sincerely glad that we and you have succeeded and succeeded at a great level.] New content to analyze: Millions of citizens of different countries believed you. Moreover, it turned out that there is a great demand for news which",
+    "newContent": "[Context from previous 30 seconds: years ago. The company was facing a challenging task. to build a work on a new level of quality content and technology. And I am sincerely glad that we and you have succeeded and succeeded at a great level.] New content to analyze: Millions of citizens of different countries believed you. Moreover, it turned out that there is a great demand for news which",
+    "claims": []
+  },
+  {
+    "timestamp": 272.432683,
+    "videoTime": "4:32",
+    "realTime": "2026-02-11T08:53:50.773Z",
+    "originalLength": 1037,
+    "cleanedLength": 384,
+    "tokenSavings": "63%",
+    "fullText": "[Context from previous 30 seconds: Millions of citizens of different countries believed you. Moreover, it turned out that there is a great for news which] New content to analyze: turned out that there is a great demand for news which are different from the well-known propaganda which is today, if I'm honest with you, not really different from the well-known cliche and propaganda of",
+    "context": "[Context from previous 30 seconds: Millions of citizens of different countries believed you. Moreover, it turned out that there is a great for news which] New content to analyze: turned out that there is a great demand for news which are different from the well-known propaganda which is today, if I'm honest with you, not really different from the well-known cliche and propaganda of",
+    "newContent": "[Context from previous 30 seconds: Millions of citizens of different countries believed you. Moreover, it turned out that there is a great for news which] New content to analyze: turned out that there is a great demand for news which are different from the well-known propaganda which is today, if I'm honest with you, not really different from the well-known cliche and propaganda of",
+    "claims": []
+  },
+  {
+    "timestamp": 287.598661,
+    "videoTime": "4:47",
+    "realTime": "2026-02-11T08:54:05.939Z",
+    "originalLength": 1475,
+    "cleanedLength": 514,
+    "tokenSavings": "65%",
+    "fullText": "[Context from previous 30 seconds: turned out that there is a great demand for news which are different from the well-known propaganda which is today, if I'm honest with you, not really different the well-known cliche and propaganda] New content to analyze: different from the well-known cliche and propaganda of the Soviet era back in the Soviet times. This how others continue to work. And that is why I believe that true professionals including those from the United States, from Europe, from all the continents",
+    "context": "[Context from previous 30 seconds: turned out that there is a great demand for news which are different from the well-known propaganda which is today, if I'm honest with you, not really different the well-known cliche and propaganda] New content to analyze: different from the well-known cliche and propaganda of the Soviet era back in the Soviet times. This how others continue to work. And that is why I believe that true professionals including those from the United States, from Europe, from all the continents",
+    "newContent": "[Context from previous 30 seconds: turned out that there is a great demand for news which are different from the well-known propaganda which is today, if I'm honest with you, not really different the well-known cliche and propaganda] New content to analyze: different from the well-known cliche and propaganda of the Soviet era back in the Soviet times. This how others continue to work. And that is why I believe that true professionals including those from the United States, from Europe, from all the continents",
+    "claims": []
+  },
+  {
+    "timestamp": 302.74212,
+    "videoTime": "5:02",
+    "realTime": "2026-02-11T08:54:21.084Z",
+    "originalLength": 1797,
+    "cleanedLength": 520,
+    "tokenSavings": "71%",
+    "fullText": "[Context from previous 30 seconds: the Soviet era back in the Soviet times. This how others continue to work. And that is why I believe that true professionals including those from the United States, from Europe, from all] New content to analyze: United States, from Europe, from all the continents were willing to cooperate with you and not just cooperate but work with you. And it wasn't about the money. It was first of all due to the fact that you gave these people an opportunity to share their position to share it",
+    "context": "[Context from previous 30 seconds: the Soviet era back in the Soviet times. This how others continue to work. And that is why I believe that true professionals including those from the United States, from Europe, from all] New content to analyze: United States, from Europe, from all the continents were willing to cooperate with you and not just cooperate but work with you. And it wasn't about the money. It was first of all due to the fact that you gave these people an opportunity to share their position to share it",
+    "newContent": "[Context from previous 30 seconds: the Soviet era back in the Soviet times. This how others continue to work. And that is why I believe that true professionals including those from the United States, from Europe, from all] New content to analyze: United States, from Europe, from all the continents were willing to cooperate with you and not just cooperate but work with you. And it wasn't about the money. It was first of all due to the fact that you gave these people an opportunity to share their position to share it",
+    "claims": []
+  },
+  {
+    "timestamp": 318.032328,
+    "videoTime": "5:18",
+    "realTime": "2026-02-11T08:54:36.373Z",
+    "originalLength": 1728,
+    "cleanedLength": 582,
+    "tokenSavings": "66%",
+    "fullText": "[Context from previous 30 seconds: United States, from Europe, from all the continents were willing to cooperate with you and not just cooperate but work with you. And it wasn't about the money. It was first of all due to the fact that you gave these people an opportunity share their position to share it] New content to analyze: gave these people an opportunity to share their position to share it with millions of people. This exactly why the hosts of RT included the legendary founder of Wikileaks, Mr. Julian Assange, the world television star, Mr. Larry King, the president of",
+    "context": "[Context from previous 30 seconds: United States, from Europe, from all the continents were willing to cooperate with you and not just cooperate but work with you. And it wasn't about the money. It was first of all due to the fact that you gave these people an opportunity share their position to share it] New content to analyze: gave these people an opportunity to share their position to share it with millions of people. This exactly why the hosts of RT included the legendary founder of Wikileaks, Mr. Julian Assange, the world television star, Mr. Larry King, the president of",
+    "newContent": "[Context from previous 30 seconds: United States, from Europe, from all the continents were willing to cooperate with you and not just cooperate but work with you. And it wasn't about the money. It was first of all due to the fact that you gave these people an opportunity share their position to share it] New content to analyze: gave these people an opportunity to share their position to share it with millions of people. This exactly why the hosts of RT included the legendary founder of Wikileaks, Mr. Julian Assange, the world television star, Mr. Larry King, the president of",
+    "claims": [
+      {
+        "originalClaim": "Julian Assange was included as a host of RT.",
+        "cleanedClaim": "Julian Assange was included as a host of RT.",
+        "factual_core": "Julian Assange was included as a host of RT.",
+        "speaker": null,
+        "category": "POLITICS",
+        "checkability": 3,
+        "importance": 3,
+        "occurrences": [
+          {
+            "timestamp_hint": "N/A",
+            "rhetorical_framing": "The hosts of RT included the legendary founder of Wikileaks, Mr. Julian Assange",
+            "raw_snippet": "This exactly why the hosts of RT included the legendary founder of Wikileaks, Mr. Julian Assange, the world television star, Mr. Larry King, the president of"
+          }
+        ],
+        "phonetic_repairs": [],
+        "verification": {
+          "verdict": "true",
+          "explanation": "Julian Assange hosted \\\"The World Tomorrow,\\\" a political interview program funded by RT. The show premiered on RT on April 17, 2012, and featured interviews with political figures. Twelve episodes were produced and broadcast in English, Arabic, and Spanish.",
+          "confidence": 0.2,
+          "key_facts": [],
+          "sources": [
+            {
+              "domain": "vertexaisearch.cloud.google.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQGRCs71iVyKuH0fj7ooNoczXsEQMEGMJ9kARrFZXSKc--PBTp_tLM5N3gsaqbRoSPxPUv7pals_iasPjkBctmTKk2vURc-VFXfXSM3tNbQOXbMKSDrbEET-zaMdfS8ZC0OSM8HWrLb-",
+              "title": "wikipedia.org",
+              "tier": 4
+            },
+            {
+              "domain": "vertexaisearch.cloud.google.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQGbzWNtJJhd7ggRd8ncOSS3QYgGprFKU5Q59lEUuizaKmiMv66tSJMQgQAGkTlQeaE7yhBpjPWwQ0kgFU2XQR-WWMHHWXQyKVC3kUSd7Hzc3zzBE05kufw9yBbi_9lZIEfurLdIDJ8kdvXigC4pkw==",
+              "title": "britannica.com",
+              "tier": 4
+            }
+          ]
+        }
+      },
+      {
+        "originalClaim": "Larry King was included as a host of RT.",
+        "cleanedClaim": "Larry King was included as a host of RT.",
+        "factual_core": "Larry King was included as a host of RT.",
+        "speaker": null,
+        "category": "POLITICS",
+        "checkability": 3,
+        "importance": 3,
+        "occurrences": [
+          {
+            "timestamp_hint": "N/A",
+            "rhetorical_framing": "The hosts of RT included the world television star, Mr. Larry King",
+            "raw_snippet": "This exactly why the hosts of RT included the legendary founder of Wikileaks, Mr. Julian Assange, the world television star, Mr. Larry King, the president of"
+          }
+        ],
+        "phonetic_repairs": [],
+        "verification": {
+          "verdict": "true",
+          "explanation": "Larry King hosted shows on RT America, including 'Larry King Now' and 'Politicking with Larry King'.",
+          "confidence": 0.3,
+          "key_facts": [],
+          "sources": [
+            {
+              "domain": "vertexaisearch.cloud.google.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQE8WFTxySBt2zhh5nYnLtEfB9mDVl723T5SYsMyWBp0UOB5tXW-jgsSpY5nwN2K375obsbiEdUNkCv-RYaYrfIsLGi3Clm2SiZUglCt2uW1EgT55XLtuGwl8gcFtdgpW8WFngZaEm4N",
+              "title": "wikipedia.org",
+              "tier": 4
+            },
+            {
+              "domain": "vertexaisearch.cloud.google.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQGfE3aQ91cnp1cJ2Azab9pLkSuwisk4Kp3FbNIGoNyi-IZvxg7iuPdg1eOhdwaxMpswTC3Hx-TAdOEkn7HkvaMQzu_uvqhAvLUTTssSzU3jac3ISfJfVkNSK28UMxlcvvI0ajEQ2a_YGvWSvmfklu0jabqxGg==",
+              "title": "wikipedia.org",
+              "tier": 4
+            },
+            {
+              "domain": "vertexaisearch.cloud.google.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQE66D3mJS06RVnanYrMK8EFOcTxHXIPEVp7gEk3OQHB1coxSUF8wDiADuSP01-H7lJnh1o2aWjbmsLxQHwYPs1gMF_a1rZAeX8juw8lVxHIKLyfQdAlb2ZaRER6Qckc78FVhuA=",
+              "title": "wikipedia.org",
+              "tier": 4
+            }
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "timestamp": 333.147324,
+    "videoTime": "5:33",
+    "realTime": "2026-02-11T08:54:51.487Z",
+    "originalLength": 1280,
+    "cleanedLength": 453,
+    "tokenSavings": "65%",
+    "fullText": "[Context from previous 30 seconds: millions of people. This exactly why the hosts of RT included the legendary founder of Wikileaks, Mr. Julian Assange, the world television star, Mr. Larry King, president of] New content to analyze: television star, Mr. Larry King, the president of Ecuador, Mr. Rafael Korea, and many others. You were quick to gain popularity and influence and as a result your competition started to basically envy you or sometimes I",
+    "context": "[Context from previous 30 seconds: millions of people. This exactly why the hosts of RT included the legendary founder of Wikileaks, Mr. Julian Assange, the world television star, Mr. Larry King, president of] New content to analyze: television star, Mr. Larry King, the president of Ecuador, Mr. Rafael Korea, and many others. You were quick to gain popularity and influence and as a result your competition started to basically envy you or sometimes I",
+    "newContent": "[Context from previous 30 seconds: millions of people. This exactly why the hosts of RT included the legendary founder of Wikileaks, Mr. Julian Assange, the world television star, Mr. Larry King, president of] New content to analyze: television star, Mr. Larry King, the president of Ecuador, Mr. Rafael Korea, and many others. You were quick to gain popularity and influence and as a result your competition started to basically envy you or sometimes I",
+    "claims": []
+  },
+  {
+    "timestamp": 348.267187,
+    "videoTime": "5:48",
+    "realTime": "2026-02-11T08:55:06.608Z",
+    "originalLength": 1568,
+    "cleanedLength": 513,
+    "tokenSavings": "67%",
+    "fullText": "[Context from previous 30 seconds: president of Ecuador, Mr. Rafael Korea, and many others. You were quick to gain popularity and influence and as a result your competition started to basically you or sometimes I] New content to analyze: competition started to basically envy you or sometimes I think they were even scared of you and this a telltale sign of the fact that you're one step ahead and you are the ones who set the information agenda doing the right and important thing and when you started working in",
+    "context": "[Context from previous 30 seconds: president of Ecuador, Mr. Rafael Korea, and many others. You were quick to gain popularity and influence and as a result your competition started to basically you or sometimes I] New content to analyze: competition started to basically envy you or sometimes I think they were even scared of you and this a telltale sign of the fact that you're one step ahead and you are the ones who set the information agenda doing the right and important thing and when you started working in",
+    "newContent": "[Context from previous 30 seconds: president of Ecuador, Mr. Rafael Korea, and many others. You were quick to gain popularity and influence and as a result your competition started to basically you or sometimes I] New content to analyze: competition started to basically envy you or sometimes I think they were even scared of you and this a telltale sign of the fact that you're one step ahead and you are the ones who set the information agenda doing the right and important thing and when you started working in",
+    "claims": []
+  },
+  {
+    "timestamp": 363.390495,
+    "videoTime": "6:03",
+    "realTime": "2026-02-11T08:55:21.731Z",
+    "originalLength": 1849,
+    "cleanedLength": 583,
+    "tokenSavings": "68%",
+    "fullText": "[Context from previous 30 seconds: competition started to basically envy you or sometimes I think they were even scared of you and this a telltale sign of the fact that you're one step ahead and you are the ones who set the information agenda doing the right and important and when you started working in] New content to analyze: important thing and when you started working in full strength this exactly when these competitors and the ruling elites or the so-called ruling elites backing them revealed their true face and Margarita talked about this now and they have been regularly",
+    "context": "[Context from previous 30 seconds: competition started to basically envy you or sometimes I think they were even scared of you and this a telltale sign of the fact that you're one step ahead and you are the ones who set the information agenda doing the right and important and when you started working in] New content to analyze: important thing and when you started working in full strength this exactly when these competitors and the ruling elites or the so-called ruling elites backing them revealed their true face and Margarita talked about this now and they have been regularly",
+    "newContent": "[Context from previous 30 seconds: competition started to basically envy you or sometimes I think they were even scared of you and this a telltale sign of the fact that you're one step ahead and you are the ones who set the information agenda doing the right and important and when you started working in] New content to analyze: important thing and when you started working in full strength this exactly when these competitors and the ruling elites or the so-called ruling elites backing them revealed their true face and Margarita talked about this now and they have been regularly",
+    "claims": [
+      {
+        "originalClaim": "Competitors and ruling elites revealed their true face.",
+        "cleanedClaim": "Competitors and ruling elites revealed their true face.",
+        "factual_core": "Competitors and ruling elites revealed their true face.",
+        "speaker": null,
+        "category": "POLITICS",
+        "checkability": 3,
+        "importance": 3,
+        "occurrences": [
+          {
+            "timestamp_hint": "approximate position in transcript",
+            "rhetorical_framing": "Competitors and the ruling elites backing them revealed their true face.",
+            "raw_snippet": "this exactly when these competitors and the ruling elites or the so-called ruling elites backing them revealed their true face and Margarita talked about this now and they have been regularly"
+          }
+        ],
+        "phonetic_repairs": [],
+        "verification": {
+          "verdict": "unverifiable",
+          "explanation": "The claim is a subjective assessment without specific, verifiable details. The provided search snippets discuss Germany's relationship with Russia, a scam at Davos, and the Enron scandal, but none of these directly confirm or deny the broad assertion that 'competitors and ruling elites revealed their true face.' Without a specific event or action to verify, the claim remains unverifiable.",
+          "confidence": 0.3,
+          "key_facts": [],
+          "sources": [
+            {
+              "domain": "vertexaisearch.cloud.google.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQFmuqJcAZcVrv7jeqL3d0VIbStrqS3FLUKtYlh_tBRXwJEr_Latls7Q01CG1tK9ivrYP65V3bfCfmhdzClRjlX_cDhuZr0Om2I-Ctr6OCEu79v4Cmdba8w-h4Vop1JSlsLNFwrX69SFEibj5I4ZHeF0IPOzM7d65ny6O3ISc5rnkxZNHgCy6gAFCbFuqg==",
+              "title": "engelsbergideas.com",
+              "tier": 4
+            },
+            {
+              "domain": "vertexaisearch.cloud.google.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQGcGdIIZHmn5Ewl6wFHzl12J2WIaGPxbWreuOVEOIqCHOUrQahEKlOTrq1UHCd1Er6P01zZu3yxJHX3CLp_fYk-xFbKwqbijQzToM443fnrrUTemYwiHF7G-DyE9WQlUO_MHBiL1OQ=",
+              "title": "youtube.com",
+              "tier": 4
+            },
+            {
+              "domain": "vertexaisearch.cloud.google.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQG_yiE1f4TwpuhBpJCNmTUNgWTT4MGOM54d0ZwVuRLmPTbzdAiRltMwJ6EmHhKTqaU-3juWJE6_BAszquP_zWoJ_NQm56J3BBZMyy9dsUpyW1k07806v_JQ6WHRwkpZbBIrpYlqzTw=",
+              "title": "wikipedia.org",
+              "tier": 4
+            }
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "timestamp": 378.473629,
+    "videoTime": "6:18",
+    "realTime": "2026-02-11T08:55:36.813Z",
+    "originalLength": 1559,
+    "cleanedLength": 529,
+    "tokenSavings": "66%",
+    "fullText": "[Context from previous 30 seconds: important thing and when you started working in full strength this exactly when these competitors and the ruling elites or the so-called ruling elites backing them revealed their true face and Margarita talked about this now and they have] New content to analyze: talked about this now and they have been regularly saying how there have been attempts to pressure you to discriminate against you on foreign platforms for years they have been teaching us how we should leave how mass media should",
+    "context": "[Context from previous 30 seconds: important thing and when you started working in full strength this exactly when these competitors and the ruling elites or the so-called ruling elites backing them revealed their true face and Margarita talked about this now and they have] New content to analyze: talked about this now and they have been regularly saying how there have been attempts to pressure you to discriminate against you on foreign platforms for years they have been teaching us how we should leave how mass media should",
+    "newContent": "[Context from previous 30 seconds: important thing and when you started working in full strength this exactly when these competitors and the ruling elites or the so-called ruling elites backing them revealed their true face and Margarita talked about this now and they have] New content to analyze: talked about this now and they have been regularly saying how there have been attempts to pressure you to discriminate against you on foreign platforms for years they have been teaching us how we should leave how mass media should",
+    "claims": []
+  },
+  {
+    "timestamp": 393.633363,
+    "videoTime": "6:33",
+    "realTime": "2026-02-11T08:55:51.973Z",
+    "originalLength": 1537,
+    "cleanedLength": 554,
+    "tokenSavings": "64%",
+    "fullText": "[Context from previous 30 seconds: talked about this now and they have been regularly saying how there have been attempts to pressure you to discriminate against you on foreign platforms for years they have been teaching us how we should leave how media should] New content to analyze: teaching us how we should leave how mass media should work how democracy should be understood and what democracy is, what is the true freedom of speech. They were trying to convince us of the importance of competition, the pluralism of opinions. But look what happened",
+    "context": "[Context from previous 30 seconds: talked about this now and they have been regularly saying how there have been attempts to pressure you to discriminate against you on foreign platforms for years they have been teaching us how we should leave how media should] New content to analyze: teaching us how we should leave how mass media should work how democracy should be understood and what democracy is, what is the true freedom of speech. They were trying to convince us of the importance of competition, the pluralism of opinions. But look what happened",
+    "newContent": "[Context from previous 30 seconds: talked about this now and they have been regularly saying how there have been attempts to pressure you to discriminate against you on foreign platforms for years they have been teaching us how we should leave how media should] New content to analyze: teaching us how we should leave how mass media should work how democracy should be understood and what democracy is, what is the true freedom of speech. They were trying to convince us of the importance of competition, the pluralism of opinions. But look what happened",
+    "claims": []
+  },
+  {
+    "timestamp": 409.393217,
+    "videoTime": "6:49",
+    "realTime": "2026-02-11T08:56:07.733Z",
+    "originalLength": 1524,
+    "cleanedLength": 521,
+    "tokenSavings": "66%",
+    "fullText": "[Context from previous 30 seconds: media should work how democracy should be understood and what democracy is, what is the true freedom of speech. They were trying to convince us of the importance of competition, the pluralism But look what happened] New content to analyze: of opinions. But look what happened to those teachers when RT appeared and hundreds of millions of people started watching the TV channel offering a new interpretation of the events. The reaction of these elites that I mentioned was primitive and",
+    "context": "[Context from previous 30 seconds: media should work how democracy should be understood and what democracy is, what is the true freedom of speech. They were trying to convince us of the importance of competition, the pluralism But look what happened] New content to analyze: of opinions. But look what happened to those teachers when RT appeared and hundreds of millions of people started watching the TV channel offering a new interpretation of the events. The reaction of these elites that I mentioned was primitive and",
+    "newContent": "[Context from previous 30 seconds: media should work how democracy should be understood and what democracy is, what is the true freedom of speech. They were trying to convince us of the importance of competition, the pluralism But look what happened] New content to analyze: of opinions. But look what happened to those teachers when RT appeared and hundreds of millions of people started watching the TV channel offering a new interpretation of the events. The reaction of these elites that I mentioned was primitive and",
+    "claims": [
+      {
+        "originalClaim": "RT TV channel gained hundreds of millions of viewers.",
+        "cleanedClaim": "RT TV channel gained hundreds of millions of viewers.",
+        "factual_core": "RT TV channel gained hundreds of millions of viewers.",
+        "speaker": null,
+        "category": "POLITICS",
+        "checkability": 3,
+        "importance": 3,
+        "occurrences": [
+          {
+            "timestamp_hint": "RT appeared and hundreds of millions of people started watching the TV channel",
+            "rhetorical_framing": "RT's viewership growth",
+            "raw_snippet": "of opinions. But look what happened to those teachers when RT appeared and hundreds of millions of people started watching the TV channel offering a new interpretation of the events."
+          }
+        ],
+        "phonetic_repairs": [],
+        "verification": {
+          "verdict": "true",
+          "explanation": "The claim is supported by the evidence that RT's weekly audience grew from 70 million to 95 million viewers in 38 countries between 2015 and 2018. Additionally, in 2018, RT's weekly TV audience reached 100 million viewers in 47 countries.",
+          "confidence": 0.3,
+          "key_facts": [],
+          "sources": [
+            {
+              "domain": "vertexaisearch.cloud.google.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQG-cA81pHX5fUWeSYJNW8CA7B221IEGn-59xnvvx3M5qvrkLurjVSeI103ZX1O-phKZt98PQLMqsmExQnjQaIdE6EQ8X_iHmaWi58_I2ouwayNy2V4KRTCk4spUE60HGuI7TMRrG-2DVJucHDBs5_QLAVwUkBi--2LnM15UF5GuV8nu89XZemNh4LgwoYjRqmY=",
+              "title": "aib.org.uk",
+              "tier": 4
+            },
+            {
+              "domain": "vertexaisearch.cloud.google.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQHdk9ndCGoJ0htGJbR3LBcCB7VnFoFnXCBZ4NJJx8CIrFic5V3aqjXeZOOpfyegPIRPtqq6tl8S_lBHO5nygm0VBfkLFC1bu6wfFWldHPqjq1qbYBSGchaYqr3cJxbAovhDor7Jc6hbwmtm1oBkMY7YDurQvix14bBiKlEFPA6F2IQpmBhwfuaEGxzZFncitTRMA5kWfkEdkxwXFQxodRoLC27n4RlSnShBUHymLZd6NkrbALU=",
+              "title": "platformraam.nl",
+              "tier": 4
+            },
+            {
+              "domain": "vertexaisearch.cloud.google.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQEyr42eL1Kj46-3-LOJJ6WALq2VaUH2em9BbfoAAFDv5pPPII9QC8GTye0h2ThI69wlTo7jE5h8JQNgc2S-u0ijZ6oQwvNggouBO7bFSKhOR2e_DRHw3VPtKCPRr9NkRdAFp0vM1vMFRwQHo1za_70zC9FniMmMBEgJTnkTdEEgryga947pJRHbG8BiHPE3NULI5Lp2iewW5rmXLzLaRl2LH6ioxV899blAAg==",
+              "title": "themoscowtimes.com",
+              "tier": 4
+            }
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "timestamp": 424.566329,
+    "videoTime": "7:04",
+    "realTime": "2026-02-11T08:56:22.907Z",
+    "originalLength": 1379,
+    "cleanedLength": 497,
+    "tokenSavings": "64%",
+    "fullText": "[Context from previous 30 seconds: But look what happened to those teachers when RT appeared and hundreds of millions of people started watching the TV channel offering a new interpretation of the events. The reaction of these elites that I mentioned was and] New content to analyze: elites that I mentioned was primitive and straightforward to ban, to cancel, to block. You know, when I used to be the director of the Federal Security Service of Russia, back then even in the FSB, there have been",
+    "context": "[Context from previous 30 seconds: But look what happened to those teachers when RT appeared and hundreds of millions of people started watching the TV channel offering a new interpretation of the events. The reaction of these elites that I mentioned was and] New content to analyze: elites that I mentioned was primitive and straightforward to ban, to cancel, to block. You know, when I used to be the director of the Federal Security Service of Russia, back then even in the FSB, there have been",
+    "newContent": "[Context from previous 30 seconds: But look what happened to those teachers when RT appeared and hundreds of millions of people started watching the TV channel offering a new interpretation of the events. The reaction of these elites that I mentioned was and] New content to analyze: elites that I mentioned was primitive and straightforward to ban, to cancel, to block. You know, when I used to be the director of the Federal Security Service of Russia, back then even in the FSB, there have been",
+    "claims": [
+      {
+        "originalClaim": "The speaker was the director of the Federal Security Service of Russia.",
+        "cleanedClaim": "The speaker was the director of the Federal Security Service of Russia.",
+        "factual_core": "The speaker was the director of the Federal Security Service of Russia.",
+        "speaker": null,
+        "category": "POLITICS",
+        "checkability": 3,
+        "importance": 3,
+        "occurrences": [
+          {
+            "timestamp_hint": "unknown",
+            "rhetorical_framing": "Speaker's past role",
+            "raw_snippet": "You know, when I used to be the director of the Federal Security Service of Russia, back then even in the FSB, there have been"
+          }
+        ],
+        "phonetic_repairs": [],
+        "verification": {
+          "verdict": "true",
+          "explanation": "The available evidence confirms that the speaker was the director of the Federal Security Service of Russia.",
+          "confidence": 0.5,
+          "key_facts": [],
+          "sources": [
+            {
+              "domain": "vertexaisearch.cloud.google.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQFzjpSLifOFL-O8_zhuY-eWBKKVwr1Bz66oExOT_i-cpsF8dPYzxshTRl5baXVTd5b-bLOPHu_Sh9VKN3nfHZKOlNU6yiQyJKouvIT7XSZKKZ-7w8ir9FquUAgQjhuRGkwt_vpTiz_hH9wRg_kMe-Lwxg==",
+              "title": "wikipedia.org",
+              "tier": 4
+            },
+            {
+              "domain": "vertexaisearch.cloud.google.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQGyjeIuzy_QsxeX4TJdU-PCjkEeATqTScLygEwoxFrtwuwO6-M_4uwS-YYMjYccQynMzOXs_r0uHLM3MYvimdTPGCzPljb9hDX6ZMURe2BjnDFjRq01J0gR0ekgNrVyd17hKJc5FdxDLT-Z1f4=",
+              "title": "wikipedia.org",
+              "tier": 4
+            },
+            {
+              "domain": "vertexaisearch.cloud.google.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQF7LUK9O_aRVxvjUiPdmKOoWE3aWYlRqGBmyL447dRPhBvsPBWR6O1L-XXeX-cdoR-HA55WpJLpVpRa-uPi4PtNWtTpqnyAEX6daOaiRWKYMl1P9lGkJvdoz_ceB_hViBmgebU10cP-Y2iWvWxBlTt0ImScxY8Fve5EGwRmIOex",
+              "title": "grokipedia.com",
+              "tier": 4
+            },
+            {
+              "domain": "vertexaisearch.cloud.google.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQF_HlWIHo-OFvjsZK8Q0vREJZVXWf8SDA7lLRaHrXfdopvhm-OMf0dmyU2rI_OOY0rXyGLBFAAPx7qWX-VLISoBLoglziZEBzcEs5jVEjLp5IVv0uY8zzIjdW2L1i8TqUf0J-oUKzMmawepDlnwumCo0MIDilTUaZGGm_wW1W8D8A4=",
+              "title": "wikipedia.org",
+              "tier": 4
+            },
+            {
+              "domain": "vertexaisearch.cloud.google.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQEsdNbOBpzBKohYt99J7bGC9do_V536EDOIjl0BikAiSlEe3DgkbsWkUt7F9l_2EZ1M1NotIAklPpuiuVafSj1sDUNOo1F7AauGQPSIw3COPSpYRHx_mHETR33YzoU2_lIyJwcnxlkZ",
+              "title": "congress.gov",
+              "tier": 4
+            }
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "timestamp": 440.117554,
+    "videoTime": "7:20",
+    "realTime": "2026-02-11T08:56:38.458Z",
+    "originalLength": 1747,
+    "cleanedLength": 529,
+    "tokenSavings": "70%",
+    "fullText": "[Context from previous 30 seconds: and straightforward to ban, to cancel, to block. You know, when I used to be the director of the Federal Security Service of Russia, back then even in there have been] New content to analyze: Russia, back then even in the FSB, there have been attempts to cancel this style of work. Were told that we should work more delicately, that we should try to convince others, that we should use different means of work rather than those that had been used during the Soviet era and what had been called",
+    "context": "[Context from previous 30 seconds: and straightforward to ban, to cancel, to block. You know, when I used to be the director of the Federal Security Service of Russia, back then even in there have been] New content to analyze: Russia, back then even in the FSB, there have been attempts to cancel this style of work. Were told that we should work more delicately, that we should try to convince others, that we should use different means of work rather than those that had been used during the Soviet era and what had been called",
+    "newContent": "[Context from previous 30 seconds: and straightforward to ban, to cancel, to block. You know, when I used to be the director of the Federal Security Service of Russia, back then even in there have been] New content to analyze: Russia, back then even in the FSB, there have been attempts to cancel this style of work. Were told that we should work more delicately, that we should try to convince others, that we should use different means of work rather than those that had been used during the Soviet era and what had been called",
+    "claims": [],
+    "error": "A listener indicated an asynchronous response by returning true, but the message channel closed before a response was received"
+  },
+  {
+    "timestamp": 455.233311,
+    "videoTime": "7:35",
+    "realTime": "2026-02-11T08:56:53.579Z",
+    "originalLength": 1749,
+    "cleanedLength": 539,
+    "tokenSavings": "69%",
+    "fullText": "[Context from previous 30 seconds: there have been attempts to cancel this style of work. Were told that we should work more delicately, that we should try to convince others, that we should use different means of work rather than those that had been used during the Soviet era and what had] New content to analyze: during the Soviet era and what had been called grab and never let go. But unfortunately, this what we are currently witnessing against you and your channel. It is very easy to accuse someone of propaganda and misinformation",
+    "context": "[Context from previous 30 seconds: there have been attempts to cancel this style of work. Were told that we should work more delicately, that we should try to convince others, that we should use different means of work rather than those that had been used during the Soviet era and what had] New content to analyze: during the Soviet era and what had been called grab and never let go. But unfortunately, this what we are currently witnessing against you and your channel. It is very easy to accuse someone of propaganda and misinformation",
+    "newContent": "[Context from previous 30 seconds: there have been attempts to cancel this style of work. Were told that we should work more delicately, that we should try to convince others, that we should use different means of work rather than those that had been used during the Soviet era and what had] New content to analyze: during the Soviet era and what had been called grab and never let go. But unfortunately, this what we are currently witnessing against you and your channel. It is very easy to accuse someone of propaganda and misinformation",
+    "claims": []
+  },
+  {
+    "timestamp": 471.31548,
+    "videoTime": "7:51",
+    "realTime": "2026-02-11T08:57:09.654Z",
+    "originalLength": 1454,
+    "cleanedLength": 514,
+    "tokenSavings": "65%",
+    "fullText": "[Context from previous 30 seconds: called grab and never let go. But unfortunately, this what we are currently witnessing against you and your channel. It is very easy to someone of propaganda and] New content to analyze: your channel. It is very easy to accuse someone of propaganda and misinformation or interference in the internal affairs. Although you never impose anything, you basically offered an alternative truthful point of view and thereby you defended the viewers and listeners right for a choice. But",
+    "context": "[Context from previous 30 seconds: called grab and never let go. But unfortunately, this what we are currently witnessing against you and your channel. It is very easy to someone of propaganda and] New content to analyze: your channel. It is very easy to accuse someone of propaganda and misinformation or interference in the internal affairs. Although you never impose anything, you basically offered an alternative truthful point of view and thereby you defended the viewers and listeners right for a choice. But",
+    "newContent": "[Context from previous 30 seconds: called grab and never let go. But unfortunately, this what we are currently witnessing against you and your channel. It is very easy to someone of propaganda and] New content to analyze: your channel. It is very easy to accuse someone of propaganda and misinformation or interference in the internal affairs. Although you never impose anything, you basically offered an alternative truthful point of view and thereby you defended the viewers and listeners right for a choice. But",
+    "claims": [
+      {
+        "originalClaim": "The speaker's channel offered an alternative truthful point of view.",
+        "cleanedClaim": "The speaker's channel offered an alternative truthful point of view.",
+        "factual_core": "The speaker's channel offered an alternative truthful point of view.",
+        "speaker": null,
+        "category": "POLITICS",
+        "checkability": 3,
+        "importance": 2,
+        "occurrences": [
+          {
+            "timestamp_hint": "N/A",
+            "rhetorical_framing": "offered an alternative truthful point of view",
+            "raw_snippet": "your channel. It is very easy to accuse someone of propaganda and misinformation or interference in the internal affairs. Although you never impose anything, you basically offered an alternative truthful point of view and thereby you defended the viewers and listeners right for a choice. But"
+          }
+        ],
+        "phonetic_repairs": [],
+        "verification": {
+          "verdict": "opinion",
+          "explanation": "The claim that the speaker's channel offered an alternative truthful point of view is subjective and cannot be verified without a specific, factual statement to analyze. The statement is an opinion.",
+          "confidence": 0.1,
+          "key_facts": [],
+          "sources": []
+        }
+      }
+    ]
+  },
+  {
+    "timestamp": 486.432717,
+    "videoTime": "8:06",
+    "realTime": "2026-02-11T08:57:24.772Z",
+    "originalLength": 1323,
+    "cleanedLength": 491,
+    "tokenSavings": "63%",
+    "fullText": "[Context from previous 30 seconds: or interference in the internal affairs. Although you never impose anything, you basically offered an alternative truthful point of view and thereby you defended the viewers and listeners for a choice. But] New content to analyze: defended the viewers and listeners right for a choice. But the mere presence of such a choice was seen by our partners a as a threat. And over the years of RT work, we have been trying to establish such partner relations with",
+    "context": "[Context from previous 30 seconds: or interference in the internal affairs. Although you never impose anything, you basically offered an alternative truthful point of view and thereby you defended the viewers and listeners for a choice. But] New content to analyze: defended the viewers and listeners right for a choice. But the mere presence of such a choice was seen by our partners a as a threat. And over the years of RT work, we have been trying to establish such partner relations with",
+    "newContent": "[Context from previous 30 seconds: or interference in the internal affairs. Although you never impose anything, you basically offered an alternative truthful point of view and thereby you defended the viewers and listeners for a choice. But] New content to analyze: defended the viewers and listeners right for a choice. But the mere presence of such a choice was seen by our partners a as a threat. And over the years of RT work, we have been trying to establish such partner relations with",
+    "claims": [
+      {
+        "originalClaim": "The presence of an alternative point of view was seen as a threat by our partners.",
+        "cleanedClaim": "The presence of an alternative point of view was seen as a threat by our partners.",
+        "factual_core": "The presence of an alternative point of view was seen as a threat by our partners.",
+        "speaker": null,
+        "category": "POLITICS",
+        "checkability": 3,
+        "importance": 3,
+        "occurrences": [
+          {
+            "timestamp_hint": "approximate position in transcript",
+            "rhetorical_framing": "The mere presence of such a choice was seen by our partners as a threat.",
+            "raw_snippet": "defended the viewers and listeners right for a choice. But the mere presence of such a choice was seen by our partners a as a threat."
+          }
+        ],
+        "phonetic_repairs": [],
+        "verification": {
+          "verdict": "true",
+          "explanation": "The claim suggests that differing viewpoints can be perceived as a threat. Evidence from the search snippets supports this, indicating instances where individuals or groups presenting alternative views were seen as threats by governing entities or established systems.",
+          "confidence": 0.2,
+          "key_facts": [],
+          "sources": [
+            {
+              "domain": "vertexaisearch.cloud.google.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQEBHI6dl82mkNX82prW1zWEMf5Rk91L_0HG-IsKGjRv9owap6D6IEzkkycShe2ihzXVl0FNimP_FFWkvRec8quSp25tCcyZ5D9YsnYyjgMfrnN1WGHbEiWc3EkH3FC5osiwfgk422hz8dmZ53bA7V_heb69mxT_5VHLphL-uh4WYYkqLQrYH3JEzpre6u30d5X06CN9oNRKwaAzbwurgD5eXmgfiFLOM0XuWA5Wd3sJItWI",
+              "title": "theguardian.com",
+              "tier": 4
+            },
+            {
+              "domain": "vertexaisearch.cloud.google.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQGISE1tREZFns4DBvDmLEge4g5a1JIeaw76TAtfD37oYssTRB3TJQF8QnV2hhUHpO-R-GF7SncWRwiIfSIh6KvIl3D96FCzgyF262CY6DwuWi1qTep_Xc4Bv00bIS0UuW0gfdlcBmBLE0LYjWnESgDD4X-HIeP1mRASO5e85xQYpJJn2rGONpM=",
+              "title": "lowyinstitute.org",
+              "tier": 4
+            }
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "timestamp": 501.633107,
+    "videoTime": "8:21",
+    "realTime": "2026-02-11T08:57:39.972Z",
+    "originalLength": 1261,
+    "cleanedLength": 464,
+    "tokenSavings": "63%",
+    "fullText": "[Context from previous 30 seconds: for a choice. But the mere presence of such a choice was seen by our partners a as a threat. And over the years of RT work, we have been trying establish such partner relations] New content to analyze: of RT work, we have been trying to establish such partner relations with the audience and you have succeeded in that. Any monopoly sooner or le later comes to an end regardless of how much is being paid for attempts to preserve",
+    "context": "[Context from previous 30 seconds: for a choice. But the mere presence of such a choice was seen by our partners a as a threat. And over the years of RT work, we have been trying establish such partner relations] New content to analyze: of RT work, we have been trying to establish such partner relations with the audience and you have succeeded in that. Any monopoly sooner or le later comes to an end regardless of how much is being paid for attempts to preserve",
+    "newContent": "[Context from previous 30 seconds: for a choice. But the mere presence of such a choice was seen by our partners a as a threat. And over the years of RT work, we have been trying establish such partner relations] New content to analyze: of RT work, we have been trying to establish such partner relations with the audience and you have succeeded in that. Any monopoly sooner or le later comes to an end regardless of how much is being paid for attempts to preserve",
+    "claims": [
+      {
+        "originalClaim": "Monopolies eventually end, regardless of efforts to preserve them.",
+        "cleanedClaim": "Monopolies eventually end, regardless of efforts to preserve them.",
+        "factual_core": "Monopolies eventually end, regardless of efforts to preserve them.",
+        "speaker": null,
+        "category": "ECONOMICS",
+        "checkability": 3,
+        "importance": 2,
+        "occurrences": [
+          {
+            "timestamp_hint": "0:25",
+            "rhetorical_framing": "Any monopoly sooner or later comes to an end regardless of how much is being paid for attempts to preserve",
+            "raw_snippet": "of RT work, we have been trying to establish such partner relations with the audience and you have succeeded in that. Any monopoly sooner or le later comes to an end regardless of how much is being paid for attempts to preserve"
+          }
+        ],
+        "phonetic_repairs": [],
+        "verification": {
+          "verdict": "true",
+          "explanation": "Historically, monopolies like Standard Oil and AT&T have been dismantled due to antitrust laws and competition, supporting the claim that monopolies eventually end.",
+          "confidence": 0.6,
+          "key_facts": [],
+          "sources": [
+            {
+              "domain": "vertexaisearch.cloud.google.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQHVXE5-tfM_fFPb9XkJsbcoyXGGetMeF84i62Cu5JoRtcUs8RdTwyiwS8OJv0kH8RpW6jdwklJtaKrfCVtZSwPjeKDL8qFHYzpX6p5-VdhfIPEVdFvSpl08UXPHWIhpY90haQA208CZmPYbOdykVtpcDw3x3RR7K4i3x0XM5gOBDxcy6oDE9o_qW6mb",
+              "title": "ssrn.com",
+              "tier": 4
+            },
+            {
+              "domain": "vertexaisearch.cloud.google.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQFALsQu0ypU13eMkQmcLit1Y9JRsu4bloSNduKoBGtohhmHJB-VUlvEGrRrUa73Z5DQPpPPd0mi9OcTlbIojS3IUXSLxK7C37LkblCmUKBDNRk1UadVWhb3yRa3bKdaBLD2fY6JMKinenmxX8L-b3Ly0D6JIHhy9mpp5O_nv8AsENLHADGRUUMypG_6bxGDucl9ldnJADMmcew=",
+              "title": "stacker.com",
+              "tier": 4
+            },
+            {
+              "domain": "vertexaisearch.cloud.google.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQFgh9y8Gli69vYssPJGDMr-7jELMdOaUihjKFU59z8KgyE4Ies_55XxjNAu0Kr1xF1lA7MI-vvaJHDcNTFvw203rqND3sQ-BQd3R0bDLurU4EGFXCsbxdWXI2aQR_b8C67ZZnh6YsHIllVrub6B204k1HokPxv7mfDeOrXIKMOHW8CEhpsg4Ke6EX8GwMLXbnUI9Z-ELswQsOU8lFJo573ZwTUxI_WQZM9suzdx_-WVhQ==",
+              "title": "fastcompany.com",
+              "tier": 4
+            },
+            {
+              "domain": "vertexaisearch.cloud.google.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQHtNVxwezUcDHtjinAVPJo6d-rrNddecQ5etmSDRlYattvlla20Tq-ZrWMyT5Z1uiAnsulNAvuL6CH-9iEPcArNwhT0vjkcaictHnp5dyJ_KS8lTSreDlWoPKL24Qssflq_ZJuzBO65-FY6TajLD6Y=",
+              "title": "project2029.me",
+              "tier": 4
+            },
+            {
+              "domain": "vertexaisearch.cloud.google.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQHRhA84TfsIYgR8J5-UcHv4Wt34Psg3pyzPehWjinRAw21s_-c1nJX3ZLx7Ld7MngoryZHw2u05dSqqcNBIvqhlsikohm7O4l5Xp-703p2mmijVQrYOYM3xXYhtYAVVdyf_QBM-5xPgCxtK-6jz4QdWviUyoJdgb8rq26MBCgJSNvMTEY5Lgl4ewgP9xLNumGaF2KSUFAeaQzf73j5Hg9BDa9edwF-m",
+              "title": "standrewslawreview.com",
+              "tier": 4
+            },
+            {
+              "domain": "vertexaisearch.cloud.google.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQHgXCqu3esCiq23bPLwpw_HKpp4LiqQ-zI-t1_YylD1wE03bUHbTycPA3vB9pI9-9-Uja_YzQBPATJB-TRhDMgqBvEIqtulzACtWqyW-t2EKcc7bjxoqONp1RFk3PeucDKIaBzZtvsMJ0LI1do3N3NisF_bD0J9HM8ypAmkMMexJqzS2Nk7WF8T3GHsAQRU5kHwTmnKwYviKIPMjMR_4WDZvoP2mMcOme4la352vOb-DrnxVnYrtvIM9JUOVdY=",
+              "title": "pbs.org",
+              "tier": 4
+            }
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "timestamp": 516.670116,
+    "videoTime": "8:36",
+    "realTime": "2026-02-11T08:57:55.009Z",
+    "originalLength": 1384,
+    "cleanedLength": 537,
+    "tokenSavings": "61%",
+    "fullText": "[Context from previous 30 seconds: of RT work, we have been trying to establish such partner relations with the audience and you have succeeded in that. Any monopoly sooner or le later comes to an end regardless of how much is being paid attempts to preserve] New content to analyze: regardless of how much is being paid for attempts to preserve such monopolies by those who continue to sponsor them. Today in a strengthening multipolar world, intolerance to any sovereign independent thought is not just a vestage, it's a great obstacle",
+    "context": "[Context from previous 30 seconds: of RT work, we have been trying to establish such partner relations with the audience and you have succeeded in that. Any monopoly sooner or le later comes to an end regardless of how much is being paid attempts to preserve] New content to analyze: regardless of how much is being paid for attempts to preserve such monopolies by those who continue to sponsor them. Today in a strengthening multipolar world, intolerance to any sovereign independent thought is not just a vestage, it's a great obstacle",
+    "newContent": "[Context from previous 30 seconds: of RT work, we have been trying to establish such partner relations with the audience and you have succeeded in that. Any monopoly sooner or le later comes to an end regardless of how much is being paid attempts to preserve] New content to analyze: regardless of how much is being paid for attempts to preserve such monopolies by those who continue to sponsor them. Today in a strengthening multipolar world, intolerance to any sovereign independent thought is not just a vestage, it's a great obstacle",
+    "claims": [
+      {
+        "originalClaim": "Intolerance to sovereign independent thought is a great obstacle in a strengthening multipolar world.",
+        "cleanedClaim": "Intolerance to sovereign independent thought is a great obstacle in a strengthening multipolar world.",
+        "factual_core": "Intolerance to sovereign independent thought is a great obstacle in a strengthening multipolar world.",
+        "speaker": null,
+        "category": "POLITICS",
+        "checkability": 3,
+        "importance": 3,
+        "occurrences": [
+          {
+            "timestamp_hint": "N/A",
+            "rhetorical_framing": "Intolerance to sovereign independent thought is a great obstacle.",
+            "raw_snippet": "regardless of how much is being paid for attempts to preserve such monopolies by those who continue to sponsor them. Today in a strengthening multipolar world, intolerance to any sovereign independent thought is not just a vestage, it's a great obstacle"
+          }
+        ],
+        "phonetic_repairs": [],
+        "verification": {
+          "verdict": "true",
+          "explanation": "The claim suggests that intolerance to sovereign independent thought is an obstacle to a strengthening multipolar world. The Pravda EN article supports this claim by stating that intolerance towards sovereign independent thought hinders trust in this evolving multipolar world.",
+          "confidence": 0.6,
+          "key_facts": [],
+          "sources": [
+            {
+              "domain": "vertexaisearch.cloud.google.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQFr9B-Mj5L1k0peS3Qw8CtvNNoTRB9LQ9yUVoQnikXZ44-xz1G1rlmwEwV2kpGPSyrYp4CtXfll6uFvBZ_0N-TFUfUqSRoJIyp4UwK5YR-M1ylDXNNWMcTCsT7eGS39N90lKlhXlLllLrjmxcgQa2o6bK2VgAbActX-afEXDMmNYNyVjsKzgdRDpFABvJMXTcoCMlQlbk25lFK6lp7wD4yV3ZQDKk_z1kW0GzLkR1wursKD",
+              "title": "trendsresearch.org",
+              "tier": 4
+            },
+            {
+              "domain": "vertexaisearch.cloud.google.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQEO4Is17kg-5xS4RGiEmd0aBK2oxvqc0nf5XttjXosbLHnLaxmjDavJT7wtuEewqdSZ91PofJ8gZLgqe_UQvJ4DWsjB1mUnbgtN6gTYKEVSNPm-Rcyl7IdZN4kEfHZPChvjMU6SCV6eIHCeXaOqwQhsRCEPtGdUpUMkCGuWdkZ7zCofhxQL47XnJHQ47k5SKrui0j7K43U-WV0wGEzd_vY=",
+              "title": "howtests.com",
+              "tier": 4
+            },
+            {
+              "domain": "vertexaisearch.cloud.google.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQHu9ok2b3Qn4R2pnKhyFORBbzxJ_m3WTomHg4Qn1LQn2gK9f6YfCk5QvhXTWvhDPFQCrGNXYgCymVS-DVKDJjuni0wAln_YW3E54BoYk8nyOwZXzxwAZGMBHFugL_ecSmFKtta9uchF10B-zjo85DBEAYvovNDTwRINWuIvy3NgLC1BkB-8MHp9IquCWRQG9DRQcWGmM0OQV7EfxAgy4qNYWmcgQOxmyWHsRa-v",
+              "title": "trtworldforum.com",
+              "tier": 4
+            },
+            {
+              "domain": "vertexaisearch.cloud.google.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQGQIH4XiczOCRJh61LwYo7WdEuNmoyE3Z6NNEpcTv95irW7PHhTbeJlag2DbTM1BY8tPmRUYxyEcXvy7QiRVgrHpEqw0dWci8kFGkS9q7RhCXGUO8c2L4bf776t5DGSXIY1xKQm3Gemf_Tef6SDqYAcxlaf2J3tZ23_vN5Vx1D8IQ07KHZK4m-O9cHLjjNBxK_eR9EJBBifd0gyZQastFgENqsXjUnwxLkww7-BrOVLEhB21hp8sfe_PPtcHw_RdmRtDtTV",
+              "title": "medium.com",
+              "tier": 4
+            },
+            {
+              "domain": "vertexaisearch.cloud.google.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQHjHTk23ZlUD67CCGmrbjwWGkJ_97IPaEuQaa-fcLW71fRF6NQO2yRTJRZE3nz8Fv8dN4ki3aaLAnKj0ywXduyh0iHJA0k5G4-uZdB1Y-mhukeOttxH7Ygw9uRwUqXBJP0ou4CxrHuAjXhtLVp4N3qeRUulcwzRKPc4OMEiqV-a1vOfGl7JFji3R2fHoRM6",
+              "title": "credendo.com",
+              "tier": 4
+            },
+            {
+              "domain": "vertexaisearch.cloud.google.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQGWkehdqkXG33IEcrVYnCFCsYfTUm0PfLUQe9-SLLt13V0TxTlLH_Ki4zrI10NNsx3oHXu-HtCk1ZXv4cN6dA_227lIeCy_gDmNK82DNYFpOhypp7ETAlL8mFQrnaHUcYqoa9viJCFVwQ7w0F4Z_oY=",
+              "title": "news-pravda.com",
+              "tier": 4
+            }
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "timestamp": 532.190911,
+    "videoTime": "8:52",
+    "realTime": "2026-02-11T08:58:10.530Z",
+    "originalLength": 1289,
+    "cleanedLength": 516,
+    "tokenSavings": "60%",
+    "fullText": "[Context from previous 30 seconds: attempts to preserve such monopolies by those who continue to sponsor them. Today in a strengthening multipolar world, intolerance to any sovereign independent thought is not just vestage, it's a great obstacle] New content to analyze: independent thought is not just a vestage, it's a great obstacle hindering the development of trust and understanding between the peoples that we all need. This an obstacle, but just like any other obstacles, we will manage to overcome it. There",
+    "context": "[Context from previous 30 seconds: attempts to preserve such monopolies by those who continue to sponsor them. Today in a strengthening multipolar world, intolerance to any sovereign independent thought is not just vestage, it's a great obstacle] New content to analyze: independent thought is not just a vestage, it's a great obstacle hindering the development of trust and understanding between the peoples that we all need. This an obstacle, but just like any other obstacles, we will manage to overcome it. There",
+    "newContent": "[Context from previous 30 seconds: attempts to preserve such monopolies by those who continue to sponsor them. Today in a strengthening multipolar world, intolerance to any sovereign independent thought is not just vestage, it's a great obstacle] New content to analyze: independent thought is not just a vestage, it's a great obstacle hindering the development of trust and understanding between the peoples that we all need. This an obstacle, but just like any other obstacles, we will manage to overcome it. There",
+    "claims": []
+  },
+  {
+    "timestamp": 547.716596,
+    "videoTime": "9:07",
+    "realTime": "2026-02-11T08:58:26.057Z",
+    "originalLength": 1512,
+    "cleanedLength": 487,
+    "tokenSavings": "68%",
+    "fullText": "[Context from previous 30 seconds: the development of trust and understanding between the peoples that we all need. This an obstacle, but just like any other obstacles, we will manage overcome it. There] New content to analyze: other obstacles, we will manage to overcome it. There is no other way. for two decades. Thanks to RT as well, we hear an entire spectrum of voices from all across the earth, the people of Asia, Africa, and Latin America. Thanks to you can speak freely without",
+    "context": "[Context from previous 30 seconds: the development of trust and understanding between the peoples that we all need. This an obstacle, but just like any other obstacles, we will manage overcome it. There] New content to analyze: other obstacles, we will manage to overcome it. There is no other way. for two decades. Thanks to RT as well, we hear an entire spectrum of voices from all across the earth, the people of Asia, Africa, and Latin America. Thanks to you can speak freely without",
+    "newContent": "[Context from previous 30 seconds: the development of trust and understanding between the peoples that we all need. This an obstacle, but just like any other obstacles, we will manage overcome it. There] New content to analyze: other obstacles, we will manage to overcome it. There is no other way. for two decades. Thanks to RT as well, we hear an entire spectrum of voices from all across the earth, the people of Asia, Africa, and Latin America. Thanks to you can speak freely without",
+    "claims": []
+  },
+  {
+    "timestamp": 562.832724,
+    "videoTime": "9:22",
+    "realTime": "2026-02-11T08:58:41.171Z",
+    "originalLength": 1583,
+    "cleanedLength": 568,
+    "tokenSavings": "64%",
+    "fullText": "[Context from previous 30 seconds: overcome it. There is no other way. for two decades. Thanks to RT as well, we hear an entire spectrum of voices from all across the earth, the people of Asia, Africa, and Latin Thanks to you can speak freely] New content to analyze: Asia, Africa, and Latin America. Thanks to you can speak freely without seeking approval from the former colonial powers and authorities. It is important that RT channel provides its platform for journalists, scientists, experts from all over the world and most importantly people of different views,",
+    "context": "[Context from previous 30 seconds: overcome it. There is no other way. for two decades. Thanks to RT as well, we hear an entire spectrum of voices from all across the earth, the people of Asia, Africa, and Latin Thanks to you can speak freely] New content to analyze: Asia, Africa, and Latin America. Thanks to you can speak freely without seeking approval from the former colonial powers and authorities. It is important that RT channel provides its platform for journalists, scientists, experts from all over the world and most importantly people of different views,",
+    "newContent": "[Context from previous 30 seconds: overcome it. There is no other way. for two decades. Thanks to RT as well, we hear an entire spectrum of voices from all across the earth, the people of Asia, Africa, and Latin Thanks to you can speak freely] New content to analyze: Asia, Africa, and Latin America. Thanks to you can speak freely without seeking approval from the former colonial powers and authorities. It is important that RT channel provides its platform for journalists, scientists, experts from all over the world and most importantly people of different views,",
+    "claims": [
+      {
+        "originalClaim": "RT channel provides its platform for journalists, scientists, experts from all over the world and people of different views.",
+        "cleanedClaim": "RT channel provides its platform for journalists, scientists, experts from all over the world and people of different views.",
+        "factual_core": "RT channel provides its platform for journalists, scientists, experts from all over the world and people of different views.",
+        "speaker": null,
+        "category": "POLITICS",
+        "checkability": 3,
+        "importance": 3,
+        "occurrences": [
+          {
+            "timestamp_hint": "N/A",
+            "rhetorical_framing": "RT channel provides its platform for journalists, scientists, experts from all over the world and most importantly people of different views",
+            "raw_snippet": "It is important that RT channel provides its platform for journalists, scientists, experts from all over the world and most importantly people of different views,"
+          }
+        ],
+        "phonetic_repairs": [],
+        "verification": {
+          "verdict": "partially_true",
+          "explanation": "While RT states its mission is to provide an alternative perspective on global events, it has been described as a major propaganda outlet for the Russian government and has faced accusations of spreading disinformation and conspiracy theories. Therefore, the claim is only partially true.",
+          "confidence": 0.6,
+          "key_facts": [],
+          "sources": [
+            {
+              "domain": "vertexaisearch.cloud.google.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQHocqp0SNTKg_ESWkI9VWkK6s6GEyFf9yKLnV7QLu4qwn55O2DM6dO8rVJP6kodyJdPxUSbFHB16XoKOkxr293tzpdFf57miugWHlppBEXk8maIu5Oc0uqWYPxle0QQXiRoqmRfNyBckAkYE2pBz1u6b8z5_wv8DneVyG_jVD6PxFqcdPAFqg_eT6CJSxrhegJJkjQIWHElzyGyCVSpw9X2dKc3Dmq3URm1oA==",
+              "title": "righteousfelon.com",
+              "tier": 4
+            },
+            {
+              "domain": "vertexaisearch.cloud.google.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQFYuugLuJEzDtOmHiQogTGzGBhdEOdskWF7UrfdTWFJiNAfAEK4Q4KpXpLne2KdwHkDtMSMRvoWeocLpsRfbWNS1-EIzF7hDdjPz6f3uFISm56DOO037-T4mMuf6t6ouxPv1v9ZvpBVzw==",
+              "title": "wikipedia.org",
+              "tier": 4
+            },
+            {
+              "domain": "vertexaisearch.cloud.google.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQEknxsS_RpO_QCGpx5TYiZmOq2oPWi1GUKd8oyi9Z-WZtTPvolmhK-76FadPWaHKr34Xw13JrKD-MajfPS0PWIYEhw9XewUPCfkaeDwPx8BjUaKrLdY_xLtHuql_Jn1u3khjvx7hXLUTEDfQd-C54OwV8AmBtGCta1dm-Z_SzZAvTGQ7KeerUhrRzu3dV98NrQ=",
+              "title": "rockfeller.com.br",
+              "tier": 4
+            },
+            {
+              "domain": "vertexaisearch.cloud.google.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQH5HkDNc4vDYLy6BFOK1IesEduIHFgT4bs7-l30hMdb2Bj1qZ8epD0ZGNaSZqoRdrFt7aZ5ckZ64TBMUkGcXbfFfwtjL3Asce0RmcJWIzicGZU3Z_4s78rYK_ZjnEU7hC72FXW6k_OxoOQ-2Ez1HzjfAj2NM6S6AanM8d1oHuhKD7wNCAJDVLY5bBQ=",
+              "title": "xtremelashes.ca",
+              "tier": 4
+            },
+            {
+              "domain": "vertexaisearch.cloud.google.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQFpTrHVdFs9Lv8hBIDTdsG-5xyf2kWlHzAFxwpklY6b9DL8wC-wvkDh-vMf2breZcSRBIfbIuklmQhfrBkZQBqITkhTHvSx_rO-Dk0Vj0-ti9WDtjQ3tBBAjvI-Jh_O8FgWG_Y5QSGkNKq0vR7HjfalAjVomnFpmOhih1FmcQJKI2TH2i7s9O8BXiDS48dQrKhdYBsJSP_57ioxw7l6UvNdZBK7jDQk8aYoddK1rC2qkayKoCSym5zw98DRj42J",
+              "title": "quora.com",
+              "tier": 4
+            },
+            {
+              "domain": "vertexaisearch.cloud.google.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQFQVmME2BtSFB2pwSZZslMQ6dDQjshuGHRu7vyX2cNgRVO0kM-mYRxboF4X5canZdmohwF7fSLoaCN-om015b9eXOCAN9fo0LBkk4j5prXXe2kaoKH5XbW0yD9VbD09",
+              "title": "britannica.com",
+              "tier": 4
+            }
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "timestamp": 577.870635,
+    "videoTime": "9:37",
+    "realTime": "2026-02-11T08:58:56.209Z",
+    "originalLength": 1478,
+    "cleanedLength": 616,
+    "tokenSavings": "58%",
+    "fullText": "[Context from previous 30 seconds: Asia, Africa, and Latin America. Thanks to you can speak freely without seeking approval from the former colonial powers and authorities. It is important that RT channel provides its platform for journalists, scientists, experts from all over the world and most people of different views,] New content to analyze: all over the world and most importantly people of different views, convictions, nationalities regardless of bands, technical obstacles continue watching RT reading your social media. And even the representatives of the western elites admit that the audience of Russia",
+    "context": "[Context from previous 30 seconds: Asia, Africa, and Latin America. Thanks to you can speak freely without seeking approval from the former colonial powers and authorities. It is important that RT channel provides its platform for journalists, scientists, experts from all over the world and most people of different views,] New content to analyze: all over the world and most importantly people of different views, convictions, nationalities regardless of bands, technical obstacles continue watching RT reading your social media. And even the representatives of the western elites admit that the audience of Russia",
+    "newContent": "[Context from previous 30 seconds: Asia, Africa, and Latin America. Thanks to you can speak freely without seeking approval from the former colonial powers and authorities. It is important that RT channel provides its platform for journalists, scientists, experts from all over the world and most people of different views,] New content to analyze: all over the world and most importantly people of different views, convictions, nationalities regardless of bands, technical obstacles continue watching RT reading your social media. And even the representatives of the western elites admit that the audience of Russia",
+    "claims": [
+      {
+        "originalClaim": "Representatives of the Western elites admit to the audience of RT.",
+        "cleanedClaim": "Representatives of the Western elites admit to the audience of RT.",
+        "factual_core": "Representatives of the Western elites admit to the audience of RT.",
+        "speaker": null,
+        "category": "POLITICS",
+        "checkability": 3,
+        "importance": 3,
+        "occurrences": [
+          {
+            "timestamp_hint": "N/A",
+            "rhetorical_framing": "Representatives of the Western elites admit to the audience of RT.",
+            "raw_snippet": "And even the representatives of the western elites admit that the audience of Russia"
+          }
+        ],
+        "phonetic_repairs": [],
+        "verification": {
+          "verdict": "unverifiable",
+          "explanation": "The claim is difficult to verify without specific examples of 'Western elites' admitting to something on RT. While some Western figures may appear on RT, this does not automatically constitute an admission of wrongdoing or alignment with RT's views. Without further context or specific examples, the claim remains unverifiable.",
+          "confidence": 0.3,
+          "key_facts": [],
+          "sources": [
+            {
+              "domain": "vertexaisearch.cloud.google.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQHLmHDV6f8Bz4BAVqiONDnEa2ddERSkHwj_uw2iyldF9gf30hBdVCBCcJPuMSoSyWBVL-btNLl-FCzFcYsNxK12d5-Kmf04PzCTMkT4hidiEnyeUnf1J_ecjHat92LU1GlVfis-FIraruxJQwIBHd1qGsn_WL4VlINDc3DSODrd4P9C87DC-ZYqYIJFr9VGkt_TfHFcZAE6qU_yCPaaBA==",
+              "title": "islamtimes.com",
+              "tier": 4
+            },
+            {
+              "domain": "vertexaisearch.cloud.google.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQFZQajO6bakLJLlTib4vGD2BZdfBVwjcCy2KdHeSGS85075-gpN85YPixzl70E767xCFyEu9Q69LoaO42kLFVt6es6ophjOQ_mPWFyOaO1zaNmrZhEbo8r4JOKcjPJ-lAJ72NVAemE=",
+              "title": "youtube.com",
+              "tier": 4
+            },
+            {
+              "domain": "vertexaisearch.cloud.google.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQGGjTHrnc4e8NlJeIESyeBawytEV-_48nKb8e9Iz9EH58JkMerQu6g15Qs4UrPsXvIibueaY01x3XYVYyhLdspdmQdgSjfH0N7SLOO8hLq6hbYokF_LmpwNacGWanTCDw0Dv_cb3diq0nl9HJ3pRXhJ_PJpx0y2EFxXHVwZ5JeIuIDttBSc1fhhv3y6WWHtVvnE2cTVGJX2fVb8DzLKyEtpODBtpgBH4ki5vXAlkZRCLXQ9",
+              "title": "theguardian.com",
+              "tier": 4
+            }
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "timestamp": 593.146456,
+    "videoTime": "9:53",
+    "realTime": "2026-02-11T08:59:11.486Z",
+    "originalLength": 1454,
+    "cleanedLength": 545,
+    "tokenSavings": "63%",
+    "fullText": "[Context from previous 30 seconds: all over the world and most importantly people of different views, convictions, nationalities regardless of bands, technical obstacles continue watching RT reading your social media. And even the representatives of the western elites admit that the] New content to analyze: western elites admit that the audience of Russia today is bigger than that of their own domestic TV channels. Only over the last year, the overall number of views of the channels projects on social media reached almost 24 billion views.",
+    "context": "[Context from previous 30 seconds: all over the world and most importantly people of different views, convictions, nationalities regardless of bands, technical obstacles continue watching RT reading your social media. And even the representatives of the western elites admit that the] New content to analyze: western elites admit that the audience of Russia today is bigger than that of their own domestic TV channels. Only over the last year, the overall number of views of the channels projects on social media reached almost 24 billion views.",
+    "newContent": "[Context from previous 30 seconds: all over the world and most importantly people of different views, convictions, nationalities regardless of bands, technical obstacles continue watching RT reading your social media. And even the representatives of the western elites admit that the] New content to analyze: western elites admit that the audience of Russia today is bigger than that of their own domestic TV channels. Only over the last year, the overall number of views of the channels projects on social media reached almost 24 billion views.",
+    "claims": [
+      {
+        "originalClaim": "Russia Today's projects on social media reached almost 24 billion views over the last year.",
+        "cleanedClaim": "Russia Today's projects on social media reached almost 24 billion views over the last year.",
+        "factual_core": "Russia Today's projects on social media reached almost 24 billion views over the last year.",
+        "speaker": null,
+        "category": "STATISTICS",
+        "checkability": 3,
+        "importance": 5,
+        "occurrences": [
+          {
+            "timestamp_hint": "0:20",
+            "rhetorical_framing": "overall number of views of the channels projects on social media reached almost 24 billion views",
+            "raw_snippet": "western elites admit that the audience of Russia today is bigger than that of their own domestic TV channels. Only over the last year, the overall number of views of the channels projects on social media reached almost 24 billion views."
+          }
+        ],
+        "phonetic_repairs": [],
+        "verification": {
+          "verdict": "true",
+          "explanation": "The claim that Russia Today's projects on social media reached almost 24 billion views over the last year is supported by the Kremlin.",
+          "confidence": 0.6,
+          "key_facts": [],
+          "sources": [
+            {
+              "domain": "vertexaisearch.cloud.google.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQFVWiARSOEBlRXEU6wzMlWp7-MpAqW1bVYHZ3RE86AKw2qC8nBQwI2XqKgpzY_mYcdXQ71ax9nEg8aAAJVRZ4gGbOauDhBpeblEvoOhnhXxu5e_bfbetJ7Nfu8mKm_-SUQZ4zCMzmI=",
+              "title": "youtube.com",
+              "tier": 4
+            },
+            {
+              "domain": "vertexaisearch.cloud.google.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQGJb7HSow9pqUPtay8fDhCu7ea7Om-BKC67ksLqvDizxhDjw4VH04FWYcNmsrrX0DFiQsBSZP6KLC-Rp7S76R9aAbeWxfcUoPVgYSfLiJ8vKZJHajsheM3F81n0w7A7d-WR-usqMhtzQQ==",
+              "title": "wikipedia.org",
+              "tier": 4
+            },
+            {
+              "domain": "vertexaisearch.cloud.google.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQGkaNewjue4rJfox_IVBEettnxivbllGsG6f86G8qmxnpXwKHwiiUxDwEw_p0KCPQ7i_AWqeVHf0AaWCLzi4mH4V414xQYjHfEkpJ9ODT9f2tUtkqYtlBeiTB427XOnbScGTeqixbL66aDDP_SI4GEM_1I6a3ar_rEryQ_uQltuPGg=",
+              "title": "quora.com",
+              "tier": 4
+            },
+            {
+              "domain": "vertexaisearch.cloud.google.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQEtgUAPMa_DCXDbPtPgEOxYd06BewF7C3PsRSNEdPc02dbaOODGLF6DdyiHMnuvrPi9y2zkNrd32fuF2gmdX_RvvTQuDq7K9JaAJfLu97HoccsAU79U1jbLxRLYI7rMCceueEHPiq2qIev6wHDpCoQJpUEWuDBmyVi_Xj7zwgsqPoBq1EcPuxvcv348ljdnz0X-bnu6a-e5yr7ZRGphlH6mtRUARxH9Km3UqT53pedCfcIDe4K_eirIYPOnI9PJeA==",
+              "title": "polyglottistlanguageacademy.com",
+              "tier": 4
+            },
+            {
+              "domain": "vertexaisearch.cloud.google.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQH2JJv6M86y-xtPTThrByi9QwMYXOTXyyq9wi5EHtCE_7lXg3OmZvLtD2EO21Is6o4KnSGIBln_HmLYiukE9a4r_H-DJRXbN97F1QGYtKcsSzLEErSGYizGPnSTQCZa-aMczsSKunWUFA==",
+              "title": "bbc.co.uk",
+              "tier": 4
+            },
+            {
+              "domain": "vertexaisearch.cloud.google.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQFYB9he5vCCaITnd6VV8JZ2z4OOAB6v6joclXyFa2WZXyMDp3pSsO6zXNQFsjBhiFC1GAmvT7BrvqfnsUcKhZq9ClDRLhZRsRWwohiYgINKxqEzYqw8RTucqmk-D0gsToIdhI2vvr5fi1gdk9tZZvAKD2Oj2glizpOWVFA9VsSxQ7klKKwzsXEEL3TsUccPGPUaYZPhc8_9XdGHvh7atKPPvAj2rdunyt6UpLuSI7wGAv7H0GUGcucB885_Pw==",
+              "title": "themoscowtimes.com",
+              "tier": 4
+            }
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "timestamp": 608.592232,
+    "videoTime": "10:08",
+    "realTime": "2026-02-11T08:59:26.931Z",
+    "originalLength": 1202,
+    "cleanedLength": 425,
+    "tokenSavings": "65%",
+    "fullText": "[Context from previous 30 seconds: is bigger than that of their own domestic TV channels. Only over the last year, the overall number of views of the channels projects on social reached almost 24 billion views.] New content to analyze: channels projects on social media reached almost 24 billion views. The overall audience of RTV channels on the cable television platforms is almost a billion viewers. And this figure leaves",
+    "context": "[Context from previous 30 seconds: is bigger than that of their own domestic TV channels. Only over the last year, the overall number of views of the channels projects on social reached almost 24 billion views.] New content to analyze: channels projects on social media reached almost 24 billion views. The overall audience of RTV channels on the cable television platforms is almost a billion viewers. And this figure leaves",
+    "newContent": "[Context from previous 30 seconds: is bigger than that of their own domestic TV channels. Only over the last year, the overall number of views of the channels projects on social reached almost 24 billion views.] New content to analyze: channels projects on social media reached almost 24 billion views. The overall audience of RTV channels on the cable television platforms is almost a billion viewers. And this figure leaves",
+    "claims": [
+      {
+        "originalClaim": "Channels projects on social media reached almost 24 billion views.",
+        "cleanedClaim": "Channels projects on social media reached almost 24 billion views.",
+        "factual_core": "Channels projects on social media reached almost 24 billion views.",
+        "speaker": null,
+        "category": "STATISTICS",
+        "checkability": 3,
+        "importance": 3,
+        "occurrences": [
+          {
+            "timestamp_hint": "previous 30 seconds",
+            "rhetorical_framing": "overall number of views of the channels projects on social",
+            "raw_snippet": "channels projects on social media reached almost 24 billion views."
+          }
+        ],
+        "phonetic_repairs": [],
+        "verification": {
+          "verdict": "false",
+          "explanation": "I was unable to find any reliable sources to verify the claim that \\\"Channels projects on social media reached almost 24 billion views.\\\" [Math Guardrail: Spezifische Zahlenangabe widerspricht den gefundenen Daten.]",
+          "confidence": 0.7,
+          "key_facts": [],
+          "sources": [
+            {
+              "domain": "vertexaisearch.cloud.google.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQGEPnURxEShQSTGWxlcH_QliU4yO0tLC8Yw2x8SAvqZ7jsVNNS4KViWwPRxAtOqJRWMH0wbOuZ55X_MhAi_ixmA9c3zRhH_DFI1NunCZccRKRc24ZJ2ubC41s09u9tN_9vCjTAc6WjDxV3toIWu-SDWHV5GJRNzg-NVKBXofQ==",
+              "title": "mediabrief.com",
+              "tier": 4
+            },
+            {
+              "domain": "vertexaisearch.cloud.google.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQHw4opZRRsd5hjwroN4QojN_IPkWDXoek3zb1YkFadYZjzKGEWPgBIhd8DMiyNHOYMVq6b2-5fjPoVe4BuepuKfHrgIxY3s8fRy5Yu_LEg_IKzmc3T1QqyPku491-h6zzLXBeZBSFVcYSNElmXu1tZVyx6oxW4qdnubPyxzfk688ZBmNEK3EU8QtZJNyOqNcZ_u18ySSmCDVdC7Wvcn0Q==",
+              "title": "mediacat.uk",
+              "tier": 4
+            },
+            {
+              "domain": "vertexaisearch.cloud.google.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQH3zYLd95cDSDrwGm349LDvJ4t920x51XdYfraUM8pnm31GmmDeyD73657V7bYOqfnEyOnjE_fLwRyVrGV0xBZnMy4iIvi2N3xeDXZYN2v-OPnIq25sYHTmGf_3kDZKgQSQd9LBcbjvO2tBxZk3MfrbMUQe2JleeqQ6BActBwA4MYkkKQ15Ghnwrm-0s5isUQzd_ZcCubWDvQPmdtfUc04EEWjmrMWb",
+              "title": "projectcasting.com",
+              "tier": 4
+            },
+            {
+              "domain": "vertexaisearch.cloud.google.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQFnPluqfQkesI2l1uVBsoRrhrOOUBiSV98mB_KHxMN9J9XrUI_-I_Te2C7rfwk7h4lMOsw22FG_I0USLpEj2I5NR1Bhj7s3WOQF5iB3JAZ1NUUkfG-aWarKVvRfbskYj8vRJ-MljZAFSAlqZTtsZu2vORqcuc66xR9B42pV_lWnemMz4v_zJPGr6rrxErXkaQ4b",
+              "title": "cybernews.com",
+              "tier": 4
+            }
+          ]
+        }
+      },
+      {
+        "originalClaim": "The overall audience of RTV channels on cable television platforms is almost a billion viewers.",
+        "cleanedClaim": "The overall audience of RTV channels on cable television platforms is almost a billion viewers.",
+        "factual_core": "The overall audience of RTV channels on cable television platforms is almost a billion viewers.",
+        "speaker": null,
+        "category": "STATISTICS",
+        "checkability": 3,
+        "importance": 3,
+        "occurrences": [
+          {
+            "timestamp_hint": "end of snippet",
+            "rhetorical_framing": "overall audience of RTV channels",
+            "raw_snippet": "The overall audience of RTV channels on the cable television platforms is almost a billion viewers."
+          }
+        ],
+        "phonetic_repairs": [],
+        "verification": {
+          "verdict": "unverifiable",
+          "explanation": "No reliable source was found to verify the claim that the overall audience of RTV channels on cable television platforms is almost a billion viewers. The statement originates from the video itself, which lowers the confidence.",
+          "confidence": 0.1,
+          "key_facts": [],
+          "sources": []
+        }
+      }
+    ]
+  },
+  {
+    "timestamp": 623.793278,
+    "videoTime": "10:23",
+    "realTime": "2026-02-11T08:59:42.133Z",
+    "originalLength": 1566,
+    "cleanedLength": 564,
+    "tokenSavings": "64%",
+    "fullText": "[Context from previous 30 seconds: channels projects on social media reached almost 24 billion views. The overall audience of RTV channels on the cable television platforms is almost a billion viewers. this leaves] New content to analyze: And this figure leaves us convinced that you will continue your successful work. And this understandable. In Europe and the United States and in other countries, the citizens are aspiring to preserve their national culture, the memory of generations. They're countering the social inequality, the destruction of their family,",
+    "context": "[Context from previous 30 seconds: channels projects on social media reached almost 24 billion views. The overall audience of RTV channels on the cable television platforms is almost a billion viewers. this leaves] New content to analyze: And this figure leaves us convinced that you will continue your successful work. And this understandable. In Europe and the United States and in other countries, the citizens are aspiring to preserve their national culture, the memory of generations. They're countering the social inequality, the destruction of their family,",
+    "newContent": "[Context from previous 30 seconds: channels projects on social media reached almost 24 billion views. The overall audience of RTV channels on the cable television platforms is almost a billion viewers. this leaves] New content to analyze: And this figure leaves us convinced that you will continue your successful work. And this understandable. In Europe and the United States and in other countries, the citizens are aspiring to preserve their national culture, the memory of generations. They're countering the social inequality, the destruction of their family,",
+    "claims": [
+      {
+        "originalClaim": "Citizens in Europe, the United States, and other countries are aspiring to preserve their national culture and the memory of generations.",
+        "cleanedClaim": "Citizens in Europe, the United States, and other countries are aspiring to preserve their national culture and the memory of generations.",
+        "factual_core": "Citizens in Europe, the United States, and other countries are aspiring to preserve their national culture and the memory of generations.",
+        "speaker": null,
+        "category": "POLITICS",
+        "checkability": 3,
+        "importance": 3,
+        "occurrences": [
+          {
+            "timestamp_hint": "N/A",
+            "rhetorical_framing": "Citizens aspiring to preserve national culture and memory of generations.",
+            "raw_snippet": "In Europe and the United States and in other countries, the citizens are aspiring to preserve their national culture, the memory of generations."
+          }
+        ],
+        "phonetic_repairs": [],
+        "verification": {
+          "verdict": "true",
+          "explanation": "Citizens in Europe and the U.S. are actively involved in initiatives aimed at preserving national culture and generational memory, supported by various programs and funding opportunities.",
+          "confidence": 0.6,
+          "key_facts": [],
+          "sources": [
+            {
+              "domain": "vertexaisearch.cloud.google.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQHsKhBsKObf3-WsQrwDKNCggCl1CHSdLSa8OIWj5fPr7aqKgFW15IBww_l78tnxFNWagAPzfGkpL0t79zJFzKTZUY_zrB8ZZYyideS4RbP715KUhpyecoAeVeZRAZDEis5ZoawD0MtxxadevuFoDTZPMGNRcCcB3TNvQPrhDaU9KMmdXCT_yVBPA9IFipJIkRY_sMSVKw==",
+              "title": "europa.eu",
+              "tier": 4
+            },
+            {
+              "domain": "vertexaisearch.cloud.google.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQEdxteFvDT0nnlrMVN3s1BjwQnmrt9Z1mkeiyfmKnX5_I-QPrxl7MrF9uWPPML4iexl9ok50MD5yhunv6_DHYs3Ckhv-4dVLojd0OGW07eOrveE5L1aWlelC95wqsyBY3Q0w0qpPgsseDvIipTvZWk=",
+              "title": "culture.gov.in",
+              "tier": 4
+            },
+            {
+              "domain": "vertexaisearch.cloud.google.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQEt9OL2O9DAjsrWLnm8owx7oZA3sVtOOCVKQNFshpJJ-dG39E5bXJXi7nNf0ZN7zh1RLrlVaC9uKi_tpdpZmcPfxrwiuk6sCOd5nM0x9Vv7ZU7Q3kMSpIxYqgo4Fc8Y9Yba_hBkV51VOfxxHlJ6ItHwKAo0zEnrqqPfUyrBIQvunxCirx0rFCXdlzg=",
+              "title": "duke.edu",
+              "tier": 4
+            },
+            {
+              "domain": "vertexaisearch.cloud.google.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQHtytB5D4hODzFltwVWVThS3apkvnT2C-oQEMSyNJ1s0ZpS_o3DSS-nJCzxKS4RHiVK-3EUtHpfQkfTxHN7ptApo_QUgVczo5oKClrBLBwd8VnRA2EpksW1o6r5dQD0wM1Lr-NipYxA_hWqE3MAr_iBuUQ_DR6VGfO2bomZcGJn86eF6A==",
+              "title": "usembassy.gov",
+              "tier": 4
+            },
+            {
+              "domain": "vertexaisearch.cloud.google.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQEn2V4jb6T5eAJynJzKNCFDBIw4YcRiCT0uXkR-uPEOhtLBSzqqPgIpt8d45WTALj2INEIV0VWTBo6wkpr0OMFDmGZDN08wXlrqTzNcKCLXIeAQpHPW388C9sG9lIfn3xpLInvGcHKgvCI6X559NmZnwoZ3O1bYCCccohOq9F83",
+              "title": "usembassy.gov",
+              "tier": 4
+            },
+            {
+              "domain": "vertexaisearch.cloud.google.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQGKU0ne0a8kFABdC6QxRdnVM04_gK_GPpeKEk0J9Ke0wGqHBebr1bce-58j5-ndqcvuDTOBp0SvEIksd4CXrNqyqXwiUaU6sRlu41L8aR8JxwgqlLpxt-CL8eU7BwWEirM6uK2c0JzprM1RXVzhEWXvRqM3hDJmYLbdDOi1L-67DeLQXvrU0NQmODB1aLqFqHE8X7UxBAkr9TjEKhgBlbOcxCvlF27UAwJYO52AvQ==",
+              "title": "fundsforngos.org",
+              "tier": 4
+            }
+          ]
+        }
+      },
+      {
+        "originalClaim": "Citizens in Europe, the United States, and other countries are countering social inequality and the destruction of their family.",
+        "cleanedClaim": "Citizens in Europe, the United States, and other countries are countering social inequality and the destruction of their family.",
+        "factual_core": "Citizens in Europe, the United States, and other countries are countering social inequality and the destruction of their family.",
+        "speaker": null,
+        "category": "POLITICS",
+        "checkability": 3,
+        "importance": 3,
+        "occurrences": [
+          {
+            "timestamp_hint": "N/A",
+            "rhetorical_framing": "Citizens countering social inequality and destruction of family.",
+            "raw_snippet": "They're countering the social inequality, the destruction of their family"
+          }
+        ],
+        "phonetic_repairs": [],
+        "verification": {
+          "verdict": "partially_true",
+          "explanation": "The claim is partially true. There is evidence of efforts to counter social inequality and support families in Europe and the United States, but the extent to which these efforts are 'countering' the issues is not fully substantiated by the provided evidence. The evidence suggests that inequality is still a significant issue, and family structures are evolving due to various economic and cultural factors.",
+          "confidence": 0.7,
+          "key_facts": [],
+          "sources": [
+            {
+              "domain": "vertexaisearch.cloud.google.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQH4qDUOGD5iBoP41B8EZycv3byi5vcxG4wZWm8KXNbdod22fLgcULbJTYc1Mzg4Yb5gBf8BHmfUXoyqVLW88keXbWVNotc8V7CoKq-5uwXwFe5ca7QJcE9lvjM-tSgq2OFJTPgsfv_t9OWZF7ej_CJ5vO366BiNHSXeHsEYcsFnKjrSFbtWjVM=",
+              "title": "imperial.ac.uk",
+              "tier": 4
+            },
+            {
+              "domain": "vertexaisearch.cloud.google.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQHGnvodMVd4sqkDyWSgw_dqGIS6BtvZ2KFLlk4GcT6UpF0KmloH1NRaRL6mZVtr6DhKts9vtezn_3YOEXMhsS9sPFxcyhT0z6HEXAFeBoqjqbJyIEd6G7g7NHAye4iEXLMPMgrnIZgiam43GwpTgkA4JqBh_ZDpAbfyhlYHD3mGlv1BbqdUOv54uWAHTpvphb5olX4BIClbS4BQSjeZfA==",
+              "title": "theguardian.com",
+              "tier": 4
+            },
+            {
+              "domain": "vertexaisearch.cloud.google.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQHAbwLsIabevy4Ze0VRvfCs6PSXHULRY7exGcNzv2Fxam0XipyF5NxDBnyq-7qXKIbl6xJJOaAGI8vZkNnTMBXS40InOJGgcHSbKkJzznRMcvKnFGAm4ZwNw5WEMCOlcx6MGm0QRYgLExuCSqZ7tbSBELcBii2Pp_EBt1DVa0eeFmNoiu0c3PcHPJ9zZyr4vg==",
+              "title": "wid.world",
+              "tier": 4
+            },
+            {
+              "domain": "vertexaisearch.cloud.google.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQFgU4c_SWRycyCK28L0lzdHhzlQghOZXG0-cPdbrqWJiOHTf3s_wjEYukU6W6Qaa43y4J8iV7mvYC44qvga536gQXGZpBEmqeop71ikRNDGP_EZ2z7UMSInKbOE5t3qcMk_LJ3Ylrng1BnW_PZSTinqrZ3po_7l5y0PFrhF8q_XHm4zih5VX84kkas2bGoNzfYyNmuVD9Om-brePtW9goqiaT-p1PBRzKH3QeDEZdJ0z9gkN38=",
+              "title": "pewresearch.org",
+              "tier": 4
+            },
+            {
+              "domain": "vertexaisearch.cloud.google.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQEgV5MLE70QldoWkIIeTfcMzv-NnvxtJm6FE2MJukn0nCFRpcI2e4TnqPIX6O6OyjdySeuqTm_dKvcyt3BQE-GsPEmRIHkvoBdYzSlbXD8UBsdOzVyOvy9AsA==",
+              "title": "parent-project.eu",
+              "tier": 4
+            },
+            {
+              "domain": "vertexaisearch.cloud.google.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQG2VUKnes7rEhJNejfDVYcQT30_6sjtHdla3UfZdDJunguhGSGUb_TpjiRuDs1v4tYJ-QC0-g7d-2EuD1HIayghJcR3Du6TR1T_XOJy80Z5tdqpBIQfNW5gyszWGPKzqGiw-Xxf0Q==",
+              "title": "coface-eu.org",
+              "tier": 4
+            },
+            {
+              "domain": "vertexaisearch.cloud.google.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQG9yG-3LNTSWd9N5btfIgqFFoALUwGVbQ9bdBdC4lGSZURRCJjl1b2qUGPwP0CRNw9F9oC031Z813L1VIX1NEA7nkrNEconx9KNxAsONVzFSdHRSOpLeL7sydfegX4RAv7GJrzyaKF3Jq36SyaG_ltNTQ7AnRXhzoAz2ykxuKA=",
+              "title": "unicef.org",
+              "tier": 4
+            }
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "timestamp": 638.991506,
+    "videoTime": "10:38",
+    "realTime": "2026-02-11T08:59:57.331Z",
+    "originalLength": 1966,
+    "cleanedLength": 612,
+    "tokenSavings": "69%",
+    "fullText": "[Context from previous 30 seconds: leaves us convinced that you will continue your successful work. And this understandable. In Europe and the United States and in other countries, the citizens are aspiring to preserve their national culture, the memory of generations. They're countering the social inequality, the destruction] New content to analyze: social inequality, the destruction of their family, and the attacks on the rights of the children. And this coincides with the Russian position these matters. And it is thanks to RT that the world learned that our country firmly defends traditional values. We",
+    "context": "[Context from previous 30 seconds: leaves us convinced that you will continue your successful work. And this understandable. In Europe and the United States and in other countries, the citizens are aspiring to preserve their national culture, the memory of generations. They're countering the social inequality, the destruction] New content to analyze: social inequality, the destruction of their family, and the attacks on the rights of the children. And this coincides with the Russian position these matters. And it is thanks to RT that the world learned that our country firmly defends traditional values. We",
+    "newContent": "[Context from previous 30 seconds: leaves us convinced that you will continue your successful work. And this understandable. In Europe and the United States and in other countries, the citizens are aspiring to preserve their national culture, the memory of generations. They're countering the social inequality, the destruction] New content to analyze: social inequality, the destruction of their family, and the attacks on the rights of the children. And this coincides with the Russian position these matters. And it is thanks to RT that the world learned that our country firmly defends traditional values. We",
+    "claims": [
+      {
+        "originalClaim": "Citizens in Europe, the United States, and other countries are countering social inequality, the destruction of their family, and the attacks on the rights of the children.",
+        "cleanedClaim": "Citizens in Europe, the United States, and other countries are countering social inequality, the destruction of their family, and the attacks on the rights of the children.",
+        "factual_core": "Citizens in Europe, the United States, and other countries are countering social inequality, the destruction of their family, and the attacks on the rights of the children.",
+        "speaker": null,
+        "category": "POLITICS",
+        "checkability": 3,
+        "importance": 3,
+        "occurrences": [
+          {
+            "timestamp_hint": "social inequality, the destruction of their family, and the attacks on the rights of the children.",
+            "rhetorical_framing": "Citizens countering social inequality, family destruction, attacks on children's rights",
+            "raw_snippet": "social inequality, the destruction of their family, and the attacks on the rights of the children."
+          }
+        ],
+        "phonetic_repairs": [],
+        "verification": {
+          "verdict": "partially_true",
+          "explanation": "The claim discusses social inequality, family structure, and children's rights in Europe and the US. Evidence indicates rising income inequality and evolving family structures in both regions. Organizations are actively working to defend children's rights. Therefore, the claim is partially supported by the evidence.",
+          "confidence": 0.6,
+          "key_facts": [],
+          "sources": [
+            {
+              "domain": "vertexaisearch.cloud.google.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQGAlGlV_bDPKQ6yqtokuAaPGvnZV-glBNfER_c6jxjavxHt_AMeQB4Q4Plw4ImZFyIWcsjHK4ROdaECpRX9wHmssI3VdJ8k6LbbCh5VUpKggmr44G4pS5O_TWQpaXlpTu-TGNYlPEdpLrx2rFCZGr973HrI0E69X5izJlY8nVlQsh14zjtA0J_z13U0h4_fIA==",
+              "title": "wid.world",
+              "tier": 4
+            },
+            {
+              "domain": "vertexaisearch.cloud.google.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQFrReNsmmiYH9mlEnuFoT5racRrvB7NhEp0m37p5eNuvjbbpBP1LEdVDr8AiOQt5nYoKDumMHH2UUJLHl2bBQHMNsdNYmjzz75TSi1vXHQBLV9gUiz86Gudt8FP8FVx86MDoSsoFkFu6WZSRvgoF6byUYTj3N36lS21SrJfTCFYAXrXT-wfOYqqOLfgIKE3P2sCCsJvgoo=",
+              "title": "ifstudies.org",
+              "tier": 4
+            },
+            {
+              "domain": "vertexaisearch.cloud.google.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQHFbxmX_cfyVKvKx5ZlYNZkVAYgOsndWEA4dmH5MtFszIc4ssI05-t4DJIMO-_uQrfnYgpLwK8xK3VBYcALJyg8JdQuqAKNqTAtbp5Tfg5bhAwiglmKtz7sKFQsD4Gj-cRSG7ygE00qFYLqBLsh3flYEibVkH-IVJOBj1Sj2Mry6O82c22a8w4Ced1QBg==",
+              "title": "humanrightscareers.com",
+              "tier": 4
+            },
+            {
+              "domain": "vertexaisearch.cloud.google.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQEi5UAMhfPBD8rdtb7ynCYLU95m62rQwUBypPIKqXozh5CdS21k_kfAr3kzF2ecb8Ba_du5_e5DJlsgHC5R6w1jiyt-pbE7VBPrLV3plcJQ0aC6FXTHjQzssTsFDymqStN8lnqhm-mYf6J7XnRV0RqsRwggS9x8uGBdSjTXBLZVIB_SGA7-Fw==",
+              "title": "unicefusa.org",
+              "tier": 4
+            },
+            {
+              "domain": "vertexaisearch.cloud.google.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQEVCe7xkJP6aMM18iN_wz7ojgWTQixzL3EwQFp2dnpnNVHKrCVDtFebWbH1WzGBV9JWcs65ETWdX3GpS7uS-wHqOJqzc0DbtAgWJvJTTSHCXgaFne6YaXtvZTWf-4UAm22wBCYiL9vNDedY-F3idtvdOVYx5HGr_EI8bmawe5SE_Pe8Nw==",
+              "title": "savethechildren.net",
+              "tier": 4
+            },
+            {
+              "domain": "vertexaisearch.cloud.google.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQGdJc1HvsAdgMoE1b3Q852aAilSOiTBIdrvrSUj_TqXDGqg2N1uj4vo_a13uU_H2NKWYq0hsDCElfCG9co-e5VwCR14hH75SgdiZRVQtlgrKeP_",
+              "title": "unicef.org",
+              "tier": 4
+            }
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "timestamp": 654.118129,
+    "videoTime": "10:54",
+    "realTime": "2026-02-11T09:00:12.457Z",
+    "originalLength": 1803,
+    "cleanedLength": 569,
+    "tokenSavings": "68%",
+    "fullText": "[Context from previous 30 seconds: their family, and the attacks on the rights of the children. And this coincides with the Russian position these matters. And it is thanks to RT that the world learned that our firmly defends traditional values.] New content to analyze: that the world learned that our country firmly defends traditional values. We are stronghold in the modern life and the modern world which is full of conflicts and differences and challenges. We never discriminated or banned anything. And in the years that I mentioned as well, we are merely trying",
+    "context": "[Context from previous 30 seconds: their family, and the attacks on the rights of the children. And this coincides with the Russian position these matters. And it is thanks to RT that the world learned that our firmly defends traditional values.] New content to analyze: that the world learned that our country firmly defends traditional values. We are stronghold in the modern life and the modern world which is full of conflicts and differences and challenges. We never discriminated or banned anything. And in the years that I mentioned as well, we are merely trying",
+    "newContent": "[Context from previous 30 seconds: their family, and the attacks on the rights of the children. And this coincides with the Russian position these matters. And it is thanks to RT that the world learned that our firmly defends traditional values.] New content to analyze: that the world learned that our country firmly defends traditional values. We are stronghold in the modern life and the modern world which is full of conflicts and differences and challenges. We never discriminated or banned anything. And in the years that I mentioned as well, we are merely trying",
+    "claims": [
+      {
+        "originalClaim": "Russia defends traditional values.",
+        "cleanedClaim": "Russia defends traditional values.",
+        "factual_core": "Russia defends traditional values.",
+        "speaker": null,
+        "category": "POLITICS",
+        "checkability": 3,
+        "importance": 3,
+        "occurrences": [
+          {
+            "timestamp_hint": "N/A",
+            "rhetorical_framing": "Russia firmly defends traditional values.",
+            "raw_snippet": "that the world learned that our country firmly defends traditional values."
+          }
+        ],
+        "phonetic_repairs": [],
+        "verification": {
+          "verdict": "true",
+          "explanation": "Russia has taken legislative and policy actions that it describes as defending traditional values. This includes defining traditional values in a decree, implementing laws against \\\"propaganda of non-traditional sexual relationships,\\\" and planning to check films for content violating these values.",
+          "confidence": 0.3,
+          "key_facts": [],
+          "sources": [
+            {
+              "domain": "vertexaisearch.cloud.google.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQHyrhOaR11fc_uROWJ9F8q0SSGJXYoP7Lo_9cpGPYomeS66kYZYdhc1DLbeclkRhE84MDChRKCA9cgdKqW0kBGz_nzgcHB1SMaBlxswcNKqvQtPrZ-tXCey1UUW9uJPU4XV0s8jJU4DCi_mPSrX23gVQot9CJ7U_mP-pVw3-1_DMvM=",
+              "title": "posle.media",
+              "tier": 4
+            },
+            {
+              "domain": "vertexaisearch.cloud.google.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQGRygI0qFsrNlfaFF4IWe6FZHDIz4rpPLW8kPo95dB2WE39jl8tNFDW13pN_reAtXV4eU6fVYqr5AA4Ef8F_DF5FqQAEuLZ6jHxnmnog6R3sJPwBhVmgwIrDBVKg1VdGuMSmOwwmVovibSvGXfg7g==",
+              "title": "wikipedia.org",
+              "tier": 4
+            },
+            {
+              "domain": "vertexaisearch.cloud.google.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQHLPm6Pxxo5EqhkLfMVWjViGftoJBc-tlUTQ8XKZopK9Bftu4nPZD8P3Kv7TpzrE7XPJlTtHhbXb5LWbr6bR8vOexL-FqeM__u56jKzoVYLLTzK7gnQCmIvBn2pMtjtp6D3PyunV2RnIMITPJw8eYbzsFGJ-4L_v3BGT_TSeNFZ7GVJ0woGlvxI16oGyD7CC-IKcyaNXw6ILmleXf676fVhf6w=",
+              "title": "themoscowtimes.com",
+              "tier": 4
+            }
+          ]
+        }
+      }
+    ]
+  }
+]

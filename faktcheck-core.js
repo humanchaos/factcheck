@@ -437,11 +437,11 @@ SOURCES: [URL1; URL2]`;
 
 // ─── VERDICT NORMALIZATION ──────────────────────────────────
 
-const VALID = ['true', 'mostly_true', 'partially_true', 'mostly_false', 'false', 'unverifiable', 'misleading', 'opinion', 'deceptive'];
+const VALID = ['true', 'mostly_true', 'partially_true', 'mostly_false', 'false', 'unverifiable', 'misleading', 'opinion', 'deceptive', 'missing_context'];
 const DISPLAY = {
     true: 'true', mostly_true: 'true', false: 'false', mostly_false: 'false',
     deceptive: 'deceptive', partially_true: 'partially_true', misleading: 'partially_true',
-    unverifiable: 'unverifiable', opinion: 'opinion'
+    unverifiable: 'unverifiable', opinion: 'opinion', missing_context: 'missing_context'
 };
 
 function normalizeVerdict(data, claim = {}) {
@@ -485,23 +485,25 @@ function getDisplayConfig() {
     const I18n = window.TruthLensI18n;
     const t = I18n ? (k) => I18n.tSync(k) : (k) => k;
     return {
-        true: { label: t('displayTrue'), color: '#22c55e', icon: '✅' },
-        false: { label: t('displayFalse'), color: '#ef4444', icon: '❌' },
-        deceptive: { label: t('displayDeceptive'), color: '#f97316', icon: '⚠️' },
-        partially_true: { label: t('displayPartial'), color: '#eab308', icon: '⚡' },
-        unverifiable: { label: t('displayUnverifiable'), color: '#6b7280', icon: '❓' },
-        opinion: { label: t('displayOpinion'), color: '#8b5cf6', icon: '💬' }
+        true: { label: t('displayTrue'), color: '#22c55e', icon: '\u2705' },
+        false: { label: t('displayFalse'), color: '#ef4444', icon: '\u274c' },
+        deceptive: { label: t('displayDeceptive'), color: '#f97316', icon: '\u26a0\ufe0f' },
+        partially_true: { label: t('displayPartial'), color: '#eab308', icon: '\u26a1' },
+        unverifiable: { label: t('displayUnverifiable'), color: '#6b7280', icon: '\u2753' },
+        opinion: { label: t('displayOpinion'), color: '#8b5cf6', icon: '\ud83d\udcac' },
+        missing_context: { label: t('displayMissingContext'), color: '#f59e0b', icon: '\ud83d\udd0d' }
     };
 }
 
 // Static fallback for code that reads DISPLAY_CONFIG directly
 const DISPLAY_CONFIG = {
-    true: { label: 'Confirmed', color: '#22c55e', icon: '✅' },
-    false: { label: 'False', color: '#ef4444', icon: '❌' },
-    deceptive: { label: 'Deceptive', color: '#f97316', icon: '⚠️' },
-    partially_true: { label: 'Partially true', color: '#eab308', icon: '⚡' },
-    unverifiable: { label: 'Unverifiable', color: '#6b7280', icon: '❓' },
-    opinion: { label: 'Opinion', color: '#8b5cf6', icon: '💬' }
+    true: { label: 'Confirmed', color: '#22c55e', icon: '\u2705' },
+    false: { label: 'False', color: '#ef4444', icon: '\u274c' },
+    deceptive: { label: 'Deceptive', color: '#f97316', icon: '\u26a0\ufe0f' },
+    partially_true: { label: 'Partially true', color: '#eab308', icon: '\u26a1' },
+    unverifiable: { label: 'Unverifiable', color: '#6b7280', icon: '\u2753' },
+    opinion: { label: 'Opinion', color: '#8b5cf6', icon: '\ud83d\udcac' },
+    missing_context: { label: 'Missing Context', color: '#f59e0b', icon: '\ud83d\udd0d' }
 };
 
 // ─── EXPORTS ────────────────────────────────────────────────

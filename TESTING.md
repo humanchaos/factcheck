@@ -1,6 +1,6 @@
 # Testing Guide
 
-> FAKTCHECK v2.1.0 — Quality assurance, golden tests, and release criteria.
+> FAKTCHECK v2.3.0 — Quality assurance, golden tests, Quality Gate, and release criteria.
 
 ## The 22 Golden Tests
 
@@ -65,6 +65,61 @@ node test-stage2-validation.js
 
 ---
 
+## FAKTCHECK Quality Gate (v2.3.0)
+
+The Quality Gate is a **zero-LLM, deterministic** output validation system that runs 20 checks across 4 categories against exported JSON. Think of it as **ESLint for fact-checking output**.
+
+### Running the Quality Gate
+
+```bash
+# Standard report
+python3 faktcheck_quality_gate.py tests/golden/<file>.json
+
+# Strict mode (exit code 1 on critical issues)
+python3 faktcheck_quality_gate.py tests/golden/<file>.json --strict
+
+# JSON output (for CI/CD)
+python3 faktcheck_quality_gate.py tests/golden/<file>.json --json
+
+# Auto-fix (repairs fixable violations, writes to --output)
+python3 faktcheck_quality_gate.py tests/golden/<file>.json --fix --output fixed.json
+```
+
+### Check Categories
+
+| Category | Checks | What It Catches |
+|----------|:------:|----------------|
+| **Structural (S1-S5)** | 5 | Missing fields, invalid verdicts, untyped sources, no `cleanedClaim` |
+| **Semantic (M1-M5)** | 5 | YouTube as evidence, wrong language, circular references, polluted searches |
+| **Consistency (C1-C5)** | 5 | Duplicate claims, contradictory verdicts, confidence incoherence |
+| **Extraction (E1-E5)** | 5 | Speaker-action leaks, opinion leaks, over-atomization, future-tense claims |
+
+### Scoring
+
+| Grade | Score | Meaning |
+|:-----:|:-----:|---------|
+| A | 90-100 | ✅ Production ready |
+| B | 80-89 | ⚠️ Minor issues only |
+| C | 70-79 | 🔴 Critical issues present |
+| D | <70 | 🔴 Major rework needed |
+
+### CI/CD Integration
+
+The Quality Gate runs automatically via GitHub Actions (`.github/workflows/faktcheck-quality-gate.yml`):
+- **On push** to `background.js`, `content.js`, or gate files
+- **Nightly** against the golden test corpus in `tests/golden/`
+
+### Golden Test Corpus
+
+Save real extension exports to `tests/golden/` for regression testing:
+```bash
+# In the browser console on a YouTube video:
+FAKTCHECK_EXPORT_CHUNKS()
+# Move the downloaded file to tests/golden/
+```
+
+---
+
 ## Pass Criteria
 
 ### Assessment Ratio
@@ -85,6 +140,8 @@ A feature/release is considered complete when:
 
 - [ ] Assessment Ratio ≥ 90%
 - [ ] ESLint: 0 errors
+- [ ] Jest: 9/9 confidence calibration tests pass
+- [ ] Quality Gate: ≥ 90/100 on `sample_clean.json`
 - [ ] Math Guardrail catches 10× deviations (test #15)
 - [ ] Opinion detection works (test #21 = `opinion`)
 - [ ] No hallucinated sources (Kill Switch #1)
@@ -114,13 +171,22 @@ Before pushing to `main`, run:
 # 1. Lint
 npx eslint background.js content.js
 
-# 2. Golden Tests
+# 2. Unit Tests
+npx jest --no-coverage
+
+# 3. Quality Gate
+python3 faktcheck_quality_gate.py tests/golden/sample_clean.json --strict
+
+# 4. Golden Tests (requires API key)
 GEMINI_API_KEY=AIza... node test-dryrun.js
 
-# 3. Stage 2 Stripping Validation
+# 5. Stage 2 Stripping Validation
 node test-stage2-validation.js
 
-# 4. Verify output
+# Expected results:
+# ✅ ESLint: 0 errors
+# ✅ Jest: 9/9 passed
+# ✅ Quality Gate: ≥ 90/100 [A]
 # ✅ STABILITY CHECK PASSED (≥20/22)
 # ✅ Stripping accuracy: 10/10
 ```
@@ -132,3 +198,4 @@ node test-stage2-validation.js
 Some claims (especially #13: Scholz) may fluctuate between runs due to LLM non-determinism. This is expected behavior — the Assessment Ratio accounts for it by requiring ≥90% rather than 100%.
 
 If a claim consistently fails across 3+ runs, it indicates a real pipeline issue.
+

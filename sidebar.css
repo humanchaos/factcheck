@@ -495,6 +495,15 @@
     margin-bottom: 6px;
 }
 
+.card-source-pills {
+    margin-top: 4px;
+    margin-bottom: 8px;
+}
+
+.card-source-pills .source-link {
+    max-width: 180px;
+}
+
 .source-link {
     display: inline-flex;
     align-items: center;

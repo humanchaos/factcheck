@@ -1,0 +1,109 @@
+[
+  {
+    "timestamp": 360.907436,
+    "videoTime": "6:00",
+    "realTime": "2026-02-11T16:40:20.860Z",
+    "originalLength": 430,
+    "cleanedLength": 244,
+    "tokenSavings": "43%",
+    "fullText": "guarantor of Russia's sovereignty and independence, its security Englisch (automatisch erzeugt) Klicke auf , um die Einstellungen aufzurufen. independence, its security and future strategic parity remains our armed forces. And as I have already",
+    "context": null,
+    "newContent": "guarantor of Russia's sovereignty and independence, its security Englisch (automatisch erzeugt) Klicke auf , um die Einstellungen aufzurufen. independence, its security and future strategic parity remains our armed forces. And as I have already",
+    "claims": [
+      {
+        "originalClaim": "Russia deployed Oreshnik missile.",
+        "cleanedClaim": "Russia deployed Oreshnik missile.",
+        "factual_core": "Russia deployed Oreshnik missile.",
+        "speaker": null,
+        "category": "MILITARY",
+        "checkability": 3,
+        "importance": 7,
+        "occurrences": [
+          {
+            "timestamp_hint": "0:00",
+            "rhetorical_framing": "Putin Confirms Oreshnik Missile Deployment",
+            "raw_snippet": "Putin Addresses Army Generals, Confirms Oreshnik Missile Deployment LIVE"
+          }
+        ],
+        "phonetic_repairs": [],
+        "verification": {
+          "verdict": "true",
+          "explanation": "Multiple sources indicate the Oreshnik missile has been deployed by Russia.",
+          "confidence": 0.3,
+          "key_facts": [],
+          "sources": [
+            {
+              "domain": "kyivpost.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQFxnIiW5fUDoPfh2GZrY5Cnx7NQ2j6MVTNqdr1PCmN-QWUa__bwwBOjaBo2vkAiq3czc5INwzwt-KKGVLXl1Bi0LV0UofoTIwk-an5P0DiU_q3HXjKbxbaTc4c5BCmo",
+              "title": "kyivpost.com",
+              "tier": 4
+            },
+            {
+              "domain": "kyivindependent.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQG23EG_qgQrrr20eXNFwISKYfj45z_GSBmNk0GBiC7qV9X6CyKclQj5VQhVzmUbN9bJshnIvPOCi6N0mAhoNlnbdbm7Le76vTTsFVuxVBOs5pvYfOjvPyA-tNPCiFCR9Q7tXMRq4lkisBYHjTKi4cYcLmw_Y-0cu4xoBFhojDR8r4gI338gvNo-IaYah14td1qMdDXt-H-AaGPSZocwk-_wgF6BFy7dIvTF8Q8PXPvrmu1SMX7OLA4yjfvzlirztA==",
+              "title": "kyivindependent.com",
+              "tier": 4
+            },
+            {
+              "domain": "united24media.com",
+              "url": "https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQEgqYd15jEYKTr_m9uARGAiYeWNSDGl34wc-I6J6gdJYLlM2A6PdzQT-msoFC1yJkh65Po8F4V3VJ5RU2eSb_2zFr4rLyNVFWO_UJZVmquETD677KFvlELO_KAJUDtMLy6RXbM0rQCrDMlHZEqJsCvi-nKQ6YZnatUMPb1pPsfgg2UC2FOco5ctN8FLqmnPtxWf0DpihrgkoLykbiiYZyNO711Y833gaITHx_2ADdc6VwPDMMHrYc37rNeoJczuWT0SAC8=",
+              "title": "united24media.com",
+              "tier": 4
+            }
+          ]
+        },
+        "timestamps": [
+          "6:00"
+        ]
+      }
+    ]
+  },
+  {
+    "timestamp": 376.0607,
+    "videoTime": "6:16",
+    "realTime": "2026-02-11T16:40:36.014Z",
+    "originalLength": 1097,
+    "cleanedLength": 552,
+    "tokenSavings": "50%",
+    "fullText": "[Context from previous 30 seconds: guarantor of Russia's sovereignty and independence, its security Englisch (automatisch erzeugt) Klicke auf , um die Einstellungen aufzurufen. independence, its security and future strategic parity remains our forces. And as I have already] New content to analyze: strategic parity remains our armed forces. And as I have already said, we need to work systematically on strengthening them. What do I want to particularly emphasize here? What tasks should be set in the sphere of military construction, including taking",
+    "context": "[Context from previous 30 seconds: guarantor of Russia's sovereignty and independence, its security Englisch (automatisch erzeugt) Klicke auf , um die Einstellungen aufzurufen. independence, its security and future strategic parity remains our forces. And as I have already] New content to analyze: strategic parity remains our armed forces. And as I have already said, we need to work systematically on strengthening them. What do I want to particularly emphasize here? What tasks should be set in the sphere of military construction, including taking",
+    "newContent": "[Context from previous 30 seconds: guarantor of Russia's sovereignty and independence, its security Englisch (automatisch erzeugt) Klicke auf , um die Einstellungen aufzurufen. independence, its security and future strategic parity remains our forces. And as I have already] New content to analyze: strategic parity remains our armed forces. And as I have already said, we need to work systematically on strengthening them. What do I want to particularly emphasize here? What tasks should be set in the sphere of military construction, including taking",
+    "claims": []
+  },
+  {
+    "timestamp": 391.070859,
+    "videoTime": "6:31",
+    "realTime": "2026-02-11T16:40:51.023Z",
+    "originalLength": 1529,
+    "cleanedLength": 550,
+    "tokenSavings": "64%",
+    "fullText": "[Context from previous 30 seconds: strategic parity remains our armed forces. And as I have already said, we need to work systematically on strengthening them. What do I want to particularly emphasize here? What tasks should be set in the sphere of military including taking] New content to analyze: sphere of military construction, including taking into account the dynamics of the situation the line of combat contact. First, the goals of the special military operation will unconditionally be achieved. We would prefer to do this and eliminate the",
+    "context": "[Context from previous 30 seconds: strategic parity remains our armed forces. And as I have already said, we need to work systematically on strengthening them. What do I want to particularly emphasize here? What tasks should be set in the sphere of military including taking] New content to analyze: sphere of military construction, including taking into account the dynamics of the situation the line of combat contact. First, the goals of the special military operation will unconditionally be achieved. We would prefer to do this and eliminate the",
+    "newContent": "[Context from previous 30 seconds: strategic parity remains our armed forces. And as I have already said, we need to work systematically on strengthening them. What do I want to particularly emphasize here? What tasks should be set in the sphere of military including taking] New content to analyze: sphere of military construction, including taking into account the dynamics of the situation the line of combat contact. First, the goals of the special military operation will unconditionally be achieved. We would prefer to do this and eliminate the",
+    "claims": []
+  },
+  {
+    "timestamp": 406.353209,
+    "videoTime": "6:46",
+    "realTime": "2026-02-11T16:41:06.306Z",
+    "originalLength": 1639,
+    "cleanedLength": 567,
+    "tokenSavings": "65%",
+    "fullText": "[Context from previous 30 seconds: including taking into account the dynamics of the situation the line of combat contact. First, the goals of the special military operation will unconditionally be achieved. We prefer to do this and eliminate the] New content to analyze: unconditionally be achieved. We would prefer to do this and eliminate the root causes of the conflict with the help of diplomacy. If however the opposing country and their foreign patrons refuse to talk substantively, Russia will achieve the liberation of its historical lands by military means.",
+    "context": "[Context from previous 30 seconds: including taking into account the dynamics of the situation the line of combat contact. First, the goals of the special military operation will unconditionally be achieved. We prefer to do this and eliminate the] New content to analyze: unconditionally be achieved. We would prefer to do this and eliminate the root causes of the conflict with the help of diplomacy. If however the opposing country and their foreign patrons refuse to talk substantively, Russia will achieve the liberation of its historical lands by military means.",
+    "newContent": "[Context from previous 30 seconds: including taking into account the dynamics of the situation the line of combat contact. First, the goals of the special military operation will unconditionally be achieved. We prefer to do this and eliminate the] New content to analyze: unconditionally be achieved. We would prefer to do this and eliminate the root causes of the conflict with the help of diplomacy. If however the opposing country and their foreign patrons refuse to talk substantively, Russia will achieve the liberation of its historical lands by military means.",
+    "claims": []
+  },
+  {
+    "timestamp": 422.027803,
+    "videoTime": "7:02",
+    "realTime": "2026-02-11T16:41:21.979Z",
+    "originalLength": 1511,
+    "cleanedLength": 525,
+    "tokenSavings": "65%",
+    "fullText": "[Context from previous 30 seconds: causes of the conflict with the help of diplomacy. If however the opposing country and their foreign patrons refuse to talk substantively, Russia will achieve the liberation of its lands by military means.] New content to analyze: achieve the liberation of its historical lands by military means. The task of creating and expanding a buffer security zone will also be consistently solved. Second, work on modernizing the armed forces must continue at a high pace and with quality, primarily",
+    "context": "[Context from previous 30 seconds: causes of the conflict with the help of diplomacy. If however the opposing country and their foreign patrons refuse to talk substantively, Russia will achieve the liberation of its lands by military means.] New content to analyze: achieve the liberation of its historical lands by military means. The task of creating and expanding a buffer security zone will also be consistently solved. Second, work on modernizing the armed forces must continue at a high pace and with quality, primarily",
+    "newContent": "[Context from previous 30 seconds: causes of the conflict with the help of diplomacy. If however the opposing country and their foreign patrons refuse to talk substantively, Russia will achieve the liberation of its lands by military means.] New content to analyze: achieve the liberation of its historical lands by military means. The task of creating and expanding a buffer security zone will also be consistently solved. Second, work on modernizing the armed forces must continue at a high pace and with quality, primarily",
+    "claims": []
+  }
+]

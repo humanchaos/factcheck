@@ -144,6 +144,7 @@
     let cachedMetadata = null;
 
     async function sendMessageSafe(message, _retryCount = 0) {
+        const MAX_RETRIES = 3;
         try {
             console.log('[FAKTCHECK] Sending message:', message.type);
             const response = await chrome.runtime.sendMessage(message);
@@ -154,10 +155,14 @@
             return response;
         } catch (error) {
             console.error('[FAKTCHECK] Message error:', error);
-            // MV3: Service worker channel closed — retry once after wake-up delay
-            if (_retryCount < 1 && error.message?.includes('message channel closed')) {
-                console.warn('[FAKTCHECK] Service worker channel lost, retrying in 500ms...');
-                await new Promise(r => setTimeout(r, 500));
+            // MV3: Service worker may be asleep or terminated — retry with backoff
+            const isRecoverable = error.message?.includes('message channel closed')
+                || error.message?.includes('Receiving end does not exist')
+                || error.message?.includes('Could not establish connection');
+            if (_retryCount < MAX_RETRIES && isRecoverable) {
+                const delay = 500 * Math.pow(2, _retryCount); // 500ms, 1s, 2s
+                console.warn(`[FAKTCHECK] Service worker unavailable, retry ${_retryCount + 1}/${MAX_RETRIES} in ${delay}ms...`);
+                await new Promise(r => setTimeout(r, delay));
                 return sendMessageSafe(message, _retryCount + 1);
             }
             if (error.message?.includes('Extension context invalidated')) {
@@ -275,7 +280,7 @@
 
     async function tryInnertubeApi(videoId) {
         try {
-            let apiKey = 'AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8';
+            let apiKey = 'AIzaSyDGNlTxf19Kvz4vUoRLGAJCCgYLPM2XEnk';
             const scripts = document.querySelectorAll('script');
             for (const script of scripts) {
                 const keyMatch = (script.textContent || '').match(/"INNERTUBE_API_KEY"\s*:\s*"([^"]+)"/);
@@ -1064,11 +1069,13 @@
     // ==================== Processing ====================
     // DEBUG: Store all chunks sent for analysis
     let analysisChunks = [];
+    let seenClaimTexts = [];  // Cross-chunk dedup: tracks claim texts already processed
 
     // Reset all session state when video changes
     function resetSession() {
         console.log('[FAKTCHECK] 🔄 Session reset - clearing all state');
         analysisChunks = [];
+        seenClaimTexts = [];
         captionBuffer = [];
         contextBuffer = [];
         processedTimestamps.clear();
@@ -1145,7 +1152,7 @@
             fullText: cleanedText,
             // Parse context vs new text if present
             context: cleanedText.includes('[Context from previous') ? cleanedText.split('\n\nNew content to analyze:\n')[0] : null,
-            newContent: cleanedText.includes('[Context from previous') ? cleanedText.split('\n\nNew content to analyze:\n')[1] : cleanedText,
+            newContent: cleanedText.includes('[Context from previous') ? (cleanedText.split('\n\nNew content to analyze:\n')[1] || cleanedText) : cleanedText,
             claims: [] // Will be filled after processing
         };
         analysisChunks.push(chunkEntry);
@@ -1185,7 +1192,51 @@
             const empty = container?.querySelector('.faktcheck-empty');
             if (empty) empty.remove();
 
+            // ─── PRE-VERIFICATION DEDUP ───
+            // Dedup all extracted claims BEFORE verification to prevent duplicate API calls
+            // and contradictory verdicts from near-identical claims in parallel chunks.
+            const jaccardSimilar = (a, b) => {
+                if (a.length === 0 || b.length === 0) return false;
+                if (a === b) return true;
+                const aWords = new Set(a.split(/\s+/));
+                const bWords = new Set(b.split(/\s+/));
+                const intersection = [...aWords].filter(w => bWords.has(w)).length;
+                const union = new Set([...aWords, ...bWords]).size;
+                return union > 0 && (intersection / union) > 0.80;
+            };
+
+            // Pass 1: Intra-chunk dedup (compare siblings within this extraction batch)
+            const uniqueClaimsInBatch = [];
             for (const claim of claims) {
+                const claimText = (claim.factual_core || claim.claim || '').toLowerCase();
+                const isDupInBatch = uniqueClaimsInBatch.some(prev =>
+                    jaccardSimilar((prev.factual_core || prev.claim || '').toLowerCase(), claimText)
+                );
+                if (isDupInBatch) {
+                    console.log('[FAKTCHECK] ⏭️ DEDUP SKIP (intra-chunk duplicate):', claimText.slice(0, 60));
+                    continue;
+                }
+                uniqueClaimsInBatch.push(claim);
+            }
+
+            // Pass 2: Cross-chunk dedup (compare against all previously seen claims)
+            const uniqueClaims = [];
+            for (const claim of uniqueClaimsInBatch) {
+                const claimText = (claim.factual_core || claim.claim || '').toLowerCase();
+                const isDupCrossChunk = seenClaimTexts.some(prev => jaccardSimilar(prev, claimText));
+                if (isDupCrossChunk) {
+                    console.log('[FAKTCHECK] ⏭️ DEDUP SKIP (cross-chunk duplicate):', claimText.slice(0, 60));
+                    continue;
+                }
+                seenClaimTexts.push(claimText);
+                uniqueClaims.push(claim);
+            }
+
+            if (uniqueClaims.length < claims.length) {
+                console.log(`[FAKTCHECK] Dedup: ${claims.length} → ${uniqueClaims.length} unique claims (saved ${claims.length - uniqueClaims.length} API calls)`);
+            }
+
+            for (const claim of uniqueClaims) {
                 const claimId = `claim-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
                 // v5.4+: Use factual_core (falling back to claim for backward compat)
                 const claimText = claim.factual_core || claim.claim;
@@ -1208,9 +1259,23 @@
                 }
                 const verifyResponse = await sendMessageSafe({ type: 'VERIFY_CLAIM', claim: claimText, lang: currentLang, videoId: getCurrentVideoId() || '' });
 
+                // Fix 2: Build cleanedClaim by applying phonetic repairs
+                let cleanedText = claimText;
+                if (claim.phonetic_repairs?.length > 0) {
+                    for (const r of claim.phonetic_repairs) {
+                        if (r.original && r.corrected) {
+                            cleanedText = cleanedText.replace(
+                                new RegExp(r.original.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi'),
+                                r.corrected
+                            );
+                        }
+                    }
+                }
+
                 // Store full claim with verification for export
                 const claimEntry = {
                     originalClaim: claimText,
+                    cleanedClaim: cleanedText,
                     factual_core: claimText,
                     speaker: claim.speaker || null,
                     category: claim.category || null,
@@ -1226,12 +1291,33 @@
                     claimEntry.verification = { verdict: 'error', explanation: verifyResponse.error };
                 } else if (verifyResponse.verification) {
                     updateClaimCard(claimId, verifyResponse.verification);
+                    // Fix 1: Keep sources as structured objects, filter banned domains
+                    // Use resolved domain field (handles Vertex AI redirect URLs)
+                    const structuredSources = (verifyResponse.verification.sources || []).filter(s => {
+                        const host = (s.domain || '').toLowerCase();
+                        if (host) {
+                            return !host.includes('youtube.com') && !host.includes('youtu.be')
+                                && !host.includes('wikipedia.org');
+                        }
+                        try {
+                            const urlHost = new URL(s.url).hostname.toLowerCase();
+                            return !urlHost.includes('youtube.com') && !urlHost.includes('youtu.be')
+                                && !urlHost.includes('wikipedia.org');
+                        } catch { return true; }
+                    }).map(s => {
+                        // Use resolved domain from background.js (handles Vertex AI redirect URLs)
+                        let domain = s.domain || '';
+                        if (!domain) {
+                            try { domain = new URL(s.url).hostname; } catch { domain = s.url; }
+                        }
+                        return { domain, url: s.url, title: s.title || '', tier: s.tier || 0 };
+                    });
                     claimEntry.verification = {
                         verdict: verifyResponse.verification.verdict,
                         explanation: verifyResponse.verification.explanation,
                         confidence: verifyResponse.verification.confidence,
                         key_facts: verifyResponse.verification.key_facts,
-                        sources: verifyResponse.verification.sources?.map(s => s.title || s.url) || [],
+                        sources: structuredSources,
                         caveats: verifyResponse.verification.caveats
                     };
                 }

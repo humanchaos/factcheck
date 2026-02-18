@@ -1,0 +1,65 @@
+# .github/workflows/faktcheck-quality-gate.yml
+# 
+# Run the quality gate on every push that modifies core verification logic.
+# Also runs nightly against a corpus of saved test outputs.
+
+name: FAKTCHECK Quality Gate
+
+on:
+  push:
+    paths:
+      - 'background.js'
+      - 'content.js'
+      - 'faktcheck_quality_gate.py'
+      - 'quality-gate-sources.json'
+  pull_request:
+    branches: [main]
+  schedule:
+    - cron: '0 6 * * *'  # Daily at 6am UTC
+
+jobs:
+  quality-gate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      
+      - name: Run Quality Gate on Golden Test Corpus
+        run: |
+          # Run against every golden test file
+          PASS=0
+          FAIL=0
+          for f in tests/golden/*.json; do
+            [ -e "$f" ] || { echo "No golden test files found"; exit 0; }
+            echo "Testing: $f"
+            RESULT=$(python3 faktcheck_quality_gate.py "$f" --json)
+            SCORE=$(echo "$RESULT" | python3 -c "import json,sys; print(json.load(sys.stdin)['score'])")
+            READY=$(echo "$RESULT" | python3 -c "import json,sys; print(json.load(sys.stdin)['production_ready'])")
+            echo "  Score: $SCORE | Production Ready: $READY"
+            if [ "$READY" = "True" ]; then
+              PASS=$((PASS+1))
+            else
+              FAIL=$((FAIL+1))
+            fi
+          done
+          echo ""
+          echo "Results: $PASS passed, $FAIL failed"
+          if [ $FAIL -gt 0 ]; then
+            echo "::error::Quality gate failed on $FAIL test files"
+            exit 1
+          fi
+      
+      - name: Auto-fix and commit corrections
+        if: github.event_name == 'push' && failure()
+        run: |
+          for f in tests/golden/*.json; do
+            python3 faktcheck_quality_gate.py "$f" --fix --output "$f"
+          done
+          git config user.name "Quality Gate Bot"
+          git config user.email "bot@faktcheck.dev"
+          git add tests/golden/
+          git commit -m "Auto-fix: Quality Gate corrections applied" || true
+          # git push || true  # Uncomment when ready for auto-commit

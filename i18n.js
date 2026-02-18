@@ -44,6 +44,7 @@
             verdictOpinion: 'MEINUNG',
             verdictPending: 'PRÜFE...',
             verdictDeceptive: 'IRREFÜHREND',
+            verdictMissingContext: 'FEHLENDER KONTEXT',
 
             // Verdict display labels (for faktcheck-core DISPLAY_CONFIG)
             displayTrue: 'Bestätigt',
@@ -52,6 +53,7 @@
             displayPartial: 'Teilweise wahr',
             displayUnverifiable: 'Nicht überprüfbar',
             displayOpinion: 'Meinung',
+            displayMissingContext: 'Fehlender Kontext',
 
             // Satire context
             satiricalHyperbole: 'SATIRISCHE HYPERBEL',
@@ -119,6 +121,7 @@
             verdictOpinion: 'OPINION',
             verdictPending: 'CHECKING...',
             verdictDeceptive: 'DECEPTIVE',
+            verdictMissingContext: 'MISSING CONTEXT',
 
             displayTrue: 'Confirmed',
             displayFalse: 'False',
@@ -126,6 +129,7 @@
             displayPartial: 'Partially true',
             displayUnverifiable: 'Unverifiable',
             displayOpinion: 'Opinion',
+            displayMissingContext: 'Missing Context',
 
             satiricalHyperbole: 'SATIRICAL HYPERBOLE',
             satiricalDesc: 'Deliberate exaggeration in satirical context',
@@ -189,6 +193,7 @@
             verdictOpinion: 'OPINION',
             verdictPending: 'VÉRIFICATION...',
             verdictDeceptive: 'TROMPEUR',
+            verdictMissingContext: 'CONTEXTE MANQUANT',
 
             displayTrue: 'Confirmé',
             displayFalse: 'Faux',
@@ -196,6 +201,7 @@
             displayPartial: 'Partiellement vrai',
             displayUnverifiable: 'Non vérifiable',
             displayOpinion: 'Opinion',
+            displayMissingContext: 'Contexte manquant',
 
             satiricalHyperbole: 'HYPERBOLE SATIRIQUE',
             satiricalDesc: 'Exagération délibérée dans un contexte satirique',
@@ -259,6 +265,7 @@
             verdictOpinion: 'OPINIÓN',
             verdictPending: 'VERIFICANDO...',
             verdictDeceptive: 'ENGAÑOSO',
+            verdictMissingContext: 'CONTEXTO FALTANTE',
 
             displayTrue: 'Confirmado',
             displayFalse: 'Falso',
@@ -266,6 +273,7 @@
             displayPartial: 'Parcialmente cierto',
             displayUnverifiable: 'No verificable',
             displayOpinion: 'Opinión',
+            displayMissingContext: 'Contexto faltante',
 
             satiricalHyperbole: 'HIPÉRBOLE SATÍRICA',
             satiricalDesc: 'Exageración deliberada en contexto satírico',
@@ -329,6 +337,7 @@
             verdictOpinion: 'OPINIONE',
             verdictPending: 'VERIFICA...',
             verdictDeceptive: 'INGANNEVOLE',
+            verdictMissingContext: 'CONTESTO MANCANTE',
 
             displayTrue: 'Confermato',
             displayFalse: 'Falso',
@@ -336,6 +345,7 @@
             displayPartial: 'Parzialmente vero',
             displayUnverifiable: 'Non verificabile',
             displayOpinion: 'Opinione',
+            displayMissingContext: 'Contesto mancante',
 
             satiricalHyperbole: 'IPERBOLE SATIRICA',
             satiricalDesc: 'Esagerazione deliberata in contesto satirico',
@@ -399,6 +409,7 @@
             verdictOpinion: 'OPINIÃO',
             verdictPending: 'VERIFICANDO...',
             verdictDeceptive: 'ENGANOSO',
+            verdictMissingContext: 'CONTEXTO EM FALTA',
 
             displayTrue: 'Confirmado',
             displayFalse: 'Falso',
@@ -406,6 +417,7 @@
             displayPartial: 'Parcialmente verdadeiro',
             displayUnverifiable: 'Não verificável',
             displayOpinion: 'Opinião',
+            displayMissingContext: 'Contexto em falta',
 
             satiricalHyperbole: 'HIPÉRBOLE SATÍRICA',
             satiricalDesc: 'Exagero deliberado em contexto satírico',
@@ -455,6 +467,7 @@
         opinion: 'verdictOpinion',
         pending: 'verdictPending',
         deceptive: 'verdictDeceptive',
+        missing_context: 'verdictMissingContext',
         satirical_hyperbole: 'satiricalHyperbole'
     };
 
@@ -464,7 +477,8 @@
         deceptive: 'displayDeceptive',
         partially_true: 'displayPartial',
         unverifiable: 'displayUnverifiable',
-        opinion: 'displayOpinion'
+        opinion: 'displayOpinion',
+        missing_context: 'displayMissingContext'
     };
 
     // ─── LOCALE RESOLUTION ──────────────────────────────────────

@@ -1,0 +1,70 @@
+[
+    {
+        "videoTime": "0:00",
+        "fullText": "Die Inflation in Österreich lag 2025 bei 3.6 Prozent laut Statistik Austria.",
+        "claims": [
+            {
+                "originalClaim": "Die Inflation in Österreich lag 2025 bei 3.6%.",
+                "cleanedClaim": "Die Inflation in Österreich lag 2025 bei 3,6%.",
+                "claim": "Die Inflation in Österreich lag 2025 bei 3.6%.",
+                "category": "STATISTICS",
+                "verification": {
+                    "verdict": "true",
+                    "confidence": 0.85,
+                    "explanation": "Laut Statistik Austria lag die Inflationsrate 2025 bei 3,6%. Dies stimmt mit der Behauptung überein.",
+                    "sources": [
+                        {
+                            "domain": "statistik.at",
+                            "tier": 1
+                        }
+                    ]
+                }
+            }
+        ]
+    },
+    {
+        "videoTime": "0:30",
+        "fullText": "Österreichs Wirtschaftswachstum wird auf 1.2 Prozent geschätzt.",
+        "claims": [
+            {
+                "originalClaim": "Österreichs Wirtschaftswachstum wird auf 1.2 Prozent geschätzt.",
+                "cleanedClaim": "Österreichs Wirtschaftswachstum wird auf 1,2% geschätzt.",
+                "claim": "Österreichs Wirtschaftswachstum wird auf 1.2 Prozent geschätzt.",
+                "category": "ECONOMICS",
+                "verification": {
+                    "verdict": "partially_true",
+                    "confidence": 0.6,
+                    "explanation": "WIFO prognostiziert ein BIP-Wachstum von 0,8% für 2026, nicht 1,2%. Die Richtung stimmt, aber der Wert weicht ab.",
+                    "sources": [
+                        {
+                            "domain": "wifo.ac.at",
+                            "tier": 1
+                        },
+                        {
+                            "domain": "orf.at",
+                            "tier": 2
+                        }
+                    ]
+                }
+            }
+        ]
+    },
+    {
+        "videoTime": "1:00",
+        "fullText": "Ich finde, dass die Regierung besser arbeiten sollte.",
+        "claims": [
+            {
+                "originalClaim": "Die Regierung sollte besser arbeiten.",
+                "cleanedClaim": "Die Regierung sollte besser arbeiten.",
+                "claim": "Die Regierung sollte besser arbeiten.",
+                "category": "POLITICS",
+                "verification": {
+                    "verdict": "opinion",
+                    "confidence": 0.9,
+                    "explanation": "Dies ist eine subjektive Meinung, keine überprüfbare Tatsachenbehauptung.",
+                    "sources": []
+                }
+            }
+        ]
+    }
+]
