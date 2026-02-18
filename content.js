@@ -130,6 +130,26 @@
                 detectedCountry = 'Germany';
             } else if (pageText.includes('schweiz') || pageText.includes('switzerland') || pageText.includes('zürich') || pageText.includes('srf')) {
                 detectedCountry = 'Switzerland';
+            } else if (pageText.includes('russia') || pageText.includes('russland') || pageText.includes('putin') || pageText.includes('moscow') || pageText.includes('moskau') || pageText.includes('kremlin') || pageText.includes('kreml')) {
+                detectedCountry = 'Russia';
+            } else if (pageText.includes('united states') || pageText.includes('usa') || pageText.includes('biden') || pageText.includes('trump') || pageText.includes('washington') || pageText.includes('white house')) {
+                detectedCountry = 'USA';
+            } else if (pageText.includes('united kingdom') || pageText.includes('britain') || pageText.includes('großbritannien') || pageText.includes('london') || pageText.includes('bbc')) {
+                detectedCountry = 'United Kingdom';
+            } else if (pageText.includes('france') || pageText.includes('frankreich') || pageText.includes('paris') || pageText.includes('macron')) {
+                detectedCountry = 'France';
+            } else if (pageText.includes('china') || pageText.includes('beijing') || pageText.includes('peking') || pageText.includes('xi jinping')) {
+                detectedCountry = 'China';
+            } else if (pageText.includes('turkey') || pageText.includes('türkei') || pageText.includes('erdogan') || pageText.includes('ankara')) {
+                detectedCountry = 'Turkey';
+            } else if (pageText.includes('ukraine') || pageText.includes('kyiv') || pageText.includes('kiew') || pageText.includes('zelensky') || pageText.includes('selenskyj')) {
+                detectedCountry = 'Ukraine';
+            } else if (pageText.includes('iran') || pageText.includes('tehran') || pageText.includes('teheran')) {
+                detectedCountry = 'Iran';
+            } else if (pageText.includes('israel') || pageText.includes('netanyahu') || pageText.includes('jerusalem') || pageText.includes('tel aviv')) {
+                detectedCountry = 'Israel';
+            } else if (pageText.includes('india') || pageText.includes('indien') || pageText.includes('modi') || pageText.includes('new delhi')) {
+                detectedCountry = 'India';
             }
 
             const metadata = { title, channel, description, htmlLang, detectedCountry };
@@ -1257,7 +1277,7 @@
                     container.insertBefore(card, container.firstChild);
                     updateCount(container.querySelectorAll('.faktcheck-card').length);
                 }
-                const verifyResponse = await sendMessageSafe({ type: 'VERIFY_CLAIM', claim: claimText, lang: currentLang, videoId: getCurrentVideoId() || '' });
+                const verifyResponse = await sendMessageSafe({ type: 'VERIFY_CLAIM', claim: claimText, lang: currentLang, videoId: getCurrentVideoId() || '', metadata: cachedMetadata });
 
                 // Fix 2: Build cleanedClaim by applying phonetic repairs
                 let cleanedText = claimText;

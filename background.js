@@ -1611,7 +1611,7 @@ No verifiable facts with sufficient context? Respond: []`;
 // Step 2: Judge only — renders verdict from evidence, no search
 // If Step 1 fails, Step 2 never runs (prevents hallucinated verdicts)
 
-async function searchOnly(claimText, apiKey, claimCategory = '', claimType = 'factual') {
+async function searchOnly(claimText, apiKey, claimCategory = '', claimType = 'factual', metadata = null) {
     console.log('[FAKTCHECK BG] ── STEP 1: researchAndSummarize ──');
     const sanitized = sanitize(claimText, 1000);
 
@@ -1626,9 +1626,23 @@ async function searchOnly(claimText, apiKey, claimCategory = '', claimType = 'fa
         searchStrategy += `\n- LONG-TERM TREND: This claim references a short-term change. Also search for the 5-10 year trend to provide context.`;
     }
 
+    // V5.6: Video context for geographic/speaker grounding
+    let videoContextBlock = '';
+    if (metadata) {
+        const parts = [];
+        if (metadata.title) parts.push(`Video title: "${metadata.title}"`);
+        if (metadata.channel) parts.push(`Channel: ${metadata.channel}`);
+        if (metadata.detectedCountry && metadata.detectedCountry !== 'unknown') {
+            parts.push(`Country context: ${metadata.detectedCountry}`);
+        }
+        if (parts.length > 0) {
+            videoContextBlock = `\n\nVIDEO CONTEXT (use this to disambiguate the claim):\n${parts.join('\n')}\n\nGEOGRAPHIC ATTRIBUTION: When the claim references "the army", "the navy", "the government", "the economy", or unnamed national entities, interpret them in the context of the country/speaker identified above. Search for evidence specifically about ${metadata.detectedCountry || 'the country mentioned in the video'}, NOT other countries.`;
+        }
+    }
+
     const prompt = `Research this claim thoroughly using Google Search. Write a 3-sentence summary of your findings. Focus on specific numbers, dates, and official names.
 
-CLAIM: "${sanitized}"
+CLAIM: "${sanitized}"${videoContextBlock}
 
 RULES:
 - Search for this claim using Google
@@ -1693,7 +1707,7 @@ function mapEvidence(groundingSupports, groundingSources) {
     return evidenceQuotes;
 }
 
-async function judgeEvidence(claimText, snippets, sources, apiKey, lang = 'de', claimType = 'factual', facts = []) {
+async function judgeEvidence(claimText, snippets, sources, apiKey, lang = 'de', claimType = 'factual', facts = [], metadata = null) {
     console.log('[FAKTCHECK BG] ── STAGE 3: judgeEvidence (v5.4 Ground Truth) ──');
     const sanitized = sanitize(claimText, 1000);
     const isCausal = claimType === 'causal';
@@ -1728,7 +1742,8 @@ BEWERTUNGS-LOGIK:
 7. Teilweise Übereinstimmung → verdict: "partially_true".
 8. Meinung ohne prüfbaren Inhalt → verdict: "opinion".
 9. DIKTATUR-FILTER: Wenn der Claim auf offiziellen Daten aus Ländern mit niedriger Pressefreiheit basiert (z.B. Russland, China, Nordkorea, Türkei, Iran), akzeptiere diese NICHT als Fakt. Vergleiche mit IMF/Weltbank-Daten. Wenn sie abweichen → verdict: "false", reasoning: Abweichung von unabhängigen Daten.
-10. WHATABOUTISMUS: Wenn ein Fakt korrekt ist, aber offensichtlich verwendet wird, um von berechtigter Kritik abzulenken (z.B. "Aber China baut Kohlekraftwerke!"), markiere als "missing_context" und erkläre den fehlenden Kontext im reasoning.${mathGuardrail}${causalRule}
+10. WHATABOUTISMUS: Wenn ein Fakt korrekt ist, aber offensichtlich verwendet wird, um von berechtigter Kritik abzulenken (z.B. "Aber China baut Kohlekraftwerke!"), markiere als "missing_context" und erkläre den fehlenden Kontext im reasoning.
+11. GEOGRAPHISCHE ZUORDNUNG: Wenn der Claim "die Armee", "die Marine", "die Regierung", "die Wirtschaft" oder unbenannte nationale Einheiten referenziert, interpretiere diese im Kontext des Sprechers/Landes aus den Video-Metadaten. Prüfe gegen Daten des RICHTIGEN Landes, NICHT eines anderen.${mathGuardrail}${causalRule}
 
 ABSCHLUSS-PRÜFUNG: Frage dich VOR der Antwort: "Gibt es offizielle Daten, die diesem Kern widersprechen?" Wenn ja → verdict: "false".
 
@@ -1745,15 +1760,30 @@ EVALUATION LOGIC:
 7. Partial Match → verdict: "partially_true".
 8. Opinion with no verifiable assertion → verdict: "opinion".
 9. DICTATOR FILTER: If the claim relies on official data from countries with low Press Freedom (e.g., Russia, China, North Korea, Turkey, Iran), do NOT accept it as fact. Compare with IMF/World Bank data. If they differ → verdict: "false", reasoning: Discrepancy with independent data.
-10. WHATABOUTISM: If a fact is correct but is clearly used to deflect from legitimate criticism (e.g., "But China builds coal plants!"), mark as "missing_context" and explain the missing context in reasoning.${mathGuardrail}${causalRule}
+10. WHATABOUTISM: If a fact is correct but is clearly used to deflect from legitimate criticism (e.g., "But China builds coal plants!"), mark as "missing_context" and explain the missing context in reasoning.
+11. GEOGRAPHIC ATTRIBUTION: When the claim references "the army", "the navy", "the government", "the economy", or unnamed national entities, interpret them in the context of the speaker/country from the video metadata. Evaluate against data from the CORRECT country, NOT a different one.${mathGuardrail}${causalRule}
 
 FINAL CHECK: Before answering, ask: "Is there official data contradicting this core claim?" If yes → verdict: "false".
 
 IMPORTANT: Write all response fields (reasoning, quote) in ENGLISH.`;
 
+    // V5.6: Inject video context for geographic grounding
+    let videoContextForJudge = '';
+    if (metadata) {
+        const parts = [];
+        if (metadata.title) parts.push(`Video: "${metadata.title}"`);
+        if (metadata.channel) parts.push(`Channel: ${metadata.channel}`);
+        if (metadata.detectedCountry && metadata.detectedCountry !== 'unknown') {
+            parts.push(`Country context: ${metadata.detectedCountry}`);
+        }
+        if (parts.length > 0) {
+            videoContextForJudge = `\n\nVIDEO CONTEXT:\n${parts.join('\n')}\nIMPORTANT: Evaluate claims in the context of ${metadata.detectedCountry || 'the country in the video'}. When the claim says "the army" or "the navy", it refers to ${metadata.detectedCountry || 'the country in the video'}'s military, not another country's.`;
+        }
+    }
+
     const prompt = `${systemInstruction}
 
-CLAIM: "${sanitized}"
+CLAIM: "${sanitized}"${videoContextForJudge}
 
 SEARCH_SNIPPETS:
 ${evidenceBlock}${factsBlock}
@@ -2038,7 +2068,7 @@ function detectEurostatQuery(claimText) {
 // Stage 3: judgeEvidence()        — renders verdict from evidence (API call)
 // ============================================================================
 
-async function verifyClaim(claimText, apiKey, lang = 'de', claimType = 'factual', videoId = '') {
+async function verifyClaim(claimText, apiKey, lang = 'de', claimType = 'factual', videoId = '', metadata = null) {
     console.log('[FAKTCHECK BG] ========== VERIFY CLAIM v2.0 (4-Tier Pipeline) ==========');
     console.log('[FAKTCHECK BG] Claim:', claimText.slice(0, 80) + '...');
     console.log('[FAKTCHECK BG] Type:', claimType, '| VideoID:', videoId || 'none');
@@ -2050,7 +2080,7 @@ async function verifyClaim(claimText, apiKey, lang = 'de', claimType = 'factual'
         // ─── TIER 0 + TIER 2: Run in parallel (IFCN is free, ~100ms; search is ~1s) ───
         const [factCheckResult, evidenceResult] = await Promise.allSettled([
             searchFactChecks(claimText, apiKey, lang),
-            searchOnly(claimText, apiKey)
+            searchOnly(claimText, apiKey, '', claimType, metadata)
         ]);
         const existingFactChecks = factCheckResult.status === 'fulfilled' ? factCheckResult.value : [];
         const evidence = evidenceResult.status === 'fulfilled' ? evidenceResult.value : { error: 'Search failed', sources: [], rawText: '' };
@@ -2123,7 +2153,7 @@ async function verifyClaim(claimText, apiKey, lang = 'de', claimType = 'factual'
         const snippetsForJudge = evidence.rawText ? [evidence.rawText] : [];
 
         // ─── STAGE 3: Judge evidence (JSON mode, no search) ───
-        const judgeResponse = await judgeEvidence(claimText, snippetsForJudge, evidence.sources, apiKey, lang, claimType, [attributionList + structuredDataBlock + factCheckContext]);
+        const judgeResponse = await judgeEvidence(claimText, snippetsForJudge, evidence.sources, apiKey, lang, claimType, [attributionList + structuredDataBlock + factCheckContext], metadata);
 
         // ─── Parse judge response (JSON mode primary, text fallback) ───
         let parsed = null;
@@ -2340,7 +2370,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
                     sendResponse({ error: 'No API key', verification: null });
                     return;
                 }
-                const verification = await verifyClaim(message.claim, geminiApiKey, message.lang || 'de', message.claimType || 'factual', message.videoId || '');
+                const verification = await verifyClaim(message.claim, geminiApiKey, message.lang || 'de', message.claimType || 'factual', message.videoId || '', message.metadata || null);
                 sendResponse({ verification });
             } catch (e) {
                 console.error('[FAKTCHECK BG] Verify handler error:', e);
